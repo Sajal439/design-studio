@@ -130,7 +130,7 @@ export default function Home() {
               <Button size="lg" variant="secondary" asChild>
                 <Link href="/quote">Request a Quote</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
+              <Button size="lg" variant="secondary" asChild>
                 <Link href="/consultation">
                   <MessageSquare className="mr-2 h-4 w-4" /> Talk to an Expert
                 </Link>
