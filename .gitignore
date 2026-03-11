@@ -36,3 +36,33 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# -----------------
+# Docker
+# -----------------
+
+.docker
+docker-data
+docker-volumes
+*.log
+
+# docker compose overrides
+docker-compose.override.yml
+
+# local env files
+.env
+.env.*
+
+# docker cache
+.cache
+tmp
+
+# container volumes
+**/data
+**/db-data
+**/pgdata
+**/redis-data
+
+# OS / misc
+.DS_Store
+Thumbs.db
