@@ -57,8 +57,7 @@ docker-compose.override.yml
 .cache
 tmp
 
-# container volumes
-**/data
+# container vo  umes
 **/db-data
 **/pgdata
 **/redis-data
