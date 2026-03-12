@@ -59,7 +59,19 @@ export default function ConsultationPage() {
             return;
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Submit to API
+        const response = await fetch("/api/consultation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(result.data),
+        });
+
+        if (!response.ok) {
+            setErrors({ form: "Something went wrong. Please try again." });
+            setLoading(false);
+            return;
+        }
+
         setSubmitted(true);
         setLoading(false);
     }
@@ -111,8 +123,8 @@ export default function ConsultationPage() {
                                 type="button"
                                 onClick={() => setFormData({ ...formData, consultationType: type.id })}
                                 className={`rounded-lg border-2 p-4 text-left transition-all ${formData.consultationType === type.id
-                                        ? "border-primary bg-primary/5"
-                                        : "border-border hover:border-primary/50"
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-primary/50"
                                     }`}
                             >
                                 <type.icon className={`mb-2 h-6 w-6 ${formData.consultationType === type.id ? "text-primary" : "text-muted-foreground"
@@ -175,7 +187,11 @@ export default function ConsultationPage() {
                                     />
                                     {errors.location && <p className="mt-1 text-sm text-destructive">{errors.location}</p>}
                                 </div>
-
+                                {errors.form && (
+                                    <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                                        {errors.form}
+                                    </p>
+                                )}
                                 <Button type="submit" size="lg" className="w-full" disabled={loading}>
                                     {loading ? "Booking..." : "Book Consultation"}
                                 </Button>

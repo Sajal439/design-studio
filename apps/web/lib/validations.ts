@@ -6,9 +6,11 @@ export const quoteRequestSchema = z.object({
   email: z.string().email("Enter a valid email address"),
   projectType: z.string().min(1, "Select a project type"),
   designSlug: z.string().optional(),
+  productSlug: z.string().optional(),
   location: z.string().min(2, "Enter your project location"),
   message: z.string().optional(),
 });
+
 
 export const consultationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -22,3 +24,4 @@ export const consultationSchema = z.object({
 
 export type QuoteRequest = z.infer<typeof quoteRequestSchema>;
 export type ConsultationRequest = z.infer<typeof consultationSchema>;
+

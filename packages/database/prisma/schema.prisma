@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Categories ─────────────────────────────────────────────
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  label     String
+  type      String   // "design" or "product"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  designs  Design[]
+  products Product[]
+
+  @@index([type])
+}
+
+// ─── Designs ────────────────────────────────────────────────
+
+model Design {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  description   String
+  estimatedCost String
+  roomSize      String
+  style         String
+  images        String[]
+  categoryId    String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  category  Category         @relation(fields: [categoryId], references: [id])
+  materials DesignMaterial[]
+
+  @@index([categoryId])
+}
+
+model DesignMaterial {
+  id       String @id @default(cuid())
+  name     String
+  quantity Float
+  unit     String
+  designId String
+
+  design Design @relation(fields: [designId], references: [id], onDelete: Cascade)
+
+  @@index([designId])
+}
+
+// ─── Products ───────────────────────────────────────────────
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  brand       String
+  description String
+  priceRange  String
+  unit        String
+  images      String[]
+  inStock     Boolean  @default(true)
+  categoryId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category       Category      @relation(fields: [categoryId], references: [id])
+  specifications ProductSpec[]
+
+  @@index([categoryId])
+}
+
+model ProductSpec {
+  id        String @id @default(cuid())
+  label     String
+  value     String
+  productId String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+// ─── Lead Capture ───────────────────────────────────────────
+
+model QuoteRequest {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  email       String
+  projectType String
+  designSlug  String?
+  productSlug String?
+  location    String
+  message     String?
+  status      String   @default("new")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+model Consultation {
+  id               String   @id @default(cuid())
+  name             String
+  phone            String
+  projectType      String
+  location         String
+  consultationType String   // showroom, video, site-visit
+  status           String   @default("new") // new, confirmed, completed, cancelled
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+

@@ -1,6 +1,6 @@
 "use client";
 export const dynamic = "force-dynamic";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,8 +22,10 @@ const projectTypes = [
 ];
 
 export default function QuotePage() {
+
     const searchParams = useSearchParams();
     const designSlug = searchParams.get("design") || "";
+    const productSlug = searchParams.get("product") || "";
 
     const [formData, setFormData] = useState<QuoteRequest>({
         name: "",
@@ -31,9 +33,20 @@ export default function QuotePage() {
         email: "",
         projectType: "",
         designSlug,
+        productSlug,
         location: "",
         message: "",
     });
+    const selectedItem = designSlug || productSlug;
+    const selectedItemLabel = designSlug ? "Design" : productSlug ? "Product" : "";
+
+    useEffect(() => {
+        setFormData((current) => ({
+            ...current,
+            designSlug,
+            productSlug,
+        }));
+    }, [designSlug, productSlug]);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -64,12 +77,22 @@ export default function QuotePage() {
             return;
         }
 
-        // TODO: Replace with actual API call later
-        // For now, simulate submission
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        setSubmitted(true);
-        setLoading(false);
+        // Submit to API
+        try {
+            const response = await fetch("/api/quote", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(result.data),
+            });
+            if (!response.ok) {
+                setErrors({ form: "something went wrong. Please try again." })
+            }
+            setSubmitted(true)
+        } catch {
+            setErrors({ form: "something went wrong. Please try again." })
+        } finally {
+            setLoading(false)
+        }
     }
 
     if (submitted) {
@@ -107,8 +130,10 @@ export default function QuotePage() {
                         <p className="text-muted-foreground">
                             Tell us about your project and we&apos;ll send you a detailed material quote.
                         </p>
-                        {designSlug && (
-                            <Badge className="mt-3">Design: {designSlug.replace(/-/g, " ")}</Badge>
+                        {selectedItem && (
+                            <Badge className="mt-3">
+                                {selectedItemLabel}: {selectedItem.replace(/-/g, " ")}
+                            </Badge>
                         )}
                     </div>
 
@@ -187,7 +212,11 @@ export default function QuotePage() {
                                         rows={4}
                                     />
                                 </div>
-
+                                {errors.form && (
+                                    <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                                        {errors.form}
+                                    </p>
+                                )}
                                 <Button type="submit" size="lg" className="w-full" disabled={loading}>
                                     {loading ? "Submitting..." : "Submit Quote Request"}
                                 </Button>

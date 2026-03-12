@@ -1,7 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Ruler, Palette, ShoppingBag, MessageSquare, Phone, Star } from "lucide-react";
+import { ArrowRight, Ruler, Palette, ShoppingBag, MessageSquare, Phone, Star, Award, Truck, Shield, Clock } from "lucide-react";
 
 const categories = [
   { name: "Modular Kitchens", icon: "🍳", count: "50+ Designs", href: "/designs?category=kitchen" },
@@ -39,31 +40,50 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative overflow-hidden border-b bg-gradient-to-b from-muted/50 to-background py-20 md:py-32">
-        <div className="container mx-auto px-4 text-center">
-          <div className="mx-auto max-w-3xl">
-            <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted-foreground">
-              Your Trusted Interior Materials Partner
-            </p>
-            <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">
-              Design Your Dream Interior with{" "}
-              <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Confidence
-              </span>
-            </h1>
-            <p className="mb-8 text-lg text-muted-foreground md:text-xl">
-              Browse interior design inspirations, estimate materials, and get quotes —
-              all from Goel Traders, your reliable local supplier.
-            </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" asChild>
-                <Link href="/designs">
-                  Explore Designs <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/consultation">Book Free Consultation</Link>
-              </Button>
+      <section className="relative overflow-hidden border-b bg-gradient-to-b from-muted/50 to-background py-10 md:py-16 lg:py-24">
+        <div className="container mx-auto px-4">
+          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+            {/* Left: Text Content */}
+            <div>
+              <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted-foreground">
+                Your Trusted Interior Materials Partner
+              </p>
+              <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+                Design Your Dream Interior{" "}
+                <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Powered by Premium Materials from Goel Traders
+                </span>
+              </h1>
+              <p className="mb-8 text-lg text-muted-foreground md:text-xl">
+                Browse interior design inspirations, estimate materials, and get quotes —
+                all from Goel Traders, your reliable local supplier.
+              </p>
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <Button size="lg" asChild>
+                  <Link href="/designs">
+                    Explore Designs <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link href="/consultation">Book Free Consultation</Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Right: Interior Design Collage */}
+            <div className="relative hidden lg:block">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-2xl">
+                <Image
+                  src="/hero-collage.png"
+                  alt="Interior design inspirations - kitchens, bedrooms, living rooms, and offices"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+              {/* Decorative elements */}
+              <div className="absolute -bottom-4 -left-4 h-24 w-24 rounded-xl bg-primary/10 -z-10" />
+              <div className="absolute -top-4 -right-4 h-32 w-32 rounded-xl bg-primary/5 -z-10" />
             </div>
           </div>
         </div>
@@ -93,7 +113,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="border-t bg-muted/30 py-16 md:py-24">
+      <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-3 text-3xl font-bold">How It Works</h2>
@@ -114,10 +134,60 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 text-center">
-          <div className="mx-auto max-w-2xl rounded-2xl bg-primary p-8 text-primary-foreground md:p-12">
+      {/* Why Choose Goel Traders + CTA */}
+      <section className="border-t bg-muted/30 py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="mb-12 text-center">
+            <p className="mb-2 text-sm font-medium uppercase tracking-widest text-primary">
+              Supplying Premium Interior Materials for 20+ Years
+            </p>
+            <h2 className="mb-3 text-3xl font-bold">Why Choose Goel Traders</h2>
+            <p className="mx-auto max-w-2xl text-muted-foreground">
+              Trusted by contractors and homeowners across Karnal — we combine quality products
+              with expert guidance to make your project a success.
+            </p>
+          </div>
+          <div className="mb-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border bg-background p-6 text-center transition-all hover:shadow-md">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                <Award className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="mb-2 text-lg font-semibold">Trusted Brands</h3>
+              <p className="text-sm text-muted-foreground">
+                Authorized dealer for Century, Greenply, Merino, Hettich, Hafele & more top brands.
+              </p>
+            </div>
+            <div className="rounded-xl border bg-background p-6 text-center transition-all hover:shadow-md">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                <Shield className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="mb-2 text-lg font-semibold">Genuine Products</h3>
+              <p className="text-sm text-muted-foreground">
+                100% authentic materials with manufacturer warranty. No duplicates, no compromises.
+              </p>
+            </div>
+            <div className="rounded-xl border bg-background p-6 text-center transition-all hover:shadow-md">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                <Truck className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="mb-2 text-lg font-semibold">Fast Delivery</h3>
+              <p className="text-sm text-muted-foreground">
+                Same-day dispatch for in-stock items. Reliable delivery across your city and nearby areas.
+              </p>
+            </div>
+            <div className="rounded-xl border bg-background p-6 text-center transition-all hover:shadow-md">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                <Clock className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="mb-2 text-lg font-semibold">Expert Support</h3>
+              <p className="text-sm text-muted-foreground">
+                Free consultations with our interior material experts. We help you choose the right products.
+              </p>
+            </div>
+          </div>
+
+          {/* CTA Banner */}
+          <div className="mx-auto max-w-3xl rounded-2xl bg-primary p-8 text-center text-primary-foreground md:p-12">
             <Star className="mx-auto mb-4 h-10 w-10" />
             <h2 className="mb-3 text-2xl font-bold md:text-3xl">
               Ready to Start Your Interior Project?
