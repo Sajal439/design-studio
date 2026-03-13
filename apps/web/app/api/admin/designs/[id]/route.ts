@@ -1,0 +1,76 @@
+import { revalidatePath } from "next/cache";
+import { NextResponse } from "next/server";
+import { prisma } from "@repo/database";
+import { z } from "zod";
+
+const materialSchema = z.object({ name: z.string().min(1), quantity: z.number().positive(), unit: z.string().min(1) });
+const designSchema = z.object({
+  title: z.string().min(1),
+  slug: z.string().min(1),
+  categorySlug: z.string().min(1),
+  description: z.string().min(1),
+  estimatedCost: z.string().min(1),
+  roomSize: z.string().min(1),
+  style: z.string().min(1),
+  images: z.array(z.string().min(1)).min(1),
+  materials: z.array(materialSchema).min(1),
+});
+
+function revalidateDesignPaths() {
+  revalidatePath("/admin/designs");
+  revalidatePath("/designs");
+  revalidatePath("/admin");
+}
+
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const body = await request.json();
+    const result = designSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json({ error: "Invalid design payload", details: result.error.flatten() }, { status: 400 });
+    }
+
+    const { id } = await params;
+    const category = await prisma.category.findFirst({ where: { slug: result.data.categorySlug, type: "design" } });
+    if (!category) {
+      return NextResponse.json({ error: "Design category not found" }, { status: 400 });
+    }
+
+    const [, updated] = await prisma.$transaction([
+      prisma.designMaterial.deleteMany({ where: { designId: id } }),
+      prisma.design.update({
+        where: { id },
+        data: {
+          title: result.data.title,
+          slug: result.data.slug,
+          description: result.data.description,
+          estimatedCost: result.data.estimatedCost,
+          roomSize: result.data.roomSize,
+          style: result.data.style,
+          images: result.data.images,
+          categoryId: category.id,
+          materials: { create: result.data.materials },
+        },
+      }),
+    ]);
+
+    revalidateDesignPaths();
+    revalidatePath(`/designs/${updated.slug}`);
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error("Update design error:", error);
+    return NextResponse.json({ error: "Unable to update design" }, { status: 500 });
+  }
+}
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    await prisma.design.delete({ where: { id } });
+    revalidateDesignPaths();
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Delete design error:", error);
+    return NextResponse.json({ error: "Unable to delete design" }, { status: 500 });
+  }
+}
