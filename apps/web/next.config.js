@@ -8,9 +8,6 @@ const nextConfig = {
       },
     ],
   },
-  outputFileTracingIncludes: {
-    "**/*": ["../../packages/database/src/generated/client/**/*"],
-  },
 };
 
 export default nextConfig;
