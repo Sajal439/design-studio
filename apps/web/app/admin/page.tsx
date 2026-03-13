@@ -1,13 +1,14 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@repo/database";
-import { Prisma } from "@repo/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatsCard } from "@/components/admin/stats-card";
 
-type QuoteItem = Prisma.QuoteRequestGetPayload<Record<string, never>>;
-type ConsultationItem = Prisma.ConsultationGetPayload<Record<string, never>>;
+const recentQuotesQuery = () => prisma.quoteRequest.findMany({ take: 5 });
+const recentConsultationsQuery = () => prisma.consultation.findMany({ take: 5 });
+type QuoteItem = Awaited<ReturnType<typeof recentQuotesQuery>>[number];
+type ConsultationItem = Awaited<ReturnType<typeof recentConsultationsQuery>>[number];
 
 async function getDashboardData() {
   const [designsCount, productsCount, quotesCount, consultationsCount, usersCount, recentQuotes, recentConsultations] = await Promise.all([

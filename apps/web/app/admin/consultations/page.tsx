@@ -1,12 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@repo/database";
-import { Prisma } from "@repo/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RecordSelect } from "@/components/admin/record-select";
 
-type ConsultationWithUser = Prisma.ConsultationGetPayload<{ include: { user: true } }>;
+const consultationQuery = () => prisma.consultation.findMany({ include: { user: true } });
+type ConsultationWithUser = Awaited<ReturnType<typeof consultationQuery>>[number];
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(date);
