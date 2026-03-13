@@ -36,7 +36,7 @@ interface EmailData {
 
 export async function sendQuoteNotification(quoteData: EmailData) {
   if (!smtpHost || !smtpUser || !smtpPass || !adminEmail) {
-    console.warn("Email configuration missing. Skipping quote notification.");
+    console.warn("⚠️ Email configuration missing. Skipping quote notification.");
     return;
   }
 
