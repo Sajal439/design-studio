@@ -6,7 +6,19 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["DATABASE_URL", "ADMIN_PASSWORD"]
+      "env": [
+        "DATABASE_URL",
+        "ADMIN_PASSWORD",
+        "NODE_ENV",
+        "CLOUDINARY_CLOUD_NAME",
+        "CLOUDINARY_API_KEY",
+        "CLOUDINARY_API_SECRET",
+        "SMTP_HOST",
+        "SMTP_PORT",
+        "SMTP_USER",
+        "SMTP_PASS",
+        "ADMIN_EMAIL"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ShoppingBag, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -98,8 +99,8 @@ export function QuoteForm({ designSlug = "", productSlug = "" }: QuoteFormProps)
             <h1 className="mb-3 text-3xl font-bold">Quote Request Submitted!</h1>
             <p className="mb-6 text-muted-foreground">Thank you! Our team will review your requirements and get back to you within 24 hours with a detailed quote.</p>
             <div className="flex justify-center gap-3">
-              <Button asChild variant="outline"><a href="/designs">Browse More Designs</a></Button>
-              <Button asChild><a href="/">Go Home</a></Button>
+              <Button asChild variant="outline"><Link href="/designs">Browse More Designs</Link></Button>
+              <Button asChild><Link href="/">Go Home</Link></Button>
             </div>
           </div>
         </div>

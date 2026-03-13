@@ -20,7 +20,19 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendQuoteNotification(quoteData: any) {
+interface EmailData {
+  name: string;
+  email?: string;
+  phone: string;
+  location: string;
+  projectType: string;
+  consultationType?: string;
+  details?: string;
+  message?: string;
+  preferredDate?: string | Date;
+}
+
+export async function sendQuoteNotification(quoteData: EmailData) {
   if (!smtpHost || !smtpUser || !smtpPass || !adminEmail) {
     console.warn("Email configuration missing. Skipping quote notification.");
     return;
@@ -50,7 +62,7 @@ export async function sendQuoteNotification(quoteData: any) {
   }
 }
 
-export async function sendConsultationNotification(consultationData: any) {
+export async function sendConsultationNotification(consultationData: EmailData) {
   if (!smtpHost || !smtpUser || !smtpPass || !adminEmail) {
     console.warn("Email configuration missing. Skipping consultation notification.");
     return;

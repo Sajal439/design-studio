@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Phone, CheckCircle, Building, Video, MapPin } from "lucide-react";
+import Link from "next/link";
 import { consultationSchema, type ConsultationRequest } from "@/lib/validations";
 
 const consultationTypes = [
@@ -91,10 +92,10 @@ export default function ConsultationPage() {
                         </p>
                         <div className="flex gap-3 justify-center">
                             <Button asChild variant="outline">
-                                <a href="/designs">Browse Designs</a>
+                                <Link href="/designs">Browse Designs</Link>
                             </Button>
                             <Button asChild>
-                                <a href="/">Go Home</a>
+                                <Link href="/">Go Home</Link>
                             </Button>
                         </div>
                     </div>
