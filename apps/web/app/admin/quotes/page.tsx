@@ -1,9 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@repo/database";
+import { Prisma } from "@repo/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RecordSelect } from "@/components/admin/record-select";
+
+type QuoteWithUser = Prisma.QuoteRequestGetPayload<{ include: { user: true } }>;
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(date);
@@ -23,7 +26,7 @@ export default async function AdminQuotesPage() {
         <CardContent>
           {quotes.length === 0 ? <p className="text-sm text-muted-foreground">No quote requests yet.</p> : (
             <div className="space-y-4">
-              {quotes.map((quote) => (
+              {quotes.map((quote: QuoteWithUser) => (
                 <div key={quote.id} className="rounded-lg border bg-background p-4">
                   <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr_220px]">
                     <div className="space-y-2">

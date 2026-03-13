@@ -1,9 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@repo/database";
+import { Prisma } from "@repo/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RecordSelect } from "@/components/admin/record-select";
+
+type UserWithCount = Prisma.UserGetPayload<{ include: { _count: { select: { quoteRequests: true; consultations: true } } } }>;
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(date);
@@ -26,7 +29,7 @@ export default async function AdminUsersPage() {
         <CardContent>
           {users.length === 0 ? <p className="text-sm text-muted-foreground">No users yet.</p> : (
             <div className="space-y-4">
-              {users.map((user) => (
+              {users.map((user: UserWithCount) => (
                 <div key={user.id} className="rounded-lg border bg-background p-4">
                   <div className="grid gap-4 lg:grid-cols-[1.5fr_220px_220px]">
                     <div className="space-y-2">
