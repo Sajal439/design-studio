@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatsCard } from "@/components/admin/stats-card";
 
-const recentQuotesQuery = () => prisma.quoteRequest.findMany({ take: 5 });
-const recentConsultationsQuery = () => prisma.consultation.findMany({ take: 5 });
+const recentQuotesQuery = () => prisma.quoteRequest.findMany({ orderBy: { createdAt: "desc" }, take: 5 });
+const recentConsultationsQuery = () => prisma.consultation.findMany({ orderBy: { createdAt: "desc" }, take: 5 });
 type QuoteItem = Awaited<ReturnType<typeof recentQuotesQuery>>[number];
 type ConsultationItem = Awaited<ReturnType<typeof recentConsultationsQuery>>[number];
 
@@ -17,8 +17,8 @@ async function getDashboardData() {
     prisma.quoteRequest.count(),
     prisma.consultation.count(),
     prisma.user.count(),
-    prisma.quoteRequest.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
-    prisma.consultation.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
+    recentQuotesQuery(),
+    recentConsultationsQuery(),
   ]);
 
   return { designsCount, productsCount, quotesCount, consultationsCount, usersCount, recentQuotes, recentConsultations };

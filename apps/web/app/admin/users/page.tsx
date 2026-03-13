@@ -13,10 +13,7 @@ function formatDate(date: Date) {
 }
 
 export default async function AdminUsersPage() {
-  const users = await prisma.user.findMany({
-    include: { _count: { select: { quoteRequests: true, consultations: true } } },
-    orderBy: { createdAt: "desc" },
-  });
+  const users = await userQuery();
 
   return (
     <div className="space-y-6">

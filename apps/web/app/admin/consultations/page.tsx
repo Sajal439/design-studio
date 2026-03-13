@@ -13,7 +13,7 @@ function formatDate(date: Date) {
 }
 
 export default async function AdminConsultationsPage() {
-  const consultations = await prisma.consultation.findMany({ orderBy: { createdAt: "desc" }, include: { user: true } });
+  const consultations = await consultationQuery();
 
   return (
     <div className="space-y-6">

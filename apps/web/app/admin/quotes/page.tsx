@@ -13,7 +13,7 @@ function formatDate(date: Date) {
 }
 
 export default async function AdminQuotesPage() {
-  const quotes = await prisma.quoteRequest.findMany({ orderBy: { createdAt: "desc" }, include: { user: true } });
+  const quotes = await quoteQuery();
 
   return (
     <div className="space-y-6">
