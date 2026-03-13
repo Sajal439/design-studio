@@ -22,14 +22,16 @@ const transporter = nodemailer.createTransport({
 
 interface EmailData {
   name: string;
-  email?: string;
+  email?: string | null;
   phone: string;
   location: string;
   projectType: string;
-  consultationType?: string;
-  details?: string;
-  message?: string;
-  preferredDate?: string | Date;
+  consultationType?: string | null;
+  message?: string | null;
+  details?: string | null;
+  preferredDate?: string | Date | null;
+  designSlug?: string | null;
+  productSlug?: string | null;
 }
 
 export async function sendQuoteNotification(quoteData: EmailData) {
@@ -41,11 +43,13 @@ export async function sendQuoteNotification(quoteData: EmailData) {
   const html = `
     <h2>New Quote Request Received</h2>
     <p><strong>Name:</strong> ${quoteData.name}</p>
-    <p><strong>Email:</strong> ${quoteData.email}</p>
+    <p><strong>Email:</strong> ${quoteData.email || "Not provided"}</p>
     <p><strong>Phone:</strong> ${quoteData.phone}</p>
     <p><strong>Location:</strong> ${quoteData.location}</p>
     <p><strong>Project Type:</strong> ${quoteData.projectType}</p>
-    ${quoteData.details ? `<p><strong>Details:</strong> ${quoteData.details}</p>` : ""}
+    ${quoteData.designSlug ? `<p><strong>Source Design:</strong> ${quoteData.designSlug}</p>` : ""}
+    ${quoteData.productSlug ? `<p><strong>Source Product:</strong> ${quoteData.productSlug}</p>` : ""}
+    ${quoteData.message ? `<p><strong>Message:</strong> ${quoteData.message}</p>` : ""}
   `;
 
   try {
@@ -71,13 +75,14 @@ export async function sendConsultationNotification(consultationData: EmailData) 
   const html = `
     <h2>New Consultation Booking</h2>
     <p><strong>Name:</strong> ${consultationData.name}</p>
-    <p><strong>Email:</strong> ${consultationData.email}</p>
+    ${consultationData.email ? `<p><strong>Email:</strong> ${consultationData.email}</p>` : ""}
     <p><strong>Phone:</strong> ${consultationData.phone}</p>
     <p><strong>Location:</strong> ${consultationData.location}</p>
     <p><strong>Project Type:</strong> ${consultationData.projectType}</p>
     <p><strong>Consultation Type:</strong> ${consultationData.consultationType}</p>
     ${consultationData.preferredDate ? `<p><strong>Preferred Date:</strong> ${new Date(consultationData.preferredDate).toLocaleDateString()}</p>` : ""}
   `;
+
 
   try {
     const info = await transporter.sendMail({
