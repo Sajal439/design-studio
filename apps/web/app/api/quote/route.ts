@@ -40,8 +40,12 @@ export async function POST(request: Request) {
     revalidatePath("/admin/users");
     revalidatePath("/admin");
 
-    // Send email notification (non-blocking)
-    void sendQuoteNotification(quote);
+    // Send email notification (wait for it in serverless environment)
+    try {
+      await sendQuoteNotification(quote);
+    } catch (emailError) {
+      console.error("Non-fatal: Failed to send quote email", emailError);
+    }
 
     return NextResponse.json(
       { message: "Quote request submitted", id: quote.id },

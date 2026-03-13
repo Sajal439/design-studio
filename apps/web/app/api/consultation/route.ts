@@ -38,8 +38,12 @@ export async function POST(request: Request) {
     revalidatePath("/admin/users");
     revalidatePath("/admin");
 
-    // Send email notification (non-blocking)
-    void sendConsultationNotification(consultation);
+    // Send email notification (wait for it in serverless environment)
+    try {
+      await sendConsultationNotification(consultation);
+    } catch (emailError) {
+      console.error("Non-fatal: Failed to send consultation email", emailError);
+    }
 
     return NextResponse.json(
       { message: "Consultation booked", id: consultation.id },
