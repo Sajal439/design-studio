@@ -47,7 +47,7 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
             </div>
             {design.images.length > 1 ? (
               <div className="mb-6 grid gap-3 sm:grid-cols-3">
-                {design.images.slice(1).map((image: string, index) => (
+                {design.images.slice(1).map((image: string, index: number) => (
                   <div key={`${image}-${index}`} className="relative aspect-video overflow-hidden rounded-lg bg-muted">
                     <Image alt={`${design.title} view ${index + 2}`} className="object-cover" fill sizes="33vw" src={image} />
                   </div>
