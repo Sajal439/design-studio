@@ -24,6 +24,8 @@ export interface DesignInput {
   title: string;
   slug: string;
   roomSize: string;
+  style?: string;
+  estimatedCost?: string;
   materials: { name: string; quantity: number; unit: string }[];
 }
 
