@@ -33,18 +33,12 @@ export function EstimatorForm({ categories }: { categories: CategoryData[] }) {
   const [result, setResult] = useState<EstimatorResult | null>(null);
 
   const currentCategory = categories.find((c) => c.slug === selectedCategory);
-  const totalSteps = currentCategory && currentCategory.designs.length > 1 ? 4 : 3;
+  const totalSteps = 4;
 
   function handleCategorySelect(slug: string) {
     setSelectedCategory(slug);
-    const cat = categories.find((c) => c.slug === slug);
-    if (cat && cat.designs.length === 1) {
-      setSelectedDesign(cat.designs[0]!);
-      setStep(2);
-    } else if (cat && cat.designs.length > 0) {
-      setSelectedDesign(null); 
-      setStep(2);
-    }
+    setSelectedDesign(null); 
+    setStep(2);
   }
 
   function handleDesignSelect(design: DesignInput) {
@@ -97,11 +91,9 @@ export function EstimatorForm({ categories }: { categories: CategoryData[] }) {
       {/* Step Labels */}
       <div className="mb-8 flex justify-center gap-6 text-xs text-muted-foreground sm:gap-12">
         <span className={step >= 1 ? "text-primary font-medium" : ""}>Category</span>
-        {totalSteps === 4 && (
-          <span className={step >= 2 ? "text-primary font-medium" : ""}>Design</span>
-        )}
-        <span className={step >= (totalSteps === 4 ? 3 : 2) ? "text-primary font-medium" : ""}>Dimensions</span>
-        <span className={step >= totalSteps ? "text-primary font-medium" : ""}>Results</span>
+        <span className={step >= 2 ? "text-primary font-medium" : ""}>Design</span>
+        <span className={step >= 3 ? "text-primary font-medium" : ""}>Dimensions</span>
+        <span className={step >= 4 ? "text-primary font-medium" : ""}>Results</span>
       </div>
 
       {/* Step 1: Category Selection */}
@@ -137,8 +129,8 @@ export function EstimatorForm({ categories }: { categories: CategoryData[] }) {
         </div>
       )}
 
-      {/* Design Selection (Step 2 if 4 steps) */}
-      {totalSteps === 4 && step === 2 && (
+      {/* Design Selection (Step 2) */}
+      {step === 2 && (
         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
           <h2 className="mb-2 text-center text-2xl font-bold">Select Reference Design</h2>
           <p className="mb-8 text-center text-muted-foreground">
@@ -176,8 +168,8 @@ export function EstimatorForm({ categories }: { categories: CategoryData[] }) {
         </div>
       )}
 
-      {/* Dimensions Input (Step 2 or 3) */}
-      {((totalSteps === 4 && step === 3) || (totalSteps === 3 && step === 2)) && (
+      {/* Dimensions Input (Step 3) */}
+      {step === 3 && (
         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
           <h2 className="mb-2 text-center text-2xl font-bold">Enter Your Room Dimensions</h2>
           <p className="mb-8 text-center text-muted-foreground">
@@ -198,11 +190,9 @@ export function EstimatorForm({ categories }: { categories: CategoryData[] }) {
                       </p>
                     </div>
                   </div>
-                  {totalSteps === 4 && (
-                    <Button variant="ghost" size="sm" onClick={() => setStep(2)}>
-                      Change
-                    </Button>
-                  )}
+                  <Button variant="ghost" size="sm" onClick={() => setStep(2)}>
+                    Change
+                  </Button>
                 </CardContent>
               </Card>
             )}
@@ -272,7 +262,7 @@ export function EstimatorForm({ categories }: { categories: CategoryData[] }) {
             <div className="flex gap-3">
               <Button 
                 variant="outline" 
-                onClick={() => totalSteps === 4 ? setStep(2) : setStep(1)} 
+                onClick={() => setStep(2)} 
                 className="flex-1"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
@@ -289,13 +279,13 @@ export function EstimatorForm({ categories }: { categories: CategoryData[] }) {
         </div>
       )}
 
-      {/* Results (Last Step) */}
-      {step === totalSteps && result && (
+      {/* Results (Step 4) */}
+      {step === 4 && result && (
         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
           <EstimatorResults 
             result={result} 
             onReset={handleReset} 
-            onBack={() => setStep(totalSteps - 1)} 
+            onBack={() => setStep(3)} 
           />
         </div>
       )}
