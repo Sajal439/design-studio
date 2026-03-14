@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, ShoppingBag, Phone, Package } from "lucide-react";
+import { DesignEstimator } from "@/components/marketing/design-estimator";
 import type { Metadata } from "next";
 
 async function getDesign(slug: string) {
@@ -99,6 +100,20 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
                 </div>
               </CardContent>
             </Card>
+
+            {/* Inline Estimator */}
+            <DesignEstimator
+              design={{
+                title: design.title,
+                slug: design.slug,
+                roomSize: design.roomSize,
+                materials: design.materials.map((m: { name: string; quantity: number; unit: string }) => ({
+                  name: m.name,
+                  quantity: m.quantity,
+                  unit: m.unit,
+                })),
+              }}
+            />
           </div>
         </div>
       </div>
