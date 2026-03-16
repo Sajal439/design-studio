@@ -27,6 +27,7 @@ import type {
   SheetOptimizationResult,
 } from "./types";
 import { ProductCatalog } from "./productCatalogLoader";
+import { calculateModulePanels } from "./panelCalculations";
 
 // ─── Internal types ────────────────────────────────────────────────────────────
 
@@ -723,26 +724,77 @@ function materializeModule(
   const finishName = getFinishName(finishType);
   const label = module.label;
 
-  // ── Structural panels ──────────────────────────────────────────────────────
-  // Multipliers come from the DB template — no hardcoded numbers here.
-  const plywoodArea = module.width * module.height * template.plywoodMult;
-  const finishArea = module.width * module.height * template.finishMult;
-  const edgeBand = template.edgeBandMult;
+  // ── 1. Panel-based material quantities ─────────────────────────────────────
 
-  if (plywoodArea > 0) {
+  const p = calculateModulePanels(
+    module.type,
+    module.width,
+    module.height,
+    module.depth,
+    template,
+  );
+
+  // Carcass + shutters both use 18mm BWR — merge into one material line
+  const totalMainPly = p.carcassSqft + p.shutterSqft;
+
+  if (totalMainPly > 0) {
+    // Keep panel-splitting optimisation for sheet count calculation —
+    // the split is approximate (whole-module bounding box) but preserves
+    // the optimisation logic intact.
     addPanelPieces(panels, "PLYWOOD", module.width, module.height, 1);
-    addMaterial(materials, "Plywood", "SHEET", plywoodArea, "sqft", label);
-  }
-  if (finishArea > 0) {
-    addMaterial(materials, finishName, "SURFACE", finishArea, "sqft", label);
-  }
-  if (edgeBand > 0) {
-    addMaterial(materials, "Edge Band", "EDGE", edgeBand, "rft", label);
+    addMaterial(
+      materials,
+      "Plywood 18mm BWR",
+      "SHEET",
+      totalMainPly,
+      "sqft",
+      label,
+    );
   }
 
-  // ── Door and drawer hardware ────────────────────────────────────────────────
-  // We derive door hardware from the template's shutter mode and the global
-  // doorType the user selected, so changes to either are reflected correctly.
+  if (p.backPanelSqft > 0) {
+    // Back panels are a separate material — cheaper rate (9mm/HDF)
+    // Tracked as SURFACE category so pricing.ts uses the surface rate
+    addMaterial(
+      materials,
+      "Plywood 9mm / HDF back",
+      "SURFACE",
+      p.backPanelSqft,
+      "sqft",
+      label,
+      "Back panel — 9mm ply or 6mm HDF",
+    );
+  }
+
+  if (p.drawerBoxSqft > 0) {
+    addMaterial(
+      materials,
+      "Plywood 12mm (drawer boxes)",
+      "SHEET",
+      p.drawerBoxSqft,
+      "sqft",
+      label,
+    );
+  }
+
+  if (p.laminateSqft > 0) {
+    addMaterial(
+      materials,
+      finishName,
+      "SURFACE",
+      p.laminateSqft,
+      "sqft",
+      label,
+    );
+  }
+
+  if (p.edgeBandRft > 0) {
+    addMaterial(materials, "Edge Band", "EDGE", p.edgeBandRft, "rft", label);
+  }
+
+  // ── 2. Door and drawer hardware ─────────────────────────────────────────────
+  // Unchanged from the previous version — reads counts from the DB template.
+
   const effectiveShutterMode = resolveShutterMode(
     template.shutterMode,
     doorType,
@@ -836,7 +888,9 @@ function materializeModule(
     }
   }
 
-  // ── Extra hardware from template JSON (anything not handled above) ──────────
+  // ── 3. Extra hardware and accessories from DB template JSON ─────────────────
+  // Anything not in the door/drawer sets above
+
   const DOOR_HARDWARE_KEYS = new Set([
     "Soft Close Hinges",
     "Handles",
@@ -850,11 +904,10 @@ function materializeModule(
   for (const [name, qty] of Object.entries(
     template.hardware as Record<string, number>,
   )) {
-    if (DOOR_HARDWARE_KEYS.has(name)) continue; // already handled above
+    if (DOOR_HARDWARE_KEYS.has(name)) continue;
     addMaterial(materials, name, "HARDWARE", qty, "nos", label);
   }
 
-  // ── Accessories from template JSON ─────────────────────────────────────────
   for (const [name, qty] of Object.entries(
     template.accessories as Record<string, number>,
   )) {

@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { seedModuleTemplates } from "./seeds/moduleTemplates";
-import { seedPriceBook } from "./seeds/priceBook";
-import { seedProductMappings } from "./seeds/productMappings";
+import { seedModuleTemplates } from "./prisma/seeds/moduleTemplates";
+import { seedPriceBook } from "./prisma/seeds/priceBook";
+import { seedProductMappings } from "./prisma/seeds/productMappings";
 
 // packages/database/prisma/seed.ts
 const prisma = new PrismaClient();

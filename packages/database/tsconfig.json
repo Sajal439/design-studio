@@ -8,6 +8,6 @@
     "skipLibCheck": true,
     "outDir": "./dist"
   },
-  "include": ["*.ts", "prisma/seed.ts"],
+  "include": ["*.ts", "seed.ts"],
   "exclude": ["node_modules", "dist"]
 }
