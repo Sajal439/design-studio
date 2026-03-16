@@ -10,7 +10,10 @@ import {
   getHardwareUnitCost,
   getSheetUnitCost,
 } from "./pricing";
-import { buildProductRecommendations, decideNextBestAction } from "./recommendations";
+import {
+  buildProductRecommendations,
+  decideNextBestAction,
+} from "./recommendations";
 import type {
   CategorySlug,
   DesignBlueprint,
@@ -27,6 +30,8 @@ import type {
   MaterialScaling,
   SheetOptimizationResult,
 } from "./types";
+
+import type { LoadedTemplate } from "./templateLoader";
 
 type PanelMaterial = "PLYWOOD" | "SURFACE";
 
@@ -89,7 +94,9 @@ function normalizeDimensions(dimensions: Dimensions): Dimensions {
   };
 }
 
-function analyzeDesignSignals(baseMaterialsList: MaterialRequirement[]): DesignSignals {
+function analyzeDesignSignals(
+  baseMaterialsList: MaterialRequirement[],
+): DesignSignals {
   const names = baseMaterialsList.map((item) => item.name.toUpperCase());
 
   return {
@@ -99,7 +106,9 @@ function analyzeDesignSignals(baseMaterialsList: MaterialRequirement[]): DesignS
     hasLed: names.some((name) => name.includes("LED")),
     hasFabric: names.some((name) => name.includes("FABRIC")),
     hasBaskets: names.some((name) => name.includes("BASKET")),
-    hasCableManagement: names.some((name) => name.includes("GROMMET") || name.includes("CABLE")),
+    hasCableManagement: names.some(
+      (name) => name.includes("GROMMET") || name.includes("CABLE"),
+    ),
   };
 }
 
@@ -119,7 +128,7 @@ function createBlueprint(
   layout: LayoutType,
   finishType: FinishType,
   doorType: DoorType,
-  modules: GeneratedModule[]
+  modules: GeneratedModule[],
 ): DesignBlueprint {
   return {
     layoutRule: layout.replace(/_/g, " ").toLowerCase(),
@@ -136,7 +145,7 @@ function createModule(
   width: number,
   height: number,
   depth: number,
-  notes?: string
+  notes?: string,
 ): GeneratedModule {
   return {
     id,
@@ -150,7 +159,11 @@ function createModule(
   };
 }
 
-function buildKitchenModules(dimensions: Dimensions, layout: LayoutType, signals: DesignSignals): GeneratedModule[] {
+function buildKitchenModules(
+  dimensions: Dimensions,
+  layout: LayoutType,
+  signals: DesignSignals,
+): GeneratedModule[] {
   const modules: GeneratedModule[] = [];
   const baseHeight = 2.8;
   const wallHeight = 2.4;
@@ -164,59 +177,133 @@ function buildKitchenModules(dimensions: Dimensions, layout: LayoutType, signals
           ? dimensions.width * 2
           : layout === "ISLAND"
             ? dimensions.width + 3
-          : dimensions.width;
+            : dimensions.width;
 
   const cabinetWidth = 2.5;
-  const baseCabinetCount = Math.max(2, Math.floor(runningLength / cabinetWidth));
+  const baseCabinetCount = Math.max(
+    2,
+    Math.floor(runningLength / cabinetWidth),
+  );
   const drawerIndex = baseCabinetCount > 2 ? 1 : 0;
 
   for (let index = 0; index < baseCabinetCount; index += 1) {
     if (index === 0) {
       modules.push(
-        createModule(`base-${index + 1}`, "SINK_CABINET", "Sink cabinet", cabinetWidth, baseHeight, FT_24_INCHES)
+        createModule(
+          `base-${index + 1}`,
+          "SINK_CABINET",
+          "Sink cabinet",
+          cabinetWidth,
+          baseHeight,
+          FT_24_INCHES,
+        ),
       );
       continue;
     }
 
-    if (index === drawerIndex || (signals.hasDrawers && index === baseCabinetCount - 1)) {
+    if (
+      index === drawerIndex ||
+      (signals.hasDrawers && index === baseCabinetCount - 1)
+    ) {
       modules.push(
-        createModule(`base-${index + 1}`, "DRAWER_UNIT", "Drawer unit", cabinetWidth, baseHeight, FT_24_INCHES)
+        createModule(
+          `base-${index + 1}`,
+          "DRAWER_UNIT",
+          "Drawer unit",
+          cabinetWidth,
+          baseHeight,
+          FT_24_INCHES,
+        ),
       );
       continue;
     }
 
     modules.push(
-      createModule(`base-${index + 1}`, "BASE_CABINET", "Base cabinet", cabinetWidth, baseHeight, FT_24_INCHES)
+      createModule(
+        `base-${index + 1}`,
+        "BASE_CABINET",
+        "Base cabinet",
+        cabinetWidth,
+        baseHeight,
+        FT_24_INCHES,
+      ),
     );
   }
 
   const wallCabinetCount = Math.max(1, Math.ceil(baseCabinetCount * 0.7));
   for (let index = 0; index < wallCabinetCount; index += 1) {
     modules.push(
-      createModule(`wall-${index + 1}`, "WALL_CABINET", "Wall cabinet", cabinetWidth, wallHeight, FT_18_INCHES)
+      createModule(
+        `wall-${index + 1}`,
+        "WALL_CABINET",
+        "Wall cabinet",
+        cabinetWidth,
+        wallHeight,
+        FT_18_INCHES,
+      ),
     );
   }
 
   if (layout === "L_SHAPE" || layout === "U_SHAPE") {
-    modules.push(createModule("corner-1", "CORNER_UNIT", "Corner unit", 3, baseHeight, FT_24_INCHES));
+    modules.push(
+      createModule(
+        "corner-1",
+        "CORNER_UNIT",
+        "Corner unit",
+        3,
+        baseHeight,
+        FT_24_INCHES,
+      ),
+    );
   }
 
   if (runningLength >= 10) {
-    modules.push(createModule("tall-1", "TALL_UNIT", "Tall unit", 2.5, tallHeight, FT_24_INCHES));
+    modules.push(
+      createModule(
+        "tall-1",
+        "TALL_UNIT",
+        "Tall unit",
+        2.5,
+        tallHeight,
+        FT_24_INCHES,
+      ),
+    );
   }
 
   if (layout === "ISLAND") {
-    modules.push(createModule("island-1", "ISLAND_UNIT", "Island prep unit", 4.5, baseHeight, FT_24_INCHES));
+    modules.push(
+      createModule(
+        "island-1",
+        "ISLAND_UNIT",
+        "Island prep unit",
+        4.5,
+        baseHeight,
+        FT_24_INCHES,
+      ),
+    );
   }
 
   if (signals.hasBaskets) {
-    modules.push(createModule("basket-1", "ACCESSORY_UNIT", "Basket stack", 2, baseHeight, FT_24_INCHES));
+    modules.push(
+      createModule(
+        "basket-1",
+        "ACCESSORY_UNIT",
+        "Basket stack",
+        2,
+        baseHeight,
+        FT_24_INCHES,
+      ),
+    );
   }
 
   return modules;
 }
 
-function buildWardrobeModules(dimensions: Dimensions, layout: LayoutType, signals: DesignSignals): GeneratedModule[] {
+function buildWardrobeModules(
+  dimensions: Dimensions,
+  layout: LayoutType,
+  signals: DesignSignals,
+): GeneratedModule[] {
   const modules: GeneratedModule[] = [];
   const sectionCount = Math.max(2, Math.round(dimensions.width / 3));
   const sectionWidth = clamp(dimensions.width / sectionCount, 2.4, 3.2);
@@ -226,7 +313,14 @@ function buildWardrobeModules(dimensions: Dimensions, layout: LayoutType, signal
   for (let index = 0; index < sectionCount; index += 1) {
     if (layout === "SLIDING") {
       modules.push(
-        createModule(`wardrobe-${index + 1}`, "SLIDING_SECTION", "Sliding wardrobe section", sectionWidth, height, depth)
+        createModule(
+          `wardrobe-${index + 1}`,
+          "SLIDING_SECTION",
+          "Sliding wardrobe section",
+          sectionWidth,
+          height,
+          depth,
+        ),
       );
       continue;
     }
@@ -239,15 +333,22 @@ function buildWardrobeModules(dimensions: Dimensions, layout: LayoutType, signal
           index % 2 === 0 ? "Hanging section" : "Shelf section",
           sectionWidth,
           height,
-          depth
-        )
+          depth,
+        ),
       );
       continue;
     }
 
     if (index === 1 || (signals.hasDrawers && index === sectionCount - 1)) {
       modules.push(
-        createModule(`wardrobe-${index + 1}`, "DRAWER_SECTION", "Drawer section", sectionWidth, height, depth)
+        createModule(
+          `wardrobe-${index + 1}`,
+          "DRAWER_SECTION",
+          "Drawer section",
+          sectionWidth,
+          height,
+          depth,
+        ),
       );
       continue;
     }
@@ -259,21 +360,37 @@ function buildWardrobeModules(dimensions: Dimensions, layout: LayoutType, signal
         index % 2 === 0 ? "Double door section" : "Hanging section",
         sectionWidth,
         height,
-        depth
-      )
+        depth,
+      ),
     );
   }
 
   return modules;
 }
 
-function buildTvUnitModules(dimensions: Dimensions, signals: DesignSignals): GeneratedModule[] {
+function buildTvUnitModules(
+  dimensions: Dimensions,
+  signals: DesignSignals,
+): GeneratedModule[] {
   const modules: GeneratedModule[] = [];
   const backPanelHeight = clamp(dimensions.height * 0.6, 4.5, 7);
-  const baseWidth = clamp(dimensions.width / Math.max(2, Math.ceil(dimensions.width / 3.5)), 2.5, 3.5);
+  const baseWidth = clamp(
+    dimensions.width / Math.max(2, Math.ceil(dimensions.width / 3.5)),
+    2.5,
+    3.5,
+  );
   const baseCount = Math.max(2, Math.ceil(dimensions.width / baseWidth));
 
-  modules.push(createModule("tv-back-panel", "BACK_PANEL", "TV back panel", dimensions.width, backPanelHeight, FT_2_INCHES));
+  modules.push(
+    createModule(
+      "tv-back-panel",
+      "BACK_PANEL",
+      "TV back panel",
+      dimensions.width,
+      backPanelHeight,
+      FT_2_INCHES,
+    ),
+  );
 
   for (let index = 0; index < baseCount; index += 1) {
     modules.push(
@@ -283,79 +400,210 @@ function buildTvUnitModules(dimensions: Dimensions, signals: DesignSignals): Gen
         index % 2 === 0 ? "Floating cabinet" : "Drawer cabinet",
         baseWidth,
         1.8,
-        FT_18_INCHES
-      )
+        FT_18_INCHES,
+      ),
     );
   }
 
-  modules.push(createModule("tv-shelf-1", "OPEN_SHELF", "Display shelf", Math.min(4, dimensions.width), 1, 1));
+  modules.push(
+    createModule(
+      "tv-shelf-1",
+      "OPEN_SHELF",
+      "Display shelf",
+      Math.min(4, dimensions.width),
+      1,
+      1,
+    ),
+  );
 
   if (signals.hasLed) {
-    modules.push(createModule("tv-led-1", "LED_PANEL", "LED feature panel", Math.min(6, dimensions.width), 0.5, FT_2_INCHES));
+    modules.push(
+      createModule(
+        "tv-led-1",
+        "LED_PANEL",
+        "LED feature panel",
+        Math.min(6, dimensions.width),
+        0.5,
+        FT_2_INCHES,
+      ),
+    );
   }
 
   return modules;
 }
 
-function buildStudyModules(dimensions: Dimensions, signals: DesignSignals): GeneratedModule[] {
+function buildStudyModules(
+  dimensions: Dimensions,
+  signals: DesignSignals,
+): GeneratedModule[] {
   const modules: GeneratedModule[] = [];
 
-  modules.push(createModule("study-top", "TABLE_TOP", "Table top", dimensions.width, FT_2_INCHES, dimensions.depth));
+  modules.push(
+    createModule(
+      "study-top",
+      "TABLE_TOP",
+      "Table top",
+      dimensions.width,
+      FT_2_INCHES,
+      dimensions.depth,
+    ),
+  );
 
   if (dimensions.width >= 4) {
-    modules.push(createModule("study-drawer", "DRAWER_CABINET", "Drawer cabinet", 1.8, 2.3, dimensions.depth));
+    modules.push(
+      createModule(
+        "study-drawer",
+        "DRAWER_CABINET",
+        "Drawer cabinet",
+        1.8,
+        2.3,
+        dimensions.depth,
+      ),
+    );
   }
 
   if (dimensions.height >= 5) {
-    modules.push(createModule("study-shelf", "BOOKSHELF", "Bookshelf", Math.min(3, dimensions.width), dimensions.height - 2.2, 1));
+    modules.push(
+      createModule(
+        "study-shelf",
+        "BOOKSHELF",
+        "Bookshelf",
+        Math.min(3, dimensions.width),
+        dimensions.height - 2.2,
+        1,
+      ),
+    );
   }
 
   if (signals.hasCableManagement) {
-    modules.push(createModule("study-cable", "CABLE_PANEL", "Cable management panel", 1.5, 0.8, FT_2_INCHES));
+    modules.push(
+      createModule(
+        "study-cable",
+        "CABLE_PANEL",
+        "Cable management panel",
+        1.5,
+        0.8,
+        FT_2_INCHES,
+      ),
+    );
   }
 
   return modules;
 }
 
-function buildOfficeModules(dimensions: Dimensions, signals: DesignSignals): GeneratedModule[] {
+function buildOfficeModules(
+  dimensions: Dimensions,
+  signals: DesignSignals,
+): GeneratedModule[] {
   const modules: GeneratedModule[] = [];
   const workstationCount = Math.max(2, Math.ceil(dimensions.width / 4));
 
   for (let index = 0; index < workstationCount; index += 1) {
-    modules.push(createModule(`ws-${index + 1}`, "WORKSTATION", "Workstation", 4, 2.5, FT_24_INCHES));
+    modules.push(
+      createModule(
+        `ws-${index + 1}`,
+        "WORKSTATION",
+        "Workstation",
+        4,
+        2.5,
+        FT_24_INCHES,
+      ),
+    );
   }
 
-  modules.push(createModule("office-storage", "STORAGE_CABINET", "Storage cabinet", 3, Math.min(dimensions.height, 7), FT_18_INCHES));
+  modules.push(
+    createModule(
+      "office-storage",
+      "STORAGE_CABINET",
+      "Storage cabinet",
+      3,
+      Math.min(dimensions.height, 7),
+      FT_18_INCHES,
+    ),
+  );
 
   if (dimensions.width >= 10) {
-    modules.push(createModule("meeting-table", "MEETING_TABLE", "Meeting table", 6, FT_2_INCHES, 3));
+    modules.push(
+      createModule(
+        "meeting-table",
+        "MEETING_TABLE",
+        "Meeting table",
+        6,
+        FT_2_INCHES,
+        3,
+      ),
+    );
   }
 
   if (signals.hasCableManagement) {
-    modules.push(createModule("office-cable", "CABLE_PANEL", "Cable trench", 4, 0.8, FT_2_INCHES));
+    modules.push(
+      createModule(
+        "office-cable",
+        "CABLE_PANEL",
+        "Cable trench",
+        4,
+        0.8,
+        FT_2_INCHES,
+      ),
+    );
   }
 
   return modules;
 }
 
-function buildBedroomModules(dimensions: Dimensions, signals: DesignSignals): GeneratedModule[] {
+function buildBedroomModules(
+  dimensions: Dimensions,
+  signals: DesignSignals,
+): GeneratedModule[] {
   const modules: GeneratedModule[] = [];
   const bedWidth = clamp(dimensions.width * 0.45, 5, 6.5);
 
-  modules.push(createModule("bed-frame", "BED_FRAME", "Bed frame", bedWidth, 1.5, 6.5));
-  modules.push(createModule("side-table-left", "SIDE_TABLE", "Side table", 1.5, 1.8, 1.5));
-  modules.push(createModule("side-table-right", "SIDE_TABLE", "Side table", 1.5, 1.8, 1.5));
-  modules.push(createModule("dresser", "DRESSER_UNIT", "Dresser unit", 3, 2.5, 1.5));
+  modules.push(
+    createModule("bed-frame", "BED_FRAME", "Bed frame", bedWidth, 1.5, 6.5),
+  );
+  modules.push(
+    createModule("side-table-left", "SIDE_TABLE", "Side table", 1.5, 1.8, 1.5),
+  );
+  modules.push(
+    createModule("side-table-right", "SIDE_TABLE", "Side table", 1.5, 1.8, 1.5),
+  );
+  modules.push(
+    createModule("dresser", "DRESSER_UNIT", "Dresser unit", 3, 2.5, 1.5),
+  );
 
   if (dimensions.height >= 9) {
-    modules.push(createModule("loft", "LOFT_CABINET", "Loft cabinet", Math.min(dimensions.width, 6), 2, FT_24_INCHES));
+    modules.push(
+      createModule(
+        "loft",
+        "LOFT_CABINET",
+        "Loft cabinet",
+        Math.min(dimensions.width, 6),
+        2,
+        FT_24_INCHES,
+      ),
+    );
   }
 
   const wardrobeWidth = clamp(dimensions.width * 0.35, 5, 8);
-  modules.push(...buildWardrobeModules({ width: wardrobeWidth, height: dimensions.height, depth: FT_24_INCHES }, "HINGED", signals));
+  modules.push(
+    ...buildWardrobeModules(
+      { width: wardrobeWidth, height: dimensions.height, depth: FT_24_INCHES },
+      "HINGED",
+      signals,
+    ),
+  );
 
   if (signals.hasFabric) {
-    modules.push(createModule("headboard", "UPHOLSTERED_PANEL", "Upholstered headboard", bedWidth, 3.5, FT_2_INCHES));
+    modules.push(
+      createModule(
+        "headboard",
+        "UPHOLSTERED_PANEL",
+        "Upholstered headboard",
+        bedWidth,
+        3.5,
+        FT_2_INCHES,
+      ),
+    );
   }
 
   return modules;
@@ -365,7 +613,7 @@ function generateModules(
   categorySlug: CategorySlug,
   layout: LayoutType,
   dimensions: Dimensions,
-  signals: DesignSignals
+  signals: DesignSignals,
 ): GeneratedModule[] {
   if (categorySlug === "kitchen") {
     return buildKitchenModules(dimensions, layout, signals);
@@ -422,7 +670,7 @@ function addPanelPieces(
   material: PanelMaterial,
   width: number,
   height: number,
-  count = 1
+  count = 1,
 ): number {
   let totalArea = 0;
 
@@ -448,7 +696,7 @@ function addMaterial(
   quantity: number,
   unit: string,
   sourceModule: string,
-  notes?: string
+  notes?: string,
 ): void {
   if (quantity <= 0) {
     return;
@@ -480,187 +728,176 @@ function materializeModule(
   finishType: FinishType,
   doorType: DoorType,
   materials: Map<string, MaterialAccumulator>,
-  panels: PanelPiece[]
+  panels: PanelPiece[],
+  template: LoadedTemplate, // ← new parameter
 ): void {
   const finishName = getFinishName(finishType);
   const complexity = signals.complexityMultiplier;
-  const label = module.label;
 
-  const addEdgeBand = (length: number) => addMaterial(materials, "Edge Band", "EDGE", length * complexity, "rft", label);
-  const addHardware = (name: string, quantity: number, unit = "nos", notes?: string) =>
-    addMaterial(materials, name, "HARDWARE", quantity, unit, label, notes);
-  const addAccessory = (name: string, quantity: number, unit = "nos", notes?: string) =>
-    addMaterial(materials, name, "ACCESSORY", quantity, unit, label, notes);
+  // ── Structural panels ──────────────────────────────────────────
+  const plywoodArea =
+    module.width * module.height * template.plywoodMult * complexity;
+  const finishArea =
+    module.width * module.height * template.finishMult * complexity;
+  const edgeBand = template.edgeBandMult * complexity;
 
-  const addCabinetShell = (shelves: number, doors: number, drawers: number, shutterMode: "HINGED" | "SLIDING" | "OPEN") => {
-    const sideArea = addPanelPieces(panels, "PLYWOOD", module.height, module.depth, 2);
-    const topBottomArea = addPanelPieces(panels, "PLYWOOD", module.width, module.depth, 2);
-    const shelfArea = addPanelPieces(panels, "PLYWOOD", module.width, module.depth, shelves);
-    const shutterArea = shutterMode === "OPEN" ? 0 : addPanelPieces(panels, "PLYWOOD", module.height, module.width / Math.max(1, doors), doors);
-    const drawerBoxArea = drawers > 0 ? addPanelPieces(panels, "PLYWOOD", module.width * 0.8, module.depth * 0.4, drawers) : 0;
-    const totalPlywoodArea = (sideArea + topBottomArea + shelfArea + shutterArea + drawerBoxArea) * complexity;
-    const finishArea = (module.width * module.height * 0.7 + module.width * module.depth * 0.35) * complexity;
-
-    addMaterial(materials, "Plywood", "SHEET", totalPlywoodArea, "sqft", label);
-    addMaterial(materials, finishName, "SURFACE", finishArea, "sqft", label);
-    addEdgeBand((module.width * (shelves + doors + 1) + module.height * doors) * 2.1);
-
-    if (shutterMode === "HINGED" && doors > 0) {
-      addHardware("Soft Close Hinges", doors * 4, "nos");
-      if (doorType !== "HANDLELESS") {
-        addHardware("Handles", doors, "nos");
-      }
-      addHardware("Magnetic Catch", Math.max(1, doors), "nos");
-    }
-
-    if (shutterMode === "SLIDING") {
-      addHardware("Sliding Track Set", Math.ceil(doors / 2), "set");
-      addHardware("Sliding Roller Set", doors, "set");
-      addHardware("Soft Stopper", Math.ceil(doors / 2), "set");
-      if (doorType !== "HANDLELESS") {
-        addHardware("Handles", doors, "nos", "Profile handles recommended for sliding shutters");
-      }
-    }
-
-    if (drawers > 0) {
-      addHardware("Drawer Channels", drawers, "set");
-      if (doorType !== "HANDLELESS") {
-        addHardware("Handles", drawers, "nos");
-      }
-    }
-  };
-
-  switch (module.type) {
-    case "BASE_CABINET":
-      addCabinetShell(1, 2, 0, "HINGED");
-      break;
-    case "WALL_CABINET":
-      addCabinetShell(1, 2, 0, "HINGED");
-      break;
-    case "TALL_UNIT":
-      addCabinetShell(4, 2, 2, "HINGED");
-      break;
-    case "ISLAND_UNIT":
-      addCabinetShell(2, 4, 2, doorType === "OPEN" ? "OPEN" : "HINGED");
-      addAccessory("Island support frame", 1, "set");
-      break;
-    case "CORNER_UNIT":
-      addCabinetShell(2, 2, 0, "HINGED");
-      addAccessory("Corner joint fittings", 1, "set");
-      break;
-    case "SINK_CABINET":
-      addCabinetShell(0, 2, 0, "HINGED");
-      addAccessory("Moisture liner", module.width * module.depth, "sqft");
-      break;
-    case "DRAWER_UNIT":
-      addCabinetShell(0, 1, 3, "HINGED");
-      break;
-    case "ACCESSORY_UNIT":
-      addCabinetShell(0, 1, 0, "HINGED");
-      addAccessory("Kitchen Basket", 3, "nos");
-      break;
-    case "DOUBLE_DOOR_SECTION":
-      addCabinetShell(3, 2, 0, "HINGED");
-      break;
-    case "DRAWER_SECTION":
-      addCabinetShell(2, 1, 3, "HINGED");
-      break;
-    case "HANG_SECTION":
-      addCabinetShell(1, 2, 0, "HINGED");
-      addAccessory("Hanging Rod", 1, "nos");
-      break;
-    case "SHELF_SECTION":
-      addCabinetShell(5, 0, 0, "OPEN");
-      break;
-    case "SLIDING_SECTION":
-      addCabinetShell(3, 2, 2, "SLIDING");
-      break;
-    case "BACK_PANEL":
-      addMaterial(materials, "MDF Panel", "SHEET", module.width * module.height * complexity, "sqft", label);
-      addMaterial(materials, finishName, "SURFACE", module.width * module.height * complexity, "sqft", label);
-      addEdgeBand(module.width * 2 + module.height * 2);
-      break;
-    case "FLOATING_CABINET":
-      addCabinetShell(1, 2, 0, "HINGED");
-      addAccessory("Wall Mounting Hardware", 1, "set");
-      break;
-    case "OPEN_SHELF":
-      addPanelPieces(panels, "PLYWOOD", module.width, module.depth, 2);
-      addMaterial(materials, "Plywood", "SHEET", module.width * module.depth * 2 * complexity, "sqft", label);
-      addMaterial(materials, finishName, "SURFACE", module.width * module.depth * 1.1 * complexity, "sqft", label);
-      addEdgeBand(module.width * 4);
-      break;
-    case "LED_PANEL":
-      addAccessory("LED Channel", Math.max(1, Math.ceil(module.width / 2)), "nos");
-      break;
-    case "TABLE_TOP":
-      addPanelPieces(panels, "PLYWOOD", module.width, module.depth, 1);
-      addMaterial(materials, "Plywood", "SHEET", module.width * module.depth * 1.3 * complexity, "sqft", label);
-      addMaterial(materials, finishName, "SURFACE", module.width * module.depth * 1.1 * complexity, "sqft", label);
-      addEdgeBand((module.width + module.depth) * 2);
-      break;
-    case "DRAWER_CABINET":
-      addCabinetShell(1, 1, 3, "HINGED");
-      break;
-    case "BOOKSHELF":
-      addCabinetShell(5, 0, 0, "OPEN");
-      break;
-    case "CABLE_PANEL":
-      addAccessory("Cable Grommet", Math.max(1, Math.ceil(module.width / 2)), "nos");
-      addAccessory("Partition Panel", module.width * 2, "sqft");
-      break;
-    case "WORKSTATION":
-      addPanelPieces(panels, "PLYWOOD", module.width, module.depth, 1);
-      addMaterial(materials, "Plywood", "SHEET", module.width * module.depth * 1.5 * complexity, "sqft", label);
-      addMaterial(materials, finishName, "SURFACE", module.width * module.depth * 1.15 * complexity, "sqft", label);
-      addEdgeBand((module.width + module.depth) * 2);
-      addAccessory("Metal Frame", 1, "set");
-      break;
-    case "STORAGE_CABINET":
-      addCabinetShell(4, 2, 1, "HINGED");
-      break;
-    case "MEETING_TABLE":
-      addPanelPieces(panels, "PLYWOOD", module.width, module.depth, 1);
-      addMaterial(materials, "Plywood", "SHEET", module.width * module.depth * 1.4 * complexity, "sqft", label);
-      addMaterial(materials, finishName, "SURFACE", module.width * module.depth * 1.1 * complexity, "sqft", label);
-      addAccessory("Metal Frame", 1, "set");
-      addEdgeBand((module.width + module.depth) * 2);
-      break;
-    case "BED_FRAME":
-      addPanelPieces(panels, "PLYWOOD", module.width, module.depth, 2);
-      addMaterial(materials, "Plywood", "SHEET", module.width * module.depth * 2.3 * complexity, "sqft", label);
-      addMaterial(materials, finishName, "SURFACE", module.width * module.depth * 1.4 * complexity, "sqft", label);
-      addEdgeBand((module.width + module.depth) * 2.5);
-      break;
-    case "SIDE_TABLE":
-      addCabinetShell(1, 1, 1, "HINGED");
-      break;
-    case "DRESSER_UNIT":
-      addCabinetShell(2, 2, 2, "HINGED");
-      if (signals.hasMirror) {
-        addAccessory("Mirror", 1, "nos");
-      }
-      break;
-    case "LOFT_CABINET":
-      addCabinetShell(1, 2, 0, "HINGED");
-      break;
-    case "UPHOLSTERED_PANEL":
-      addMaterial(materials, "Plywood", "SHEET", module.width * module.height * 1.05 * complexity, "sqft", label);
-      addAccessory("Fabric Upholstery", module.width * module.height * 1.2, "sqft");
-      break;
-    default:
-      addMaterial(materials, "Plywood", "SHEET", module.width * module.height, "sqft", label);
-      addMaterial(materials, finishName, "SURFACE", module.width * module.height * 0.7, "sqft", label);
-      break;
+  if (plywoodArea > 0) {
+    // Keep panel-splitting optimisation intact
+    addPanelPieces(panels, "PLYWOOD", module.width, module.height, 1);
+    addMaterial(
+      materials,
+      "Plywood",
+      "SHEET",
+      plywoodArea,
+      "sqft",
+      module.label,
+    );
   }
+  if (finishArea > 0) {
+    addMaterial(
+      materials,
+      finishName,
+      "SURFACE",
+      finishArea,
+      "sqft",
+      module.label,
+    );
+  }
+  if (edgeBand > 0) {
+    addMaterial(materials, "Edge Band", "EDGE", edgeBand, "rft", module.label);
+  }
+
+  // ── Hardware from template JSON ────────────────────────────────
+  // Override door hardware based on shutterMode + global doorType setting
+  const effectiveShutterMode = resolveShutterMode(
+    template.shutterMode,
+    doorType,
+  );
+
+  if (effectiveShutterMode === "HINGED" && template.doors > 0) {
+    addMaterial(
+      materials,
+      "Soft Close Hinges",
+      "HARDWARE",
+      template.doors * 3,
+      "nos",
+      module.label,
+    );
+    if (doorType !== "HANDLELESS") {
+      addMaterial(
+        materials,
+        "Handles",
+        "HARDWARE",
+        template.doors,
+        "nos",
+        module.label,
+      );
+    }
+    addMaterial(
+      materials,
+      "Magnetic Catch",
+      "HARDWARE",
+      Math.max(1, template.doors),
+      "nos",
+      module.label,
+    );
+  } else if (effectiveShutterMode === "SLIDING" && template.doors > 0) {
+    addMaterial(
+      materials,
+      "Sliding Track Set",
+      "HARDWARE",
+      Math.ceil(template.doors / 2),
+      "set",
+      module.label,
+    );
+    addMaterial(
+      materials,
+      "Sliding Roller Set",
+      "HARDWARE",
+      template.doors,
+      "set",
+      module.label,
+    );
+    addMaterial(
+      materials,
+      "Soft Stopper",
+      "HARDWARE",
+      Math.ceil(template.doors / 2),
+      "set",
+      module.label,
+    );
+  }
+
+  if (template.drawers > 0) {
+    addMaterial(
+      materials,
+      "Drawer Channels",
+      "HARDWARE",
+      template.drawers,
+      "set",
+      module.label,
+    );
+    if (doorType !== "HANDLELESS") {
+      addMaterial(
+        materials,
+        "Handles",
+        "HARDWARE",
+        template.drawers,
+        "nos",
+        module.label,
+      );
+    }
+  }
+
+  // ── Extra hardware and accessories from template JSON ──────────
+  for (const [name, qty] of Object.entries(template.hardware)) {
+    // Skip door/drawer hardware — handled above to respect global door type
+    if (
+      [
+        "Soft Close Hinges",
+        "Handles",
+        "Drawer Channels",
+        "Magnetic Catch",
+        "Sliding Track Set",
+        "Sliding Roller Set",
+        "Soft Stopper",
+      ].includes(name)
+    )
+      continue;
+    addMaterial(
+      materials,
+      name,
+      "HARDWARE",
+      qty * complexity,
+      "nos",
+      module.label,
+    );
+  }
+
+  for (const [name, qty] of Object.entries(template.accessories)) {
+    addMaterial(materials, name, "ACCESSORY", qty, "nos", module.label);
+  }
+}
+
+function resolveShutterMode(
+  templateMode: string,
+  globalDoorType: DoorType,
+): "HINGED" | "SLIDING" | "OPEN" {
+  if (templateMode === "SLIDING") return "SLIDING";
+  if (templateMode === "OPEN") return "OPEN";
+  if (globalDoorType === "OPEN") return "OPEN";
+  return "HINGED";
 }
 
 function addReferenceMaterialExtras(
   baseMaterialsList: MaterialRequirement[],
   dimensions: Dimensions,
-  materials: Map<string, MaterialAccumulator>
+  materials: Map<string, MaterialAccumulator>,
 ): void {
-  const referenceArea = Math.max(40, dimensions.width * Math.max(dimensions.depth, FT_18_INCHES));
+  const referenceArea = Math.max(
+    40,
+    dimensions.width * Math.max(dimensions.depth, FT_18_INCHES),
+  );
 
   for (const item of baseMaterialsList) {
     const normalizedScaling = inferScaling(item.name, item.scaling);
@@ -677,13 +914,28 @@ function addReferenceMaterialExtras(
 
     const quantity = item.baseQty * scale * 0.2;
     const resolved = resolveReferenceMaterial(item.name);
-    addMaterial(materials, resolved.name, resolved.category, quantity, resolved.unit, "Design accents", "Reference design uplift");
+    addMaterial(
+      materials,
+      resolved.name,
+      resolved.category,
+      quantity,
+      resolved.unit,
+      "Design accents",
+      "Reference design uplift",
+    );
   }
 }
 
-function inferScaling(name: string, fallback: MaterialScaling): MaterialScaling {
+function inferScaling(
+  name: string,
+  fallback: MaterialScaling,
+): MaterialScaling {
   const upper = name.toUpperCase();
-  if (upper.includes("HINGE") || upper.includes("HANDLE") || upper.includes("CHANNEL")) {
+  if (
+    upper.includes("HINGE") ||
+    upper.includes("HANDLE") ||
+    upper.includes("CHANNEL")
+  ) {
     return "COUNT";
   }
   if (upper.includes("EDGE")) {
@@ -698,15 +950,35 @@ function inferScaling(name: string, fallback: MaterialScaling): MaterialScaling 
   return fallback;
 }
 
-function resolveReferenceMaterial(name: string): { name: string; category: MaterialCategory; unit: string } {
+function resolveReferenceMaterial(name: string): {
+  name: string;
+  category: MaterialCategory;
+  unit: string;
+} {
   const upper = name.toUpperCase();
 
-  if (upper.includes("PLYWOOD") || upper.includes("MDF") || upper.includes("HDHMR")) {
-    return { name: upper.includes("MDF") ? "MDF Panel" : "Plywood", category: "SHEET", unit: "sqft" };
-  }
-  if (upper.includes("LAMINATE") || upper.includes("VENEER") || upper.includes("ACRYLIC")) {
+  if (
+    upper.includes("PLYWOOD") ||
+    upper.includes("MDF") ||
+    upper.includes("HDHMR")
+  ) {
     return {
-      name: upper.includes("VENEER") ? "Veneer Finish" : upper.includes("ACRYLIC") ? "Acrylic Finish" : "Laminate Finish",
+      name: upper.includes("MDF") ? "MDF Panel" : "Plywood",
+      category: "SHEET",
+      unit: "sqft",
+    };
+  }
+  if (
+    upper.includes("LAMINATE") ||
+    upper.includes("VENEER") ||
+    upper.includes("ACRYLIC")
+  ) {
+    return {
+      name: upper.includes("VENEER")
+        ? "Veneer Finish"
+        : upper.includes("ACRYLIC")
+          ? "Acrylic Finish"
+          : "Laminate Finish",
       category: "SURFACE",
       unit: "sqft",
     };
@@ -735,12 +1007,18 @@ function resolveReferenceMaterial(name: string): { name: string; category: Mater
   return { name, category: "ACCESSORY", unit: "nos" };
 }
 
-function optimizeSheets(materialName: string, panels: PanelPiece[], sheetWaste: number): SheetOptimizationResult | null {
+function optimizeSheets(
+  materialName: string,
+  panels: PanelPiece[],
+  sheetWaste: number,
+): SheetOptimizationResult | null {
   if (panels.length === 0) {
     return null;
   }
 
-  const sortedPanels = [...panels].sort((a, b) => b.width * b.height - a.width * a.height);
+  const sortedPanels = [...panels].sort(
+    (a, b) => b.width * b.height - a.width * a.height,
+  );
   const effectiveSheetArea = SQFT_PER_SHEET * (1 - sheetWaste);
   const sheets: number[] = [];
   let totalArea = 0;
@@ -766,16 +1044,20 @@ function optimizeSheets(materialName: string, panels: PanelPiece[], sheetWaste: 
     sheetCount,
     panelCount: panels.length,
     totalArea: roundToTenths(totalArea),
-    utilization: Number((totalArea / (sheetCount * SQFT_PER_SHEET) * 100).toFixed(1)),
+    utilization: Number(
+      ((totalArea / (sheetCount * SQFT_PER_SHEET)) * 100).toFixed(1),
+    ),
   };
 }
 
 function buildDetailedMaterials(
   materials: Map<string, MaterialAccumulator>,
   grade: MaterialGrade,
-  sheetOptimization: SheetOptimizationResult[]
+  sheetOptimization: SheetOptimizationResult[],
 ): DetailedMaterialResult[] {
-  const sheetMap = new Map(sheetOptimization.map((item) => [item.materialName, item]));
+  const sheetMap = new Map(
+    sheetOptimization.map((item) => [item.materialName, item]),
+  );
 
   return [...materials.values()]
     .map((item) => {
@@ -791,7 +1073,10 @@ function buildDetailedMaterials(
           ? null
           : Math.max(optimization?.sheetCount ?? 0, areaDrivenSheetCount);
       const purchaseQuantity =
-        equivalentSheets ?? (item.unit === "lot" ? Math.max(1, Math.round(finalQuantity)) : Math.ceil(finalQuantity));
+        equivalentSheets ??
+        (item.unit === "lot"
+          ? Math.max(1, Math.round(finalQuantity))
+          : Math.ceil(finalQuantity));
 
       let unitCost = 0;
       if (item.category === "SHEET") {
@@ -824,23 +1109,59 @@ function buildDetailedMaterials(
       };
     })
     .sort((left, right) => {
-      const categoryOrder: MaterialCategory[] = ["SHEET", "SURFACE", "EDGE", "HARDWARE", "ACCESSORY", "CONSUMABLE"];
-      return categoryOrder.indexOf(left.category) - categoryOrder.indexOf(right.category);
+      const categoryOrder: MaterialCategory[] = [
+        "SHEET",
+        "SURFACE",
+        "EDGE",
+        "HARDWARE",
+        "ACCESSORY",
+        "CONSUMABLE",
+      ];
+      return (
+        categoryOrder.indexOf(left.category) -
+        categoryOrder.indexOf(right.category)
+      );
     });
 }
 
-export function generateEstimate(input: GenerateEstimateInput): EstimationResult {
+export function generateEstimate(
+  input: GenerateEstimateInput,
+  templateMap: Map<string, LoadedTemplate>,
+): EstimationResult {
   const dimensions = normalizeDimensions(input.dimensions);
   const signals = analyzeDesignSignals(input.baseMaterialsList);
-  const modules = generateModules(input.categorySlug, input.layout, dimensions, signals);
-  const blueprint = createBlueprint(input.layout, input.finishType, input.doorType, modules);
+  const modules = generateModules(
+    input.categorySlug,
+    input.layout,
+    dimensions,
+    signals,
+  );
+  const blueprint = createBlueprint(
+    input.layout,
+    input.finishType,
+    input.doorType,
+    modules,
+  );
   const materials = new Map<string, MaterialAccumulator>();
   const plywoodPanels: PanelPiece[] = [];
   const surfacePanels: PanelPiece[] = [];
 
   for (const module of modules) {
+    const template = templateMap.get(module.type);
+    if (!template) {
+      console.warn(`No template found for module type: ${module.type}`);
+      continue;
+    }
     const beforePanels = plywoodPanels.length;
-    materializeModule(module, signals, input.finishType, input.doorType, materials, plywoodPanels);
+    materializeModule(
+      module,
+      signals,
+      input.finishType,
+      input.doorType,
+      materials,
+      plywoodPanels,
+      template,
+    );
 
     // Use the same cut list as a conservative guide for finishing sheets.
     if (plywoodPanels.length > beforePanels) {
@@ -852,19 +1173,41 @@ export function generateEstimate(input: GenerateEstimateInput): EstimationResult
   }
 
   addReferenceMaterialExtras(input.baseMaterialsList, dimensions, materials);
-  addMaterial(materials, "Screws & Nails", "CONSUMABLE", 1, "lot", "Project consumables");
-  addMaterial(materials, "Adhesive", "CONSUMABLE", 1, "lot", "Project consumables");
+  addMaterial(
+    materials,
+    "Screws & Nails",
+    "CONSUMABLE",
+    1,
+    "lot",
+    "Project consumables",
+  );
+  addMaterial(
+    materials,
+    "Adhesive",
+    "CONSUMABLE",
+    1,
+    "lot",
+    "Project consumables",
+  );
 
   const sheetOptimization = [
-    optimizeSheets("Plywood", plywoodPanels.filter((panel) => panel.material === "PLYWOOD"), WASTE_FACTORS.SHEET),
+    optimizeSheets(
+      "Plywood",
+      plywoodPanels.filter((panel) => panel.material === "PLYWOOD"),
+      WASTE_FACTORS.SHEET,
+    ),
     optimizeSheets(
       getFinishName(input.finishType),
       surfacePanels.filter((panel) => panel.material === "SURFACE"),
-      WASTE_FACTORS.SURFACE
+      WASTE_FACTORS.SURFACE,
     ),
   ].filter((item): item is SheetOptimizationResult => item !== null);
 
-  const detailedMaterials = buildDetailedMaterials(materials, input.grade, sheetOptimization);
+  const detailedMaterials = buildDetailedMaterials(
+    materials,
+    input.grade,
+    sheetOptimization,
+  );
   const billOfMaterials = detailedMaterials.map((item) => {
     const quantity = item.equivalentSheets ?? item.purchaseQuantity;
     const unit = item.equivalentSheets !== null ? "sheets" : item.purchaseUnit;
@@ -872,19 +1215,38 @@ export function generateEstimate(input: GenerateEstimateInput): EstimationResult
   });
 
   const materialCost = detailedMaterials
-    .filter((item) => item.category === "SHEET" || item.category === "SURFACE" || item.category === "EDGE")
+    .filter(
+      (item) =>
+        item.category === "SHEET" ||
+        item.category === "SURFACE" ||
+        item.category === "EDGE",
+    )
     .reduce((sum, item) => sum + item.estimatedCost, 0);
   const hardwareCost = detailedMaterials
-    .filter((item) => item.category === "HARDWARE" || item.category === "ACCESSORY" || item.category === "CONSUMABLE")
+    .filter(
+      (item) =>
+        item.category === "HARDWARE" ||
+        item.category === "ACCESSORY" ||
+        item.category === "CONSUMABLE",
+    )
     .reduce((sum, item) => sum + item.estimatedCost, 0);
 
   const baseProjectCost = materialCost + hardwareCost;
   const laborCost = Math.round(baseProjectCost * LABOR_RATE_PERCENTAGE);
-  const installationCost = Math.round(baseProjectCost * INSTALLATION_RATE_PERCENTAGE);
+  const installationCost = Math.round(
+    baseProjectCost * INSTALLATION_RATE_PERCENTAGE,
+  );
   const transportCost = Math.round(baseProjectCost * TRANSPORT_RATE_PERCENTAGE);
-  const dealerTotal = Math.round((baseProjectCost + laborCost + installationCost + transportCost) * (1 + DEALER_MARGIN_PERCENTAGE));
-  const contractorTotal = Math.round(dealerTotal * (1 + CONTRACTOR_MARGIN_PERCENTAGE));
-  const customerTotal = Math.round(dealerTotal * (1 + CUSTOMER_MARGIN_PERCENTAGE));
+  const dealerTotal = Math.round(
+    (baseProjectCost + laborCost + installationCost + transportCost) *
+      (1 + DEALER_MARGIN_PERCENTAGE),
+  );
+  const contractorTotal = Math.round(
+    dealerTotal * (1 + CONTRACTOR_MARGIN_PERCENTAGE),
+  );
+  const customerTotal = Math.round(
+    dealerTotal * (1 + CUSTOMER_MARGIN_PERCENTAGE),
+  );
   const summary = {
     materialCost,
     hardwareCost,

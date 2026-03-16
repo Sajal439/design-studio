@@ -9,6 +9,7 @@ import {
   FileText,
   CalendarDays,
   Users,
+  Layers,
 } from "lucide-react";
 
 const items = [
@@ -18,6 +19,7 @@ const items = [
   { href: "/admin/quotes", label: "Quotes", icon: FileText },
   { href: "/admin/consultations", label: "Consultations", icon: CalendarDays },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/module-templates", label: "Module templates", icon: Layers },
 ];
 
 export function AdminNav() {
@@ -36,11 +38,10 @@ export function AdminNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-              isActive
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${isActive
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
+              }`}
           >
             <Icon className="h-4 w-4" />
             <span>{item.label}</span>

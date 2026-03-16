@@ -1,26 +1,60 @@
 import { PrismaClient } from "@prisma/client";
+import { seedModuleTemplates } from "./seeds/moduleTemplates";
 
+// packages/database/prisma/seed.ts
 const prisma = new PrismaClient();
-
+  
 async function main() {
   console.log("🌱 Seeding database...");
 
+  await seedModuleTemplates(prisma);
+
   // ─── Design Categories ─────────────────────────────────────
   const designCategories = [
-    { slug: "kitchen", label: "Modular Kitchens", name: "kitchen", type: "design" },
+    {
+      slug: "kitchen",
+      label: "Modular Kitchens",
+      name: "kitchen",
+      type: "design",
+    },
     { slug: "wardrobe", label: "Wardrobes", name: "wardrobe", type: "design" },
     { slug: "tv-unit", label: "TV Units", name: "tv-unit", type: "design" },
-    { slug: "bedroom", label: "Bedroom Interiors", name: "bedroom", type: "design" },
+    {
+      slug: "bedroom",
+      label: "Bedroom Interiors",
+      name: "bedroom",
+      type: "design",
+    },
     { slug: "study", label: "Study Tables", name: "study", type: "design" },
-    { slug: "office", label: "Office Furniture", name: "office", type: "design" },
+    {
+      slug: "office",
+      label: "Office Furniture",
+      name: "office",
+      type: "design",
+    },
   ];
 
   // ─── Product Categories ────────────────────────────────────
   const productCategories = [
     { slug: "plywood", label: "Plywood", name: "plywood", type: "product" },
-    { slug: "laminates", label: "Laminates", name: "laminates", type: "product" },
-    { slug: "hardware", label: "Hardware & Fittings", name: "hardware", type: "product" },
-    { slug: "adhesives", label: "Adhesives", name: "adhesives", type: "product" },
+    {
+      slug: "laminates",
+      label: "Laminates",
+      name: "laminates",
+      type: "product",
+    },
+    {
+      slug: "hardware",
+      label: "Hardware & Fittings",
+      name: "hardware",
+      type: "product",
+    },
+    {
+      slug: "adhesives",
+      label: "Adhesives",
+      name: "adhesives",
+      type: "product",
+    },
     { slug: "veneers", label: "Veneers", name: "veneers", type: "product" },
     { slug: "edges", label: "Edge Bands", name: "edges", type: "product" },
   ];
@@ -44,7 +78,8 @@ async function main() {
       title: "Modern L-Shaped Modular Kitchen",
       slug: "modern-l-shaped-kitchen",
       categorySlug: "kitchen",
-      description: "A sleek L-shaped kitchen with handleless cabinets, quartz countertop, and integrated appliances. Perfect for medium-sized apartments.",
+      description:
+        "A sleek L-shaped kitchen with handleless cabinets, quartz countertop, and integrated appliances. Perfect for medium-sized apartments.",
       estimatedCost: "₹2,50,000 - ₹3,50,000",
       roomSize: "10ft × 8ft",
       style: "Modern Minimalist",
@@ -62,7 +97,8 @@ async function main() {
       title: "Classic Wooden Wardrobe with Mirror",
       slug: "classic-wooden-wardrobe",
       categorySlug: "wardrobe",
-      description: "A 3-door wardrobe with full-length mirror, internal drawers, and hanging space. Timeless design with premium veneer finish.",
+      description:
+        "A 3-door wardrobe with full-length mirror, internal drawers, and hanging space. Timeless design with premium veneer finish.",
       estimatedCost: "₹1,20,000 - ₹1,80,000",
       roomSize: "7ft × 7ft × 2ft",
       style: "Classic",
@@ -80,7 +116,8 @@ async function main() {
       title: "Contemporary Wall-Mounted TV Unit",
       slug: "contemporary-tv-unit",
       categorySlug: "tv-unit",
-      description: "A floating TV unit with LED backlight panel, open shelves, and concealed storage. Wall-mounted for a clean, spacious look.",
+      description:
+        "A floating TV unit with LED backlight panel, open shelves, and concealed storage. Wall-mounted for a clean, spacious look.",
       estimatedCost: "₹45,000 - ₹75,000",
       roomSize: "8ft × 5ft",
       style: "Contemporary",
@@ -97,7 +134,8 @@ async function main() {
       title: "Luxury Master Bedroom Interior",
       slug: "luxury-master-bedroom",
       categorySlug: "bedroom",
-      description: "Complete bedroom package with upholstered bed back panel, side tables, dresser unit, and false ceiling cove lights.",
+      description:
+        "Complete bedroom package with upholstered bed back panel, side tables, dresser unit, and false ceiling cove lights.",
       estimatedCost: "₹3,00,000 - ₹4,50,000",
       roomSize: "14ft × 12ft",
       style: "Luxury",
@@ -115,7 +153,8 @@ async function main() {
       title: "Compact Study Table with Bookshelf",
       slug: "compact-study-bookshelf",
       categorySlug: "study",
-      description: "An ergonomic study setup with built-in bookshelf, cable management, and adjustable shelf heights. Ideal for students and WFH professionals.",
+      description:
+        "An ergonomic study setup with built-in bookshelf, cable management, and adjustable shelf heights. Ideal for students and WFH professionals.",
       estimatedCost: "₹25,000 - ₹40,000",
       roomSize: "5ft × 2ft × 6ft",
       style: "Functional Modern",
@@ -132,7 +171,8 @@ async function main() {
       title: "Executive Office Cabin Furniture",
       slug: "executive-office-cabin",
       categorySlug: "office",
-      description: "Full office cabin setup with L-shaped desk, overhead storage, filing cabinets, and visitor seating area divider.",
+      description:
+        "Full office cabin setup with L-shaped desk, overhead storage, filing cabinets, and visitor seating area divider.",
       estimatedCost: "₹1,80,000 - ₹2,50,000",
       roomSize: "12ft × 10ft",
       style: "Professional",
@@ -174,7 +214,8 @@ async function main() {
       slug: "bwr-plywood-19mm",
       categorySlug: "plywood",
       brand: "Century Plyboards",
-      description: "Boiling Water Resistant plywood ideal for kitchen cabinets, bathroom vanities, and areas exposed to moisture. IS:303 certified with 20+ year warranty.",
+      description:
+        "Boiling Water Resistant plywood ideal for kitchen cabinets, bathroom vanities, and areas exposed to moisture. IS:303 certified with 20+ year warranty.",
       priceRange: "₹85 - ₹110 / sq ft",
       unit: "sheet",
       images: ["/placeholder-plywood.jpg"],
@@ -192,7 +233,8 @@ async function main() {
       slug: "marine-plywood-19mm",
       categorySlug: "plywood",
       brand: "Greenply",
-      description: "Superior waterproof plywood for extreme moisture areas. IS:710 certified, suitable for boat building, exterior use, and wet-area furniture.",
+      description:
+        "Superior waterproof plywood for extreme moisture areas. IS:710 certified, suitable for boat building, exterior use, and wet-area furniture.",
       priceRange: "₹120 - ₹160 / sq ft",
       unit: "sheet",
       images: ["/placeholder-marine.jpg"],
@@ -210,7 +252,8 @@ async function main() {
       slug: "high-gloss-laminate-1mm",
       categorySlug: "laminates",
       brand: "Merino Laminates",
-      description: "Premium high-gloss finish laminate for modern kitchens and wardrobes. Scratch-resistant, anti-fingerprint coating with 200+ color options.",
+      description:
+        "Premium high-gloss finish laminate for modern kitchens and wardrobes. Scratch-resistant, anti-fingerprint coating with 200+ color options.",
       priceRange: "₹1,200 - ₹1,800 / sheet",
       unit: "sheet",
       images: ["/placeholder-laminate.jpg"],
@@ -228,7 +271,8 @@ async function main() {
       slug: "matte-laminate-08mm",
       categorySlug: "laminates",
       brand: "Royale Touche",
-      description: "Elegant matte finish laminate with soft-touch feel. Perfect for bedroom wardrobes, study tables, and living room furniture.",
+      description:
+        "Elegant matte finish laminate with soft-touch feel. Perfect for bedroom wardrobes, study tables, and living room furniture.",
       priceRange: "₹900 - ₹1,400 / sheet",
       unit: "sheet",
       images: ["/placeholder-matte.jpg"],
@@ -246,7 +290,8 @@ async function main() {
       slug: "soft-close-hinges",
       categorySlug: "hardware",
       brand: "Hettich",
-      description: "German-engineered hydraulic soft-close hinges. Self-closing mechanism, 110° opening angle, 50,000+ cycle tested for durability.",
+      description:
+        "German-engineered hydraulic soft-close hinges. Self-closing mechanism, 110° opening angle, 50,000+ cycle tested for durability.",
       priceRange: "₹120 - ₹250 / pair",
       unit: "pair",
       images: ["/placeholder-hinge.jpg"],
@@ -264,7 +309,8 @@ async function main() {
       slug: "telescopic-drawer-channel",
       categorySlug: "hardware",
       brand: "Hafele",
-      description: "Full-extension ball-bearing drawer slides with soft-close. Zinc-plated for corrosion resistance, suitable for kitchen and office drawers.",
+      description:
+        "Full-extension ball-bearing drawer slides with soft-close. Zinc-plated for corrosion resistance, suitable for kitchen and office drawers.",
       priceRange: "₹350 - ₹800 / pair",
       unit: "pair",
       images: ["/placeholder-channel.jpg"],
@@ -282,7 +328,8 @@ async function main() {
       slug: "fevicol-sh-adhesive",
       categorySlug: "adhesives",
       brand: "Pidilite",
-      description: "Industry-standard synthetic resin adhesive for wood-to-wood bonding. Superior bond strength, heat and water resistant, ideal for all furniture work.",
+      description:
+        "Industry-standard synthetic resin adhesive for wood-to-wood bonding. Superior bond strength, heat and water resistant, ideal for all furniture work.",
       priceRange: "₹200 - ₹450 / kg",
       unit: "kg",
       images: ["/placeholder-adhesive.jpg"],
@@ -300,7 +347,8 @@ async function main() {
       slug: "teak-wood-veneer",
       categorySlug: "veneers",
       brand: "Decowood",
-      description: "Premium natural teak veneer sheets with consistent grain pattern. Perfect for luxury wardrobes, doors, and wall paneling.",
+      description:
+        "Premium natural teak veneer sheets with consistent grain pattern. Perfect for luxury wardrobes, doors, and wall paneling.",
       priceRange: "₹80 - ₹200 / sq ft",
       unit: "sheet",
       images: ["/placeholder-veneer.jpg"],
@@ -318,7 +366,8 @@ async function main() {
       slug: "pvc-edge-band-22mm",
       categorySlug: "edges",
       brand: "Rehau",
-      description: "Color-matched PVC edge banding for a seamless furniture finish. Pre-glued for easy application with edge banding machines.",
+      description:
+        "Color-matched PVC edge banding for a seamless furniture finish. Pre-glued for easy application with edge banding machines.",
       priceRange: "₹3 - ₹8 / meter",
       unit: "roll",
       images: ["/placeholder-edge.jpg"],

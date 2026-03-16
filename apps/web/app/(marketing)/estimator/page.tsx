@@ -5,6 +5,7 @@ import { prisma } from "@repo/database";
 import { Badge } from "@/components/ui/badge";
 import { EstimatorForm } from "@/components/marketing/estimator-form";
 import { Calculator, Layers3, PackageSearch, ShieldCheck } from "lucide-react";
+import { loadModuleTemplates } from "@/lib/estimator/templateLoader";
 
 export const metadata: Metadata = {
   title: "Material Estimator | Goel Traders Design Studio",
@@ -67,7 +68,10 @@ const highlights = [
 ];
 
 export default async function EstimatorPage() {
-  const categories = await getDesignCategories();
+  const [categories, templateMap] = await Promise.all([
+    getDesignCategories(),
+    loadModuleTemplates(),
+  ]);
 
   return (
     <div className="relative overflow-hidden py-10 md:py-14">
@@ -130,7 +134,7 @@ export default async function EstimatorPage() {
           </div>
         </section>
 
-        <EstimatorForm categories={categories} />
+       <EstimatorForm categories={categories} moduleTemplates={templateMap} />;
       </div>
     </div>
   );

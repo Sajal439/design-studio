@@ -12,6 +12,7 @@ import { CategorySlug, DoorType, FinishType, LayoutType, MaterialGrade, Material
 import { EstimateResultDisplay } from "./estimate-result";
 import { EstimateSaveForm } from "./estimate-save-form";
 import { RoomPreview } from "./room-preview";
+import { LoadedTemplate } from "@/lib/estimator/templateLoader";
 import {
   ArrowLeft,
   ArrowRight,
@@ -189,7 +190,13 @@ function getDoorOptions(categorySlug?: string, layout?: LayoutType | ""): { valu
   ];
 }
 
-export function EstimatorForm({ categories }: { categories: CategoryData[] }) {
+export function EstimatorForm({
+  categories,
+  moduleTemplates,
+}: {
+  categories: CategoryData[];
+  moduleTemplates: Map<string, LoadedTemplate>;
+}) {
   const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<CategoryData | null>(null);
   const [selectedDesign, setSelectedDesign] = useState<DesignInput | null>(null);
@@ -276,7 +283,7 @@ export function EstimatorForm({ categories }: { categories: CategoryData[] }) {
           depth: parseFloat(depth),
         },
         baseMaterialsList: rawMaterialsList,
-      })
+      }, moduleTemplates)
     );
     setStep(totalSteps);
   }

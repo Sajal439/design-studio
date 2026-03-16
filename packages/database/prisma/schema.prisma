@@ -162,3 +162,38 @@ model Estimate {
   @@index([categoryId])
   @@index([designId])
 }
+
+model ModuleTemplate {
+  id           String   @id @default(cuid())
+  type         String   @unique   // "BASE_CABINET", "DRAWER_UNIT", etc.
+  label        String             // "Base cabinet"
+  category     String             // "kitchen" | "wardrobe" | "tv-unit" | "bedroom" | "study" | "office"
+  active       Boolean  @default(true)
+
+  // Dimension bounds (feet)
+  widthMin     Float    @default(2.0)
+  widthMax     Float    @default(3.5)
+  heightDefault Float   @default(2.8)
+  depthDefault  Float   @default(2.0)
+
+  // Material area multipliers (× module width × height)
+  plywoodMult  Float    @default(1.6)
+  finishMult   Float    @default(1.2)
+  edgeBandMult Float    @default(20.0)  // linear feet
+
+  // Cabinet structure
+  shelves      Int      @default(1)
+  doors        Int      @default(2)
+  drawers      Int      @default(0)
+  shutterMode  String   @default("HINGED")  // "HINGED" | "SLIDING" | "OPEN"
+
+  // Hardware and accessories as JSON maps: { "Soft Close Hinges": 4, "Handles": 2 }
+  hardware     Json     @default("{}")
+  accessories  Json     @default("{}")
+
+  sortOrder    Int      @default(0)
+  notes        String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
