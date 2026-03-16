@@ -17,8 +17,9 @@ model Category {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  designs  Design[]
-  products Product[]
+  designs   Design[]
+  products  Product[]
+  estimates Estimate[]
 
   @@index([type])
 }
@@ -27,6 +28,7 @@ model User {
   id            String         @id @default(cuid())
   name          String
   email         String?        @unique
+  password      String?
   phone         String         @unique
   role          String         @default("customer")
   isActive      Boolean        @default(true)
@@ -51,6 +53,7 @@ model Design {
 
   category  Category         @relation(fields: [categoryId], references: [id])
   materials DesignMaterial[]
+  estimates Estimate[]
 
   @@index([categoryId])
 }
@@ -133,4 +136,29 @@ model Consultation {
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+}
+
+model Estimate {
+  id            String   @id @default(uuid())
+  categoryId    String
+  designId      String
+  layout        String
+  width         Float
+  height        Float
+  depth         Float?
+  grade         String
+  materialsJson String // Stores the calculated detailed bill of materials
+  costMin       Int
+  costMax       Int
+  customerName  String
+  customerPhone String
+  customerCity  String
+  createdAt     DateTime @default(now())
+
+  // Optional relations back to original models
+  category Category @relation(fields: [categoryId], references: [id])
+  design   Design   @relation(fields: [designId], references: [id])
+
+  @@index([categoryId])
+  @@index([designId])
 }

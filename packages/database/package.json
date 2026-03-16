@@ -4,6 +4,9 @@
   "private": true,
   "main": "./index.ts",
   "types": "./index.ts",
+  "prisma": {
+    "seed": "tsx seed.ts"
+  },
   "scripts": {
     "db:generate": "prisma generate",
     "generate": "npm run db:generate",

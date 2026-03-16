@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { UserNav } from "@/components/layout/user-nav";
 
 const navLinks = [
     { href: "/designs", label: "Design Gallery" },
@@ -32,9 +33,10 @@ export function Header() {
                             {link.label}
                         </Link>
                     ))}
-                    <Button asChild>
+                    <Button asChild variant="outline">
                         <Link href="/quote">Request Quote</Link>
                     </Button>
+                    <UserNav />
                 </nav>
 
                 {/* Mobile Navigation */}
@@ -44,8 +46,11 @@ export function Header() {
                             <Menu className="h-5 w-5" />
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="right" className="w-72">
-                        <nav className="flex flex-col gap-4 mt-8">
+                    <SheetContent side="right" className="w-72 overflow-y-auto">
+                        <div className="flex justify-between items-center mb-6">
+                            <span className="font-bold">Menu</span>
+                        </div>
+                        <nav className="flex flex-col gap-4">
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.href}
@@ -55,9 +60,16 @@ export function Header() {
                                     {link.label}
                                 </Link>
                             ))}
-                            <Button asChild className="mt-4">
-                                <Link href="/quote">Request Quote</Link>
-                            </Button>
+                            <div className="h-px bg-border my-2" />
+                            <div className="flex flex-col gap-2">
+                                <Button asChild className="w-full">
+                                    <Link href="/quote">Request Quote</Link>
+                                </Button>
+                            </div>
+                            <div className="h-px bg-border my-2" />
+                            <div className="flex items-center justify-center pt-2">
+                                <UserNav />
+                            </div>
                         </nav>
                     </SheetContent>
                 </Sheet>
