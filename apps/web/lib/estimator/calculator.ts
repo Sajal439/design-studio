@@ -26,6 +26,7 @@ import type {
   MaterialScaling,
   SheetOptimizationResult,
 } from "./types";
+import { ProductCatalog } from "./productCatalogLoader";
 
 // ─── Internal types ────────────────────────────────────────────────────────────
 
@@ -71,6 +72,7 @@ export interface GenerateEstimateInput {
   // Injected from server — loaded once per request via React cache()
   priceBook: PriceBook;
   templateMap: Map<string, LoadedTemplate>;
+  productCatalog: ProductCatalog;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -1241,11 +1243,14 @@ export function generateEstimate(
     totalCostMax: Math.round(customerTotal * 1.1),
   };
 
-  const productRecommendations = buildProductRecommendations({
-    materials: detailedMaterials,
-    summary,
-    categoryLabel: input.categoryLabel,
-  });
+  const productRecommendations = buildProductRecommendations(
+    {
+      materials: detailedMaterials,
+      summary,
+      categoryLabel: input.categoryLabel,
+    },
+    input.productCatalog, // ← pass catalog instead of reading static array
+  );
 
   const nextBestAction = decideNextBestAction({
     estimate: {

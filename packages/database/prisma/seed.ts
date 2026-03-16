@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { seedModuleTemplates } from "./seeds/moduleTemplates";
 import { seedPriceBook } from "./seeds/priceBook";
+import { seedProductMappings } from "./seeds/productMappings";
 
 // packages/database/prisma/seed.ts
 const prisma = new PrismaClient();
@@ -10,6 +11,7 @@ async function main() {
 
   await seedModuleTemplates(prisma);
   await seedPriceBook(prisma);
+  await seedProductMappings(prisma);
 
   // ─── Design Categories ─────────────────────────────────────
   const designCategories = [

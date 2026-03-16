@@ -29,6 +29,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { PriceBook } from "@/lib/estimator/priceBook";
+import { LiveProduct, ProductCatalog } from "@/lib/estimator/productCatalogLoader";
 
 export interface DesignInput {
   id: string;
@@ -195,10 +196,15 @@ export function EstimatorForm({
   categories,
   moduleTemplates,
   priceBook,
+  productCatalog,
 }: {
   categories: CategoryData[];
   moduleTemplates: Map<string, LoadedTemplate>;
   priceBook: PriceBook;
+  productCatalog: {
+    bySlug: Record<string, LiveProduct>;
+    mappings: { pattern: string; flags: string; productSlugs: string[]; reason: string }[];
+  };
 }) {
   const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<CategoryData | null>(null);
@@ -268,6 +274,14 @@ export function EstimatorForm({
       unit: m.material.unit,
       scaling: ((m.material.scaling as MaterialScaling) || "AREA") as MaterialScaling,
     }));
+    const catalog: ProductCatalog = {
+      bySlug: new Map(Object.entries(productCatalog.bySlug)),
+      mappings: productCatalog.mappings.map((m) => ({
+        pattern: new RegExp(m.pattern, m.flags),
+        productSlugs: m.productSlugs,
+        reason: m.reason,
+      })),
+    };
 
     setResult(
       generateEstimate({
@@ -281,6 +295,7 @@ export function EstimatorForm({
         finishType,
         doorType,
         priceBook,
+        productCatalog: catalog,
         dimensions: {
           width: parseFloat(width),
           height: parseFloat(height),

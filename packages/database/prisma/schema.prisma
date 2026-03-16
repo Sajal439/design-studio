@@ -221,3 +221,24 @@ model PriceBookEntry {
 
   @@index([category])
 }
+
+model ProductMapping {
+  id              String   @id @default(cuid())
+
+  // Regex pattern matched against BOM material names (case-insensitive)
+  // e.g. "PLYWOOD|MDF", "HINGE", "EDGE"
+  pattern         String
+
+  // Ordered list of product slugs to try — first one found in DB wins
+  productSlugs    String[] // e.g. ["bwr-plywood-19mm", "marine-plywood-19mm"]
+
+  // Shown on the recommendation card
+  reason          String
+
+  // Sort order — lower runs first when multiple patterns could match
+  priority        Int      @default(0)
+
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

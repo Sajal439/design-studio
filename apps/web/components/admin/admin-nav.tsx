@@ -11,6 +11,7 @@ import {
   Users,
   Layers,
   IndianRupee,
+  Shuffle,
 } from "lucide-react";
 
 const items = [
@@ -22,6 +23,7 @@ const items = [
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/module-templates", label: "Module templates", icon: Layers },
   { href: "/admin/pricing", label: "Price book", icon: IndianRupee },
+  { href: "/admin/product-mappings", label: "Product mappings", icon: Shuffle },
 ];
 
 export function AdminNav() {

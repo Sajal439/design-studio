@@ -7,6 +7,7 @@ import { EstimatorForm } from "@/components/marketing/estimator-form";
 import { Calculator, Layers3, PackageSearch, ShieldCheck } from "lucide-react";
 import { loadModuleTemplates } from "@/lib/estimator/templateLoader";
 import { loadPriceBook } from "@/lib/estimator/priceBookLoader";
+import { loadProductCatalog } from "@/lib/estimator/productCatalogLoader";
 
 export const metadata: Metadata = {
   title: "Material Estimator | Goel Traders Design Studio",
@@ -69,12 +70,22 @@ const highlights = [
 ];
 
 export default async function EstimatorPage() {
-  const [categories, templateMap, priceBook] = await Promise.all([
+  const [categories, templateMap, priceBook, productCatalog] = await Promise.all([
     getDesignCategories(),
     loadModuleTemplates(),
-    loadPriceBook()
+    loadPriceBook(),
+    loadProductCatalog()
   ]);
 
+  const serialisedCatalog = {
+    bySlug: Object.fromEntries(productCatalog.bySlug),
+    mappings: productCatalog.mappings.map((m) => ({
+      pattern: m.pattern.source,
+      flags: m.pattern.flags,
+      productSlugs: m.productSlugs,
+      reason: m.reason,
+    })),
+  };
   return (
     <div className="relative overflow-hidden py-10 md:py-14">
       <div className="absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(circle_at_top_left,_rgba(199,120,53,0.18),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(35,71,52,0.12),_transparent_28%),linear-gradient(180deg,_rgba(249,246,239,0.92),_rgba(255,255,255,0))]" />
@@ -136,7 +147,7 @@ export default async function EstimatorPage() {
           </div>
         </section>
 
-        <EstimatorForm categories={categories} moduleTemplates={templateMap} priceBook={priceBook} />;
+        <EstimatorForm categories={categories} moduleTemplates={templateMap} priceBook={priceBook} productCatalog={serialisedCatalog} />;
       </div>
     </div>
   );
