@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ShoppingBag, CheckCircle } from "lucide-react";
+import { ShoppingBag, CheckCircle, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,18 +24,27 @@ const projectTypes = [
 type QuoteFormProps = {
   designSlug?: string;
   productSlug?: string;
+  prefillProjectType?: string;   // ← new
+  prefillMessage?: string;    // ← new
+  source?: string;
 };
 
-export function QuoteForm({ designSlug = "", productSlug = "" }: QuoteFormProps) {
+export function QuoteForm({
+  designSlug = "",
+  productSlug = "",
+  prefillProjectType,
+  prefillMessage,
+  source,
+}: QuoteFormProps) {
   const [formData, setFormData] = useState<QuoteRequest>({
     name: "",
     phone: "",
     email: "",
-    projectType: "",
-    designSlug,
-    productSlug,
+    projectType: prefillProjectType ?? "",   // ← was always ""
+    designSlug: designSlug ?? "",
+    productSlug: productSlug ?? "",
     location: "",
-    message: "",
+    message: prefillMessage ?? "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -119,6 +128,19 @@ export function QuoteForm({ designSlug = "", productSlug = "" }: QuoteFormProps)
             {selectedItem ? <Badge className="mt-3">{selectedItemLabel}: {selectedItem.replace(/-/g, " ")}</Badge> : null}
           </div>
 
+          {source === "estimator" && (
+            <div className="mb-6 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+              <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Calculator className="h-3.5 w-3.5" />
+              </div>
+              <div className="text-sm">
+                <p className="font-medium">Filled from your estimate</p>
+                <p className="mt-0.5 text-muted-foreground">
+                  Project type and details have been carried over. Add your contact info and we'll be in touch.
+                </p>
+              </div>
+            </div>
+          )}
           <Card>
             <CardContent className="p-6 md:p-8">
               <form onSubmit={handleSubmit} className="space-y-5">
