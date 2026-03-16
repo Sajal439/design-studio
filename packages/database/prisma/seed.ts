@@ -1,13 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import { seedModuleTemplates } from "./seeds/moduleTemplates";
+import { seedPriceBook } from "./seeds/priceBook";
 
 // packages/database/prisma/seed.ts
 const prisma = new PrismaClient();
-  
+
 async function main() {
   console.log("🌱 Seeding database...");
 
   await seedModuleTemplates(prisma);
+  await seedPriceBook(prisma);
 
   // ─── Design Categories ─────────────────────────────────────
   const designCategories = [

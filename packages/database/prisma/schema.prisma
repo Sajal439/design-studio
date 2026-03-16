@@ -197,3 +197,27 @@ model ModuleTemplate {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+model PriceBookEntry {
+  id        String   @id @default(cuid())
+
+  // Structured key — three formats:
+  //   "sheet.BUDGET.plywood"    → SHEET category
+  //   "hardware.HINGE_SOFT_CLOSE" → HARDWARE category
+  //   "rate.labor"              → RATE category
+  key       String   @unique
+
+  category  String   // "SHEET" | "HARDWARE" | "RATE"
+  label     String   // "BWR Plywood — budget grade"
+  value     Float    // the price or percentage
+
+  // Display help for the admin UI
+  unit      String   // "per sqft" | "per piece" | "per set" | "percentage"
+  notes     String?
+
+  active    Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([category])
+}

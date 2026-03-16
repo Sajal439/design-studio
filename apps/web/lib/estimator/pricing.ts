@@ -1,5 +1,5 @@
 import type { MaterialCategory, MaterialGrade } from "./types";
-
+import type { PriceBook } from "./priceBook";
 export const SQFT_PER_SHEET = 32;
 
 export const WASTE_FACTORS = {
@@ -18,7 +18,10 @@ export const DEALER_MARGIN_PERCENTAGE = 0.06;
 export const CONTRACTOR_MARGIN_PERCENTAGE = 0.1;
 export const CUSTOMER_MARGIN_PERCENTAGE = 0.18;
 
-const SHEET_PRICES: Record<MaterialGrade, { plywood: number; surface: number }> = {
+const SHEET_PRICES: Record<
+  MaterialGrade,
+  { plywood: number; surface: number }
+> = {
   BUDGET: {
     plywood: 65,
     surface: 55,
@@ -56,98 +59,60 @@ const FIXED_PRICES = {
   ADHESIVE: 950,
 } as const;
 
-export function getSheetUnitCost(grade: MaterialGrade, category: "PLYWOOD" | "SURFACE"): number {
-  return category === "PLYWOOD"
-    ? SHEET_PRICES[grade].plywood
-    : SHEET_PRICES[grade].surface;
+export function getSheetUnitCost(
+  grade: MaterialGrade,
+  category: "PLYWOOD" | "SURFACE",
+  priceBook: PriceBook,
+): number {
+  const row = priceBook.sheets[grade];
+  return category === "PLYWOOD" ? row.plywood : row.surface;
 }
 
-export function getHardwareUnitCost(name: string, grade: MaterialGrade): number {
-  const upperName = name.toUpperCase();
+export function getHardwareUnitCost(
+  name: string,
+  grade: MaterialGrade,
+  priceBook: PriceBook,
+): number {
+  const upper = name.toUpperCase();
+  const hw = priceBook.hardware;
 
-  if (upperName.includes("HINGE")) {
-    return grade === "BUDGET" ? FIXED_PRICES.HINGE_NORMAL : FIXED_PRICES.HINGE_SOFT_CLOSE;
+  if (upper.includes("HINGE")) {
+    return grade === "BUDGET"
+      ? (hw["HINGE_NORMAL"] ?? 80)
+      : (hw["HINGE_SOFT_CLOSE"] ?? 180);
   }
-
-  if (upperName.includes("HANDLE")) {
-    return grade === "PREMIUM" ? FIXED_PRICES.PROFILE_HANDLE : FIXED_PRICES.HANDLE;
+  if (upper.includes("HANDLE")) {
+    return grade === "PREMIUM"
+      ? (hw["PROFILE_HANDLE"] ?? 350)
+      : (hw["HANDLE"] ?? 150);
   }
-
-  if (upperName.includes("EDGE")) {
-    return FIXED_PRICES.EDGE_BAND;
+  if (upper.includes("EDGE")) {
+    return hw["EDGE_BAND"] ?? 8;
   }
-
-  if (upperName.includes("CHANNEL") || upperName.includes("TANDEM")) {
-    return grade === "PREMIUM" ? FIXED_PRICES.TANDEM_BOX : FIXED_PRICES.TELESCOPIC_CHANNEL;
+  if (upper.includes("CHANNEL") || upper.includes("TANDEM")) {
+    return grade === "PREMIUM"
+      ? (hw["TANDEM_BOX"] ?? 1800)
+      : (hw["TELESCOPIC_CHANNEL"] ?? 450);
   }
-
-  if (upperName.includes("TRACK")) {
-    return FIXED_PRICES.SLIDING_TRACK_SET;
-  }
-
-  if (upperName.includes("ROLLER")) {
-    return FIXED_PRICES.SLIDING_ROLLER_SET;
-  }
-
-  if (upperName.includes("STOPPER")) {
-    return FIXED_PRICES.SOFT_STOPPER;
-  }
-
-  if (upperName.includes("MAGNET")) {
-    return FIXED_PRICES.MAGNETIC_CATCH;
-  }
-
-  if (upperName.includes("LED")) {
-    return FIXED_PRICES.LED_CHANNEL;
-  }
-
-  if (upperName.includes("BASKET")) {
-    return FIXED_PRICES.KITCHEN_BASKET;
-  }
-
-  if (upperName.includes("GROMMET")) {
-    return FIXED_PRICES.CABLE_GROMMET;
-  }
-
-  if (upperName.includes("FRAME")) {
-    return FIXED_PRICES.METAL_FRAME;
-  }
-
-  if (upperName.includes("PARTITION")) {
-    return FIXED_PRICES.PARTITION_PANEL;
-  }
-
-  if (upperName.includes("MIRROR")) {
-    return FIXED_PRICES.MIRROR;
-  }
-
-  if (upperName.includes("FABRIC")) {
-    return FIXED_PRICES.FABRIC_UPHOLSTERY;
-  }
-
-  if (upperName.includes("WALL MOUNT")) {
-    return 800;
-  }
-
-  if (upperName.includes("ROD")) {
-    return 450;
-  }
-
-  if (upperName.includes("MOISTURE")) {
-    return 90;
-  }
-
-  if (upperName.includes("JOINT")) {
-    return 650;
-  }
-
-  if (upperName.includes("SCREW") || upperName.includes("NAIL")) {
-    return FIXED_PRICES.SCREWS_AND_NAILS;
-  }
-
-  if (upperName.includes("ADHESIVE") || upperName.includes("GLUE")) {
-    return FIXED_PRICES.ADHESIVE;
-  }
+  if (upper.includes("TRACK")) return hw["SLIDING_TRACK_SET"] ?? 3200;
+  if (upper.includes("ROLLER")) return hw["SLIDING_ROLLER_SET"] ?? 650;
+  if (upper.includes("STOPPER")) return hw["SOFT_STOPPER"] ?? 450;
+  if (upper.includes("MAGNET")) return hw["MAGNETIC_CATCH"] ?? 70;
+  if (upper.includes("LED")) return hw["LED_CHANNEL"] ?? 550;
+  if (upper.includes("BASKET")) return hw["KITCHEN_BASKET"] ?? 1800;
+  if (upper.includes("GROMMET")) return hw["CABLE_GROMMET"] ?? 250;
+  if (upper.includes("FRAME")) return hw["METAL_FRAME"] ?? 520;
+  if (upper.includes("PARTITION")) return hw["PARTITION_PANEL"] ?? 110;
+  if (upper.includes("MIRROR")) return hw["MIRROR"] ?? 2400;
+  if (upper.includes("FABRIC")) return hw["FABRIC_UPHOLSTERY"] ?? 130;
+  if (upper.includes("WALL MOUNT")) return 800;
+  if (upper.includes("ROD")) return 450;
+  if (upper.includes("MOISTURE")) return 90;
+  if (upper.includes("JOINT")) return 650;
+  if (upper.includes("SCREW") || upper.includes("NAIL"))
+    return hw["SCREWS_AND_NAILS"] ?? 1500;
+  if (upper.includes("ADHESIVE") || upper.includes("GLUE"))
+    return hw["ADHESIVE"] ?? 950;
 
   return 100;
 }

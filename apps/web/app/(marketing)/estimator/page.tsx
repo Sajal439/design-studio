@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { EstimatorForm } from "@/components/marketing/estimator-form";
 import { Calculator, Layers3, PackageSearch, ShieldCheck } from "lucide-react";
 import { loadModuleTemplates } from "@/lib/estimator/templateLoader";
+import { loadPriceBook } from "@/lib/estimator/priceBookLoader";
 
 export const metadata: Metadata = {
   title: "Material Estimator | Goel Traders Design Studio",
@@ -68,9 +69,10 @@ const highlights = [
 ];
 
 export default async function EstimatorPage() {
-  const [categories, templateMap] = await Promise.all([
+  const [categories, templateMap, priceBook] = await Promise.all([
     getDesignCategories(),
     loadModuleTemplates(),
+    loadPriceBook()
   ]);
 
   return (
@@ -134,7 +136,7 @@ export default async function EstimatorPage() {
           </div>
         </section>
 
-       <EstimatorForm categories={categories} moduleTemplates={templateMap} />;
+        <EstimatorForm categories={categories} moduleTemplates={templateMap} priceBook={priceBook} />;
       </div>
     </div>
   );

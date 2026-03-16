@@ -28,6 +28,7 @@ import {
   PencilRuler,
   Sparkles,
 } from "lucide-react";
+import { PriceBook } from "@/lib/estimator/priceBook";
 
 export interface DesignInput {
   id: string;
@@ -193,9 +194,11 @@ function getDoorOptions(categorySlug?: string, layout?: LayoutType | ""): { valu
 export function EstimatorForm({
   categories,
   moduleTemplates,
+  priceBook,
 }: {
   categories: CategoryData[];
   moduleTemplates: Map<string, LoadedTemplate>;
+  priceBook: PriceBook;
 }) {
   const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<CategoryData | null>(null);
@@ -277,13 +280,15 @@ export function EstimatorForm({
         grade,
         finishType,
         doorType,
+        priceBook,
         dimensions: {
           width: parseFloat(width),
           height: parseFloat(height),
           depth: parseFloat(depth),
         },
         baseMaterialsList: rawMaterialsList,
-      }, moduleTemplates)
+        templateMap: moduleTemplates,
+      })
     );
     setStep(totalSteps);
   }
