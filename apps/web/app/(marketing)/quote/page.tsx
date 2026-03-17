@@ -1,6 +1,18 @@
 import { QuoteForm } from "@/components/marketing/quote-form";
+import { siteConfig } from "@/lib/site-config";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: `Request a Quote | ${siteConfig.name}`,
+  description: "Get a detailed material quote for your interior project. Kitchens, wardrobes, bedrooms, TV units, and more — sourced directly from Goel Traders.",
+  openGraph: {
+    title: `Request a Quote | ${siteConfig.name}`,
+    description: "Free quotes for interior materials. Tell us about your project and we'll respond within 24 hours.",
+    url: `${siteConfig.url}/quote`,
+  },
+};
 
 export default async function QuotePage({
   searchParams,

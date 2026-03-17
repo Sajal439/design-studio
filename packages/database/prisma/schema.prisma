@@ -105,7 +105,7 @@ model QuoteRequest {
   id          String   @id @default(cuid())
   name        String
   phone       String
-  email       String
+  email       String?
   projectType String
   designSlug  String?
   productSlug String?

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import { siteConfig } from "@/lib/site-config";
 
 export function Footer() {
     return (
@@ -37,9 +38,9 @@ export function Footer() {
                     <div>
                         <h4 className="text-sm font-semibold mb-3">Contact</h4>
                         <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li>📍 Goel Traders, Your City</li>
-                            <li>📞 +91 XXXXX XXXXX</li>
-                            <li>✉️ info@goeltraders.com</li>
+                            <li>📍{siteConfig.address}</li>
+                            <li>📞 {siteConfig.phone}</li>
+                            <li>✉️ {siteConfig.email}</li>
                         </ul>
                     </div>
                 </div>

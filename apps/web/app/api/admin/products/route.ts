@@ -1,21 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { prisma } from "@repo/database";
-import { z } from "zod";
-
-const specificationSchema = z.object({ label: z.string().min(1), value: z.string().min(1) });
-const productSchema = z.object({
-  name: z.string().min(1),
-  slug: z.string().min(1),
-  categorySlug: z.string().min(1),
-  brand: z.string().min(1),
-  description: z.string().min(1),
-  priceRange: z.string().min(1),
-  unit: z.string().min(1),
-  inStock: z.boolean(),
-  images: z.array(z.string().min(1)).min(1),
-  specifications: z.array(specificationSchema).min(1),
-});
+import { productSchema } from "@/lib/admin-validations";
 
 function revalidateProductPaths() {
   revalidatePath("/admin/products");
@@ -27,13 +13,23 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const result = productSchema.safeParse(body);
+
     if (!result.success) {
-      return NextResponse.json({ error: "Invalid product payload", details: result.error.flatten() }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid product payload", details: result.error.flatten() },
+        { status: 400 },
+      );
     }
 
-    const category = await prisma.category.findFirst({ where: { slug: result.data.categorySlug, type: "product" } });
+    const category = await prisma.category.findFirst({
+      where: { slug: result.data.categorySlug, type: "product" },
+    });
+
     if (!category) {
-      return NextResponse.json({ error: "Product category not found" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Product category not found" },
+        { status: 400 },
+      );
     }
 
     const created = await prisma.product.create({
@@ -55,6 +51,9 @@ export async function POST(request: Request) {
     return NextResponse.json(created, { status: 201 });
   } catch (error) {
     console.error("Create product error:", error);
-    return NextResponse.json({ error: "Unable to create product" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Unable to create product" },
+      { status: 500 },
+    );
   }
 }

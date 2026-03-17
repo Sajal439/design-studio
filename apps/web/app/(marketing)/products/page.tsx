@@ -6,11 +6,34 @@ import { prisma } from "@repo/database";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, CheckCircle, XCircle } from "lucide-react";
+import { Metadata } from "next";
+import { siteConfig } from "@/lib/site-config";
 
-export const metadata = {
-  title: "Products | Goel Traders Design Studio",
-  description: "Browse quality plywood, laminates, hardware, adhesives, veneers and edge bands from top brands.",
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}): Promise<Metadata> {
+  const { category } = await searchParams;
+  let categoryLabel = "All products";
+
+  if (category && category !== "all") {
+    const cat = await prisma.category.findUnique({ where: { slug: category } });
+    if (cat) {
+      categoryLabel = cat.label;
+    } else {
+      categoryLabel = category
+        .split("-")
+        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+        .join(" ");
+    }
+  }
+
+  return {
+    title: `${categoryLabel} | ${siteConfig.name}`,
+    description: `Browse ${categoryLabel.toLowerCase()} from trusted brands — Century, Greenply, Merino, Hettich, Hafele and more. Competitive pricing from Goel Traders.`,
+  };
+}
 
 async function getProductCategories() {
   return prisma.category.findMany({ where: { type: "product" }, orderBy: { name: "asc" } });

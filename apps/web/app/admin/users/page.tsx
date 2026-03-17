@@ -4,9 +4,9 @@ import { prisma } from "@repo/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RecordSelect } from "@/components/admin/record-select";
+import { UserWithCount } from "@/lib/admin-types";
 
 const userQuery = () => prisma.user.findMany({ include: { _count: { select: { quoteRequests: true, consultations: true } } } });
-type UserWithCount = Awaited<ReturnType<typeof userQuery>>[number];
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(date);

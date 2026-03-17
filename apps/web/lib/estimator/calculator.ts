@@ -8,6 +8,7 @@ import {
   buildProductRecommendations,
   decideNextBestAction,
 } from "./recommendations";
+import { calculateModulePanels } from "./panelCalculations";
 import type { PriceBook } from "./priceBook";
 import type { LoadedTemplate } from "./templateLoader";
 import type {
@@ -27,7 +28,6 @@ import type {
   SheetOptimizationResult,
 } from "./types";
 import { ProductCatalog } from "./productCatalogLoader";
-import { calculateModulePanels } from "./panelCalculations";
 
 // ─── Internal types ────────────────────────────────────────────────────────────
 

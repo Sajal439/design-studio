@@ -1,20 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { prisma } from "@repo/database";
-import { z } from "zod";
-
-const materialSchema = z.object({ name: z.string().min(1), quantity: z.number().positive(), unit: z.string().min(1) });
-const designSchema = z.object({
-  title: z.string().min(1),
-  slug: z.string().min(1),
-  categorySlug: z.string().min(1),
-  description: z.string().min(1),
-  estimatedCost: z.string().min(1),
-  roomSize: z.string().min(1),
-  style: z.string().min(1),
-  images: z.array(z.string().min(1)).min(1),
-  materials: z.array(materialSchema).min(1),
-});
+import { designSchema } from "@/lib/admin-validations";
 
 function revalidateDesignPaths() {
   revalidatePath("/admin/designs");
@@ -22,18 +9,32 @@ function revalidateDesignPaths() {
   revalidatePath("/admin");
 }
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const body = await request.json();
     const result = designSchema.safeParse(body);
+
     if (!result.success) {
-      return NextResponse.json({ error: "Invalid design payload", details: result.error.flatten() }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid design payload", details: result.error.flatten() },
+        { status: 400 },
+      );
     }
 
     const { id } = await params;
-    const category = await prisma.category.findFirst({ where: { slug: result.data.categorySlug, type: "design" } });
+
+    const category = await prisma.category.findFirst({
+      where: { slug: result.data.categorySlug, type: "design" },
+    });
+
     if (!category) {
-      return NextResponse.json({ error: "Design category not found" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Design category not found" },
+        { status: 400 },
+      );
     }
 
     const [, updated] = await prisma.$transaction([
@@ -59,11 +60,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json(updated);
   } catch (error) {
     console.error("Update design error:", error);
-    return NextResponse.json({ error: "Unable to update design" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Unable to update design" },
+      { status: 500 },
+    );
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const { id } = await params;
     await prisma.design.delete({ where: { id } });
@@ -71,6 +78,9 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Delete design error:", error);
-    return NextResponse.json({ error: "Unable to delete design" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Unable to delete design" },
+      { status: 500 },
+    );
   }
 }

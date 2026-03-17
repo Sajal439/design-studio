@@ -3,8 +3,19 @@ import { NextResponse } from "next/server";
 import { prisma } from "@repo/database";
 import { consultationSchema } from "@/lib/validations";
 import { sendConsultationNotification } from "@/lib/email";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  const limit = rateLimit(request, { limit: 5, windowMs: 60 * 60 * 1000 });
+  if (!limit.success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait before submitting again." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfterSeconds) },
+      },
+    );
+  }
   try {
     const body = await request.json();
     const result = consultationSchema.safeParse(body);
@@ -12,7 +23,7 @@ export async function POST(request: Request) {
     if (!result.success) {
       return NextResponse.json(
         { error: "Validation failed", details: result.error.flatten() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -47,10 +58,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       { message: "Consultation booked", id: consultation.id },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Consultation API error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

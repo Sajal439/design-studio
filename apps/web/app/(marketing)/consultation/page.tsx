@@ -4,10 +4,21 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Phone, CheckCircle, Building, Video, MapPin } from "lucide-react";
+import { Phone, CheckCircle, Building, Video, MapPin, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { consultationSchema, type ConsultationRequest } from "@/lib/validations";
+import type { Metadata } from "next";
+import { siteConfig } from "@/lib/site-config";
 
+export const metadata: Metadata = {
+    title: `Book a Free Consultation | ${siteConfig.name}`,
+    description: "Book a free interior consultation — showroom visit, video call, or site visit. Get expert guidance on materials, layouts, and cost estimates from Goel Traders.",
+    openGraph: {
+        title: `Book a Free Consultation | ${siteConfig.name}`,
+        description: "Expert interior material guidance at no cost. Book your preferred consultation type today.",
+        url: `${siteConfig.url}/consultation`,
+    },
+};
 const consultationTypes = [
     { id: "showroom", label: "Showroom Visit", icon: Building, desc: "Visit our store to see materials in person" },
     { id: "video", label: "Video Call", icon: Video, desc: "Quick video consultation from home" },
@@ -194,7 +205,14 @@ export default function ConsultationPage() {
                                     </p>
                                 )}
                                 <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                                    {loading ? "Booking..." : "Book Consultation"}
+                                    {loading ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Booking...
+                                        </>
+                                    ) : (
+                                        "Book Consultation"
+                                    )}
                                 </Button>
                             </form>
                         </CardContent>

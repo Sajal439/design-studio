@@ -12,27 +12,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSession } from "@/lib/session-context";
 
 export function UserNav() {
-  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoading } = useSession();
 
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await fetch("/api/auth/me");
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchUser();
-  }, []);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
