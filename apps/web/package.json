@@ -13,6 +13,7 @@
   "dependencies": {
     "@repo/database": "*",
     "@repo/ui": "*",
+    "@sentry/nextjs": "^10.43.0",
     "@tailwindcss/postcss": "^4.2.1",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",

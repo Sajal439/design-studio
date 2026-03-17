@@ -1,13 +1,12 @@
-export const dynamic = "force-dynamic";
-
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@repo/database";
 import { Badge } from "@/components/ui/badge";
-import { EstimatorForm } from "@/components/marketing/estimator-form";
-import { Calculator, Layers3, PackageSearch, ShieldCheck } from "lucide-react";
 import { loadModuleTemplates } from "@/lib/estimator/templateLoader";
 import { loadPriceBook } from "@/lib/estimator/priceBookLoader";
 import { loadProductCatalog } from "@/lib/estimator/productCatalogLoader";
+import { Calculator, Layers3, PackageSearch, ShieldCheck } from "lucide-react";
+import { EstimatorForm } from "@/components/marketing/estimator/estimator-form";
 
 export const metadata: Metadata = {
   title: "Material Estimator | Goel Traders Design Studio",
@@ -15,41 +14,53 @@ export const metadata: Metadata = {
     "Calculate the exact materials needed for your interior project. Get instant estimates for plywood, laminates, hardware, and more.",
 };
 
-async function getDesignCategories() {
-  const categories = await prisma.category.findMany({
-    where: { type: "design" },
-    orderBy: { label: "asc" },
-  });
+// ── Cached data fetchers ───────────────────────────────────────────────────────
+// unstable_cache persists across requests and is revalidated by tag when
+// admin creates/updates/deletes a design. Previously this ran a full Prisma
+// query on every single page visit.
 
-  const designs = await prisma.design.findMany({
-    include: { materials: true },
-    orderBy: { title: "asc" },
-  });
+const getDesignCategories = unstable_cache(
+  async () => {
+    const categories = await prisma.category.findMany({
+      where: { type: "design" },
+      orderBy: { label: "asc" },
+    });
 
-  return categories.map((cat) => ({
-    id: cat.id,
-    slug: cat.slug,
-    label: cat.label,
-    designs: designs
-      .filter((d) => d.categoryId === cat.id)
-      .map((d) => ({
-        id: d.id,
-        title: d.title,
-        slug: d.slug,
-        roomSize: d.roomSize || "10x10",
-        style: d.style || "Modern",
-        estimatedCost: d.estimatedCost || "Calculated",
-        materials: d.materials.map((m) => ({
-          material: {
-            name: m.name,
-            baseQty: m.quantity,
-            unit: m.unit,
-            scaling: "AREA",
-          },
+    const designs = await prisma.design.findMany({
+      include: { materials: true },
+      orderBy: { title: "asc" },
+    });
+
+    return categories.map((cat) => ({
+      id: cat.id,
+      slug: cat.slug,
+      label: cat.label,
+      designs: designs
+        .filter((d) => d.categoryId === cat.id)
+        .map((d) => ({
+          id: d.id,
+          title: d.title,
+          slug: d.slug,
+          roomSize: d.roomSize || "10x10",
+          style: d.style || "Modern",
+          estimatedCost: d.estimatedCost || "Calculated",
+          materials: d.materials.map((m) => ({
+            material: {
+              name: m.name,
+              baseQty: m.quantity,
+              unit: m.unit,
+              scaling: "AREA",
+            },
+          })),
         })),
-      })),
-  }));
-}
+    }));
+  },
+  ["estimator-design-categories"],
+  {
+    revalidate: 300,                         // 5 minutes
+    tags: ["designs", "categories"],   // busted by revalidateTag in admin routes
+  },
+);
 
 const highlights = [
   {
@@ -70,11 +81,12 @@ const highlights = [
 ];
 
 export default async function EstimatorPage() {
+  // All four data sources fetched in parallel — DB queries are cached
   const [categories, templateMap, priceBook, productCatalog] = await Promise.all([
     getDesignCategories(),
     loadModuleTemplates(),
     loadPriceBook(),
-    loadProductCatalog()
+    loadProductCatalog(),
   ]);
 
   const serialisedCatalog = {
@@ -86,6 +98,7 @@ export default async function EstimatorPage() {
       reason: m.reason,
     })),
   };
+
   return (
     <div className="relative overflow-hidden py-10 md:py-14">
       <div className="absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(circle_at_top_left,_rgba(199,120,53,0.18),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(35,71,52,0.12),_transparent_28%),linear-gradient(180deg,_rgba(249,246,239,0.92),_rgba(255,255,255,0))]" />
@@ -103,20 +116,15 @@ export default async function EstimatorPage() {
                   Material estimator with a cleaner workflow and smarter project output.
                 </h1>
                 <p className="max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
-                  Build a room estimate the way a studio team would: choose a category, pick a reference,
-                  define the layout, and get a polished BOM with cost layers and contractor-ready details.
+                  Build a room estimate the way a studio team would: choose a category,
+                  pick a reference, define the layout, and get a polished BOM with cost
+                  layers and contractor-ready details.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3 text-sm">
-                <div className="rounded-full border border-foreground/10 bg-background/80 px-4 py-2 shadow-sm">
-                  6 interior categories
-                </div>
-                <div className="rounded-full border border-foreground/10 bg-background/80 px-4 py-2 shadow-sm">
-                  Layout-based estimation
-                </div>
-                <div className="rounded-full border border-foreground/10 bg-background/80 px-4 py-2 shadow-sm">
-                  Print-friendly result sheets
-                </div>
+                <div className="rounded-full border border-foreground/10 bg-background/80 px-4 py-2 shadow-sm">6 interior categories</div>
+                <div className="rounded-full border border-foreground/10 bg-background/80 px-4 py-2 shadow-sm">Layout-based estimation</div>
+                <div className="rounded-full border border-foreground/10 bg-background/80 px-4 py-2 shadow-sm">Print-friendly result sheets</div>
               </div>
             </div>
             <div className="grid gap-3">
@@ -147,7 +155,12 @@ export default async function EstimatorPage() {
           </div>
         </section>
 
-        <EstimatorForm categories={categories} moduleTemplates={templateMap} priceBook={priceBook} productCatalog={serialisedCatalog} />;
+        <EstimatorForm
+          categories={categories}
+          moduleTemplates={templateMap}
+          priceBook={priceBook}
+          productCatalog={serialisedCatalog}
+        />
       </div>
     </div>
   );

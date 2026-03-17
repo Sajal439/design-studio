@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { prisma } from "@repo/database";
 import { productSchema } from "@/lib/admin-validations";
@@ -7,6 +7,8 @@ function revalidateProductPaths() {
   revalidatePath("/admin/products");
   revalidatePath("/products");
   revalidatePath("/admin");
+  revalidateTag("products", "max");
+  revalidateTag("categories", "max");
 }
 
 export async function PATCH(
