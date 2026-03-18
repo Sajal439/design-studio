@@ -40,7 +40,16 @@
       "dependsOn": ["^lint"]
     },
     "generate": {
-      "dependsOn": ["^generate"]
+      "dependsOn": ["^generate"],
+      "inputs": [
+        "prisma/schema.prisma",
+        "../../packages/database/prisma/schema.prisma"
+      ],
+      "outputs": [
+        "generated/**",
+        "../../node_modules/@prisma/client/**",
+        "../../node_modules/.prisma/client/**"
+      ]
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]
