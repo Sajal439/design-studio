@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Calculator, Ruler, ArrowRight } from "lucide-react";
 import { estimateMaterials, formatCurrency, type DesignInput, type EstimatorResult } from "@/lib/estimator";
-import { ErrorBoundary } from "../error-boundary";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 interface DesignEstimatorProps {
   design: DesignInput;

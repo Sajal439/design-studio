@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { prisma } from "@repo/database";
 import { consultationSchema } from "@/lib/validations";
-import { sendConsultationNotification } from "@/lib/email";
+import { sendConsultationNotification, notifyAdminConsultation } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
@@ -55,6 +55,15 @@ export async function POST(request: Request) {
     } catch (emailError) {
       console.error("Non-fatal: Failed to send consultation email", emailError);
     }
+
+    // Fire-and-forget WhatsApp alert to admin
+    notifyAdminConsultation({
+      name: result.data.name,
+      phone: result.data.phone,
+      consultationType: result.data.consultationType,
+      projectType: result.data.projectType,
+      source: result.data.source,
+    }).catch(() => {}); // non-blocking
 
     return NextResponse.json(
       { message: "Consultation booked", id: consultation.id },

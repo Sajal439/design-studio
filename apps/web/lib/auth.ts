@@ -68,3 +68,18 @@ export async function clearSession(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE_NAME);
 }
+
+/**
+ * Extract the JWT session from a Web API Request's Cookie header.
+ * Use this in API route handlers where next/headers is unavailable.
+ */
+export async function getSessionUser(
+  req: Request,
+): Promise<SessionPayload | null> {
+  const cookieHeader = req.headers.get("cookie") ?? "";
+  const match = cookieHeader.match(
+    new RegExp(`(?:^|;\\s*)${SESSION_COOKIE_NAME}=([^;]+)`),
+  );
+  const token = match?.[1];
+  return verifyToken(token);
+}

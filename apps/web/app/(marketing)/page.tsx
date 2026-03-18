@@ -3,6 +3,10 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Ruler, Palette, ShoppingBag, MessageSquare, Phone, Star, Award, Truck, Shield, Clock } from "lucide-react";
+import { BrandLogosBar } from "@/components/marketing/brand-logos-bar";
+import { TestimonialsSection } from "@/components/marketing/testimonials-section";
+import { ExitIntentPopup } from "@/components/marketing/exit-intent-popup";
+
 
 const categories = [
   { name: "Modular Kitchens", icon: "🍳", count: "50+ Designs", href: "/designs?category=kitchen" },
@@ -88,6 +92,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Brand logos trust strip */}
+      <BrandLogosBar />
 
       {/* Categories Section */}
       <section className="py-16 md:py-24">
@@ -209,6 +216,13 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Testimonials - social proof */}
+      <TestimonialsSection />
+
+      {/* Exit-intent popup — fires on scroll depth or mouse leave */}
+      <ExitIntentPopup />
+
     </div>
   );
 }

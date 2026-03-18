@@ -96,3 +96,98 @@ export async function sendConsultationNotification(consultationData: EmailData) 
     console.error("Error sending consultation notification email:", error);
   }
 }
+
+// ── WhatsApp Admin Notifications ──────────────────────────────────────────────
+
+const WHATSAPP_API_URL = "https://api.whatsapp.com/send";
+
+/**
+ * Send a WhatsApp message to the admin using the WhatsApp Business API
+ * (via CallMeBot free gateway or similar).
+ * Requires WHATSAPP_API_KEY and ADMIN_WHATSAPP_NUMBER in env.
+ *
+ * If not configured, silently skips (non-breaking).
+ */
+async function sendAdminWhatsApp(message: string): Promise<void> {
+  const apiKey = process.env.WHATSAPP_API_KEY;
+  const adminNumber = process.env.ADMIN_WHATSAPP_NUMBER; // e.g. "919876543210"
+
+  if (!apiKey || !adminNumber) {
+    // Optional integration — skip gracefully when not configured
+    return;
+  }
+
+  try {
+    const params = new URLSearchParams({
+      phone: adminNumber,
+      text: message,
+      apikey: apiKey,
+    });
+    await fetch(`https://api.callmebot.com/whatsapp.php?${params.toString()}`);
+  } catch (err) {
+    console.error("Non-fatal: Failed to send admin WhatsApp notification", err);
+  }
+}
+
+export async function notifyAdminQuote(data: {
+  name: string;
+  phone: string;
+  projectType: string;
+  location: string;
+  source?: string | null;
+}): Promise<void> {
+  const message =
+    `🆕 *New Quote Request*\n` +
+    `👤 *Name:* ${data.name}\n` +
+    `📞 *Phone:* ${data.phone}\n` +
+    `🏠 *Project:* ${data.projectType}\n` +
+    `📍 *Location:* ${data.location}\n` +
+    (data.source ? `🔗 *Source:* ${data.source}\n` : "") +
+    `\n_Reply to this message to follow up._`;
+  await sendAdminWhatsApp(message);
+}
+
+export async function notifyAdminConsultation(data: {
+  name: string;
+  phone: string;
+  consultationType: string;
+  projectType: string;
+  source?: string | null;
+}): Promise<void> {
+  const typeLabel: Record<string, string> = {
+    showroom: "Showroom Visit",
+    video: "Video Call",
+    "site-visit": "Site Visit",
+  };
+  const message =
+    `📅 *New Consultation Booked*\n` +
+    `👤 *Name:* ${data.name}\n` +
+    `📞 *Phone:* ${data.phone}\n` +
+    `📋 *Type:* ${typeLabel[data.consultationType] ?? data.consultationType}\n` +
+    `🏠 *Project:* ${data.projectType}\n` +
+    (data.source ? `🔗 *Source:* ${data.source}\n` : "") +
+    `\n_Reply to confirm the booking._`;
+  await sendAdminWhatsApp(message);
+}
+
+export async function notifyAdminEstimate(data: {
+  name: string;
+  phone: string;
+  city: string;
+  projectType: string;
+  costMin: number;
+  costMax: number;
+}): Promise<void> {
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+  const message =
+    `📊 *Estimate Saved*\n` +
+    `👤 *Name:* ${data.name}\n` +
+    `📞 *Phone:* ${data.phone}\n` +
+    `📍 *City:* ${data.city}\n` +
+    `🏠 *Project:* ${data.projectType}\n` +
+    `💰 *Est. Range:* ${fmt(data.costMin)} – ${fmt(data.costMax)}\n` +
+    `\n_High-intent lead — follow up promptly!_`;
+  await sendAdminWhatsApp(message);
+}
+

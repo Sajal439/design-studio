@@ -34,13 +34,14 @@ const projectTypes = [
     "Other",
 ];
 
-export default function ConsultationClient() {
+export default function ConsultationClient({ source = "consultation_page" }: { source?: string }) {
     const [formData, setFormData] = useState<ConsultationRequest>({
         name: "",
         phone: "",
         projectType: "",
         location: "",
         consultationType: "showroom",
+        source,
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EstimationResult } from "@/lib/estimator/types";
-import { CheckCircle2, Loader2, PhoneCall, ShieldCheck, Sparkles } from "lucide-react";
+import { CheckCircle2, Loader2, PhoneCall, ShieldCheck, ShoppingBag, Sparkles } from "lucide-react";
 
 interface EstimateSaveFormProps {
   result: EstimationResult;
@@ -22,6 +23,14 @@ export function EstimateSaveForm({ result }: EstimateSaveFormProps) {
     city: "",
   });
 
+  // Build quote form URL with pre-filled data from the estimate
+  const quoteParams = new URLSearchParams({
+    source: "estimator",
+    projectType: result.categoryLabel,
+    message: `From estimator: ${result.layout.replace(/_/g, " ")} layout, ${result.grade.toLowerCase()} grade, ${result.finishType.toLowerCase()} finish, ${result.dimensions.width}ft × ${result.dimensions.height}ft × ${result.dimensions.depth}ft. Estimated cost: ₹${result.summary.totalCostMin.toLocaleString("en-IN")}–₹${result.summary.totalCostMax.toLocaleString("en-IN")}.`,
+  });
+  const quoteUrl = `/quote?${quoteParams.toString()}`;
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -36,6 +45,7 @@ export function EstimateSaveForm({ result }: EstimateSaveFormProps) {
           customerName: formData.name,
           customerPhone: formData.phone,
           customerCity: formData.city,
+          source: "estimator_save",
         }),
       });
 
@@ -64,9 +74,17 @@ export function EstimateSaveForm({ result }: EstimateSaveFormProps) {
               Thank you, {formData.name}. Our team will reach out on {formData.phone} to take this estimate into a final site-ready quote.
             </p>
           </div>
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            Start new estimate
-          </Button>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button asChild>
+              <Link href={quoteUrl}>
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                Request Detailed Quote
+              </Link>
+            </Button>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Start new estimate
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );

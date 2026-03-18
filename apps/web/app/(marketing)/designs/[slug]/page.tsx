@@ -9,11 +9,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, ShoppingBag, Phone, Package } from "lucide-react";
-import { DesignEstimator } from "@/components/marketing/design-estimator";
 import type { Metadata } from "next";
+import { DesignEstimator } from "@/components/marketing/estimator/design-estimator";
+import { SaveDesignButton } from "@/components/marketing/save-design-button";
+import { AddToProjectDialog } from "@/components/marketing/add-to-project-dialog";
 
 async function getDesign(slug: string) {
   return prisma.design.findUnique({ where: { slug }, include: { category: true, materials: true } });
+}
+
+async function getSimilarDesigns(categoryId: string, excludeSlug: string) {
+  return prisma.design.findMany({
+    where: { categoryId, slug: { not: excludeSlug } },
+    select: { slug: true, title: true, style: true, images: true, estimatedCost: true },
+    take: 3,
+  });
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -36,6 +46,8 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
   const { slug } = await params;
   const design = await getDesign(slug);
   if (!design) notFound();
+
+  const similarDesigns = await getSimilarDesigns(design.categoryId, design.slug);
 
   return (
     <div className="py-12">
@@ -83,6 +95,10 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
                 <div className="space-y-3">
                   <Button className="w-full" size="lg" asChild><Link href={`/quote?design=${design.slug}`}><ShoppingBag className="mr-2 h-4 w-4" /> Request Quote</Link></Button>
                   <Button className="w-full" size="lg" variant="outline" asChild><Link href="/consultation"><Phone className="mr-2 h-4 w-4" /> Book Consultation</Link></Button>
+                  <div className="flex gap-2">
+                    <SaveDesignButton designId={design.id} compact={false} className="flex-1" />
+                    <AddToProjectDialog designId={design.id} className="flex-1" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -117,7 +133,39 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
           </div>
         </div>
       </div>
+
+      {/* ── Similar Designs ── */}
+      {similarDesigns.length > 0 && (
+        <div className="container mx-auto px-4 py-10">
+          <h2 className="mb-6 text-2xl font-bold">Similar Designs</h2>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {similarDesigns.map((d) => (
+              <Link
+                key={d.slug}
+                href={`/designs/${d.slug}`}
+                className="group rounded-2xl border bg-background overflow-hidden transition-all hover:-translate-y-1 hover:shadow-md"
+              >
+                <div className="relative aspect-video overflow-hidden bg-muted">
+                  {d.images[0] ? (
+                    <Image
+                      alt={d.title}
+                      src={d.images[0]}
+                      fill
+                      className="object-cover transition-transform group-hover:scale-105"
+                      sizes="(max-width: 1024px) 50vw, 33vw"
+                    />
+                  ) : null}
+                </div>
+                <div className="p-4">
+                  <Badge variant="outline" className="mb-2">{d.style}</Badge>
+                  <h3 className="font-semibold">{d.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{d.estimatedCost}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

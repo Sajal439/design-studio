@@ -25,7 +25,7 @@ import type { DoorType, FinishType, LayoutType, MaterialGrade } from "@/lib/esti
 import {
   ArrowLeft, ArrowRight, Calculator, Check, Compass,
   DoorOpen, DraftingCompass, Landmark, Layers3,
-  PackageCheck, Palette, PencilRuler, Sparkles,
+  PackageCheck, Palette, PencilRuler, Sparkles, History, X,
 } from "lucide-react";
 import { CategoryData, useEstimatorState } from "./useEstimatorState";
 import { StepCategory } from "./StepCategory";
@@ -152,6 +152,38 @@ export function EstimatorForm(props: EstimatorFormProps) {
 
   return (
     <div className="space-y-8">
+
+      {/* ── Resume banner ── shown on mount when saved state is detected ── */}
+      {s.hasSavedState && (
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <History className="h-5 w-5 shrink-0 text-amber-600" />
+            <div className="min-w-0">
+              <p className="font-semibold text-amber-900">Continue where you left off</p>
+              <p className="truncate text-sm text-amber-700">
+                {s.selectedCategory?.label} · {s.selectedDesign?.title} · {s.layout?.replace(/_/g, " ").toLowerCase() || "layout pending"}
+              </p>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <Button
+              size="sm"
+              onClick={() => s.setStep(4)}
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              Jump to Dimensions
+            </Button>
+            <button
+              onClick={() => s.setHasSavedState(false)}
+              aria-label="Dismiss"
+              className="rounded-full p-1.5 text-amber-600 hover:bg-amber-100"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="overflow-hidden rounded-[2rem] border border-foreground/10 bg-background shadow-[0_22px_70px_rgba(15,23,42,0.06)]">
 
         {/* ── Progress header ─────────────────────────────────────────────── */}

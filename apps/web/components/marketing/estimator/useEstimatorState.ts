@@ -7,8 +7,13 @@
  * Each step component receives only the slice of state it needs.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { generateEstimate } from "@/lib/estimator/calculator";
+import {
+  saveEstimatorState,
+  loadEstimatorState,
+  clearEstimatorState,
+} from "@/lib/estimator/savedState";
 import type { PriceBook } from "@/lib/estimator/priceBook";
 import type { LoadedTemplate } from "@/lib/estimator/templateLoader";
 import type { ProductCatalog } from "@/lib/estimator/productCatalogLoader";
@@ -81,6 +86,29 @@ export function useEstimatorState(
   const [height, setHeight] = useState("10");
   const [depth, setDepth] = useState("");
   const [result, setResult] = useState<EstimationResult | null>(null);
+  const [hasSavedState, setHasSavedState] = useState(false);
+
+  // Restore saved state on mount — shows resume banner in the form
+  useEffect(() => {
+    const saved = loadEstimatorState();
+    if (!saved) return;
+    const cat = categories.find((c) => c.slug === saved.categorySlug);
+    if (!cat) return;
+    const design = cat.designs.find((d) => d.id === saved.designId);
+    if (!design) return;
+
+    setSelectedCategory(cat);
+    setSelectedDesign(design);
+    setLayoutRaw(saved.layout);
+    setGrade(saved.grade);
+    setFinishType(saved.finishType);
+    setDoorType(saved.doorType);
+    setWidth(String(saved.width));
+    setHeight(String(saved.height));
+    setDepth(String(saved.depth));
+    setHasSavedState(true);
+    // Stay on step 1 — user explicitly resumes via banner
+  }, []);
 
   // ── Derived ────────────────────────────────────────────────────────────────
 
@@ -157,8 +185,7 @@ export function useEstimatorState(
       scaling: (m.material.scaling as MaterialScaling) || "AREA",
     }));
 
-    setResult(
-      generateEstimate({
+    const calcResult = generateEstimate({
         categoryId: selectedCategory.id,
         categorySlug: selectedCategory.slug as CategorySlug,
         categoryLabel: selectedCategory.label,
@@ -177,8 +204,22 @@ export function useEstimatorState(
         priceBook,
         templateMap: moduleTemplates,
         productCatalog: catalog,
-      }),
-    );
+      });
+    setResult(calcResult);
+
+    // Persist so user can resume if they navigate away
+    saveEstimatorState({
+      categorySlug: selectedCategory.slug as CategorySlug,
+      designId: selectedDesign.id,
+      layout: layout as LayoutType,
+      grade,
+      finishType,
+      doorType,
+      width: parseFloat(width),
+      height: parseFloat(height),
+      depth: parseFloat(depth),
+    });
+    setHasSavedState(false); // dismiss resume banner after calc
     setStep(5);
   }
 
@@ -194,6 +235,8 @@ export function useEstimatorState(
     setFinishType("LAMINATE");
     setDoorType("HINGED");
     setResult(null);
+    setHasSavedState(false);
+    clearEstimatorState();
   }
 
   return {
@@ -210,6 +253,7 @@ export function useEstimatorState(
     depth,
     result,
     canCalculate,
+    hasSavedState,
     // Setters
     setStep,
     setGrade,
@@ -218,6 +262,7 @@ export function useEstimatorState(
     setWidth,
     setHeight,
     setDepth,
+    setHasSavedState,
     // Handlers
     handleCategorySelect,
     handleDesignSelect,

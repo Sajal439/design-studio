@@ -13,6 +13,7 @@ export const quoteRequestSchema = z.object({
   productSlug: z.string().optional(),
   location: z.string().min(2, "Enter your project location"),
   message: z.string().optional(),
+  source: z.string().optional(),
 });
 
 export const consultationSchema = z.object({
@@ -23,7 +24,27 @@ export const consultationSchema = z.object({
   consultationType: z.enum(["showroom", "video", "site-visit"], {
     required_error: "Select a consultation type",
   }),
+  source: z.string().optional(),
 });
 
 export type QuoteRequest = z.infer<typeof quoteRequestSchema>;
+export type Consultation = z.infer<typeof consultationSchema>;
+
+// ── Project & Project Item ─────────────────────────────────────────────────────
+
+export const projectSchema = z.object({
+  name: z.string().min(2, "Project name must be at least 2 characters").max(100),
+  description: z.string().max(500).optional(),
+});
+
+export const projectItemSchema = z.object({
+  designId: z.string().cuid().optional(),
+  estimateId: z.string().uuid().optional(),
+  notes: z.string().max(500).optional(),
+});
+
+export type ProjectInput = z.infer<typeof projectSchema>;
+export type ProjectItemInput = z.infer<typeof projectItemSchema>;
+
 export type ConsultationRequest = z.infer<typeof consultationSchema>;
+

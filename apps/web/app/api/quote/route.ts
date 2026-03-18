@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { prisma } from "@repo/database";
 import { quoteRequestSchema } from "@/lib/validations";
-import { sendQuoteNotification } from "@/lib/email";
+import { sendQuoteNotification, notifyAdminQuote } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
@@ -61,6 +61,15 @@ export async function POST(request: Request) {
     } catch (emailError) {
       console.error("Non-fatal: Failed to send quote email", emailError);
     }
+
+    // Fire-and-forget WhatsApp alert to admin
+    notifyAdminQuote({
+      name,
+      phone,
+      projectType: rest.projectType,
+      location: rest.location,
+      source: rest.source,
+    }).catch(() => {}); // non-blocking, swallow error
 
     return NextResponse.json(
       { message: "Quote request submitted", id: quote.id },

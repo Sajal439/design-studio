@@ -36,15 +36,22 @@ export function QuoteForm({
   prefillMessage,
   source,
 }: QuoteFormProps) {
+  // Auto-generate source if not provided
+  const resolvedSource = source
+    || (designSlug ? `design_detail:${designSlug}` : "")
+    || (productSlug ? `product_detail:${productSlug}` : "")
+    || "quote_page";
+
   const [formData, setFormData] = useState<QuoteRequest>({
     name: "",
     phone: "",
     email: "",
-    projectType: prefillProjectType ?? "",   // ← was always ""
+    projectType: prefillProjectType ?? "",
     designSlug: designSlug ?? "",
     productSlug: productSlug ?? "",
     location: "",
     message: prefillMessage ?? "",
+    source: resolvedSource,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
