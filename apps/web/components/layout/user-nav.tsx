@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Loader2, User as UserIcon, LogOut, LayoutDashboard } from "lucide-react";
+import { Loader2, User as UserIcon, LogOut, LayoutDashboard, Heart } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,6 +62,12 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard" className="cursor-pointer flex items-center">
+            <Heart className="mr-2 h-4 w-4" />
+            <span>My Dashboard</span>
+          </Link>
+        </DropdownMenuItem>
         {user.role === "admin" && (
           <DropdownMenuItem asChild>
             <Link href="/admin" className="cursor-pointer flex items-center">
