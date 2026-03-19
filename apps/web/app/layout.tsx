@@ -11,6 +11,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Goel Traders Design Studio",
   description: "Interior design inspiration & material sourcing platform",
+  icons: {
+    icon: "/icon.svg"
+  }
 };
 
 export default function RootLayout({
