@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/footer";
 import { WhatsAppFab } from "@/components/marketing/whatsapp-fab";
 import { ExitIntentPopup } from "@/components/marketing/exit-intent-popup";
 import { siteConfig } from "@/lib/site-config";
+import { MobileContactBar } from "@/components/marketing/mobile-contact-bar";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -55,9 +56,12 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Header />
-      {children}
+      <div className="pb-16 md:pb-0">
+        {children}
+      </div>
       <Footer />
       <WhatsAppFab />
+      <MobileContactBar />
       <ExitIntentPopup />
     </>
   );
