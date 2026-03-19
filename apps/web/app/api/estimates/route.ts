@@ -1,16 +1,20 @@
+import prisma from "@repo/database";
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
     const data = await req.json();
 
-    if (!data.categoryId || !data.designId || !data.customerName || !data.customerPhone || !data.customerCity) {
+    if (
+      !data.categoryId ||
+      !data.designId ||
+      !data.customerName ||
+      !data.customerPhone ||
+      !data.customerCity
+    ) {
       return NextResponse.json(
         { message: "Missing required contact or design fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -42,15 +46,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       { message: "Estimate saved successfully", estimateId: estimate.id },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Failed to save estimate:", error);
     return NextResponse.json(
       { message: "Something went wrong saving the estimate" },
-      { status: 500 }
+      { status: 500 },
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
