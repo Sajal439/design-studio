@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { prisma } from "@repo/database";
+import { getFirstImageUrl } from "@/lib/utils";
 
 // ── Supported city slugs ─────────────────────────────────────────────────────
 const CITY_DATA: Record<string, { label: string; state: string }> = {
@@ -133,10 +134,10 @@ export default async function CategoryCityLandingPage({ params }: PageParams) {
                   className="group rounded-2xl border bg-background overflow-hidden transition-all hover:-translate-y-1 hover:shadow-md"
                 >
                   <div className="relative aspect-video overflow-hidden bg-muted">
-                    {d.images[0] ? (
+                    {getFirstImageUrl(d.images) ? (
                       <Image
                         alt={d.title}
-                        src={d.images[0]}
+                        src={getFirstImageUrl(d.images)!}
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
                         sizes="(max-width: 1024px) 50vw, 33vw"

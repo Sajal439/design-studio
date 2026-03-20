@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import Image from "next/image";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
@@ -8,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
+import { cn, getFirstImageUrl } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Design Gallery | Goel Traders Design Studio",
@@ -91,7 +90,7 @@ export default async function DesignsPage({
             <Link key={design.id} href={`/designs/${design.slug}`}>
               <Card className="group h-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
                 <div className="relative aspect-video bg-muted">
-                  {design.images[0] ? (
+                  {getFirstImageUrl(design.images) ? (
                     <Image
                       alt={design.title}
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -99,7 +98,7 @@ export default async function DesignsPage({
                       // First 6 cards are above the fold on desktop — load eagerly
                       priority={index < 6}
                       sizes="(max-width: 1024px) 50vw, 33vw"
-                      src={design.images[0]}
+                      src={getFirstImageUrl(design.images)!}
                     />
                   ) : null}
                 </div>

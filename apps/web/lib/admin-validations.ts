@@ -7,6 +7,11 @@ export const materialSchema = z.object({
   unit: z.string().min(1),
 });
 
+export const imageItemSchema = z.object({
+  url: z.string().min(1),
+  publicId: z.string(),
+});
+
 export const designSchema = z.object({
   title: z.string().min(1),
   slug: z.string().min(1),
@@ -15,7 +20,7 @@ export const designSchema = z.object({
   estimatedCost: z.string().min(1),
   roomSize: z.string().min(1),
   style: z.string().min(1),
-  images: z.array(z.string().min(1)).min(1),
+  images: z.array(imageItemSchema).min(1),
   materials: z.array(materialSchema).min(1),
 });
 
