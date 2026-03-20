@@ -30,7 +30,7 @@ const getDesigns = unstable_cache(
       : {};
     return prisma.design.findMany({
       where,
-      include: { category: true, materials: true },
+      include: { category: true },
       orderBy: { createdAt: "desc" },
     });
   },

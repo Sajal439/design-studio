@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { AdminNav } from "@/components/admin/admin-nav";
-import { LogoutButton } from "@/components/admin/logout-button";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
@@ -24,9 +23,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <div className="flex items-center justify-between px-6 py-4">
               <div>
                 <h2 className="text-lg font-semibold">Admin Dashboard</h2>
-                <p className="text-sm text-muted-foreground">Protected admin area for managing content and leads.</p>
+                <p className="text-sm text-muted-foreground">Protected admin area for managing content.</p>
               </div>
-              <LogoutButton />
             </div>
           </header>
 

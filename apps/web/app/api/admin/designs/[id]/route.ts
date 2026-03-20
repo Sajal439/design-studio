@@ -39,23 +39,19 @@ export async function PATCH(
       );
     }
 
-    const [, updated] = await prisma.$transaction([
-      prisma.designMaterial.deleteMany({ where: { designId: id } }),
-      prisma.design.update({
-        where: { id },
-        data: {
-          title: result.data.title,
-          slug: result.data.slug,
-          description: result.data.description,
-          estimatedCost: result.data.estimatedCost,
-          roomSize: result.data.roomSize,
-          style: result.data.style,
-          images: result.data.images,
-          categoryId: category.id,
-          materials: { create: result.data.materials },
-        },
-      }),
-    ]);
+    const updated = await prisma.design.update({
+      where: { id },
+      data: {
+        title: result.data.title,
+        slug: result.data.slug,
+        description: result.data.description,
+        estimatedCost: result.data.estimatedCost,
+        roomSize: result.data.roomSize,
+        style: result.data.style,
+        images: result.data.images,
+        categoryId: category.id,
+      },
+    });
 
     revalidateDesignPaths();
     revalidatePath(`/designs/${updated.slug}`);

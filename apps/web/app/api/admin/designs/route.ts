@@ -40,7 +40,6 @@ export async function POST(request: Request) {
         style: result.data.style,
         images: result.data.images,
         categoryId: category.id,
-        materials: { create: result.data.materials },
       },
     });
     revalidateDesignPaths();

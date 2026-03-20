@@ -4,26 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@repo/database";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, ShoppingBag, Phone, Package, MessageCircle } from "lucide-react";
+import { ArrowLeft, MessageCircle, Phone, Package } from "lucide-react";
 import type { Metadata } from "next";
-import { SaveDesignButton } from "@/components/marketing/save-design-button";
-import { AddToProjectDialog } from "@/components/marketing/add-to-project-dialog";
 import { siteConfig } from "@/lib/site-config";
-import { loadPriceBook } from "@/lib/estimator/priceBookLoader";
-import { QuickEstimateWidget } from "@/components/marketing/quick-estimate-widget";
 
 async function getDesign(slug: string) {
-  return prisma.design.findUnique({ where: { slug }, include: { category: true, materials: true } });
+  return prisma.design.findUnique({ where: { slug }, include: { category: true } });
 }
 
 async function getSimilarDesigns(categoryId: string, excludeSlug: string) {
   return prisma.design.findMany({
     where: { categoryId, slug: { not: excludeSlug } },
-    select: { slug: true, title: true, style: true, images: true, estimatedCost: true },
+    select: { slug: true, title: true, style: true, images: true, estimatedCost: true, category: true },
     take: 3,
   });
 }
@@ -34,11 +29,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!design) return { title: "Design Not Found" };
 
   return {
-    title: `${design.title} | Goel Traders Design Studio`,
-    description: design.description,
+    title: `${design.title} | ${siteConfig.name}`,
+    description: design.description || "",
     openGraph: {
       title: design.title,
-      description: design.description,
+      description: design.description || "",
       images: design.images[0] ? [{ url: design.images[0] }] : undefined,
     },
   };
@@ -46,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function DesignDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [design, priceBook] = await Promise.all([getDesign(slug), loadPriceBook()])
+  const design = await getDesign(slug);
   if (!design) notFound();
 
   const similarDesigns = await getSimilarDesigns(design.categoryId, design.slug);
@@ -97,8 +92,8 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
             ) : null}
 
             <div className="mb-3 flex items-center gap-3">
-              <Badge>{design.category.label}</Badge>
-              <Badge variant="outline">{design.style}</Badge>
+              <Badge>{design.category?.label}</Badge>
+              {design.style && <Badge variant="outline">{design.style}</Badge>}
             </div>
             <h1 className="mb-2 text-3xl font-bold">{design.title}</h1>
             <p className="mb-6 leading-relaxed text-muted-foreground">{design.description}</p>
@@ -106,11 +101,11 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" /> Material Breakdown
+                  <Package className="h-5 w-5" /> Requirements & Actions
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {/* Primary Call to Action: WhatsApp */}
                   <a
                     href={waUrl}
@@ -132,22 +127,9 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
                   </a>
 
                   {/* Trust signal */}
-                  <p className="text-xs text-center text-muted-foreground">
+                  <p className="text-xs text-center text-muted-foreground mt-2">
                     Available at our Karnal showroom · Usually responds within 1 hr
                   </p>
-
-                  <Separator />
-
-                  {/* Tertiary actions: form-based */}
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="flex-1" asChild>
-                      <Link href={`/quote?design=${design.slug}`}>
-                        <ShoppingBag className="mr-2 h-3 w-3" />
-                        Request quote
-                      </Link>
-                    </Button>
-                    <SaveDesignButton designId={design.id} compact={false} className="flex-1" />
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -157,55 +139,38 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
             <Card>
               <CardContent className="p-6">
                 <p className="mb-1 text-sm text-muted-foreground">Estimated Cost</p>
-                <p className="mb-1 text-2xl font-bold">{design.estimatedCost}</p>
-                <p className="mb-4 text-xs text-muted-foreground">varies by material choice & location</p>
-                <Separator className="mb-4" />
-                <div className="space-y-3">
-                  <Button className="w-full" size="lg" asChild>
-                    <Link href={`/quote?design=${design.slug}`}>
-                      <ShoppingBag className="mr-2 h-4 w-4" /> Request Quote
-                    </Link>
-                  </Button>
-                  <Button className="w-full" size="lg" variant="outline" asChild>
-                    <Link href="/consultation">
-                      <Phone className="mr-2 h-4 w-4" /> Book Consultation
-                    </Link>
-                  </Button>
-                  <div className="flex gap-2">
-                    <SaveDesignButton designId={design.id} compact={false} className="flex-1" />
-                    <AddToProjectDialog designId={design.id} className="flex-1" />
-                  </div>
-                </div>
+                <p className="mb-1 text-2xl font-bold">{design.estimatedCost || "Custom"}</p>
+                <p className="text-xs text-muted-foreground">varies by material choice & location</p>
               </CardContent>
             </Card>
+
             <Card>
               <CardContent className="p-6">
                 <h3 className="mb-4 font-semibold">Quick Facts</h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Category</span>
-                    <span className="font-medium">{design.category.label}</span>
+                    <span className="font-medium">{design.category?.label}</span>
                   </div>
                   <Separator />
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Style</span>
-                    <span className="font-medium">{design.style}</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Room Size</span>
-                    <span className="font-medium">{design.roomSize}</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Materials</span>
-                    <span className="font-medium">{design.materials.length} items</span>
-                  </div>
+                  {design.style && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Style</span>
+                        <span className="font-medium">{design.style}</span>
+                      </div>
+                      <Separator />
+                    </>
+                  )}
+                  {design.roomSize && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Room Size</span>
+                      <span className="font-medium">{design.roomSize}</span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
-
-            <QuickEstimateWidget designTitle={design.title} categorySlug={design.category.slug} priceBook={priceBook} />
           </div>
         </div>
       </div>
@@ -214,7 +179,7 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
         <div className="container mx-auto px-4 py-10 border-t mt-12">
           <h2 className="mb-6 text-2xl font-bold">Similar Designs</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {similarDesigns.map((d) => (
+            {similarDesigns.map((d: any) => (
               <Link
                 key={d.slug}
                 href={`/designs/${d.slug}`}
@@ -232,9 +197,9 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
                   ) : null}
                 </div>
                 <div className="p-4">
-                  <Badge variant="outline" className="mb-2">{d.style}</Badge>
+                  {d.style && <Badge variant="outline" className="mb-2">{d.style}</Badge>}
                   <h3 className="font-semibold">{d.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{d.estimatedCost}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{d.category?.label} • {d.estimatedCost || "Custom"}</p>
                 </div>
               </Link>
             ))}
