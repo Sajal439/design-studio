@@ -1,0 +1,2 @@
+components/marketing/simple-estimator.tsx(22,87): error TS2307: Cannot find module './estimator/estimator-engine' or its corresponding type declarations.
+components/marketing/simple-estimator.tsx(286,56): error TS7006: Parameter 'l' implicitly has an 'any' type.

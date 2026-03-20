@@ -11,10 +11,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE_URL, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
     { url: `${BASE_URL}/designs`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${BASE_URL}/products`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE_URL}/estimator`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/quote`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE_URL}/consultation`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
   ];
 
   // Dynamic design pages
@@ -28,17 +26,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // Dynamic product pages
-  const products = await prisma.product.findMany({
-    select: { slug: true, updatedAt: true },
-  });
-  const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
-    url: `${BASE_URL}/products/${p.slug}`,
-    lastModified: p.updatedAt,
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
-
   // SEO category × city landing pages
   const seoRoutes: MetadataRoute.Sitemap = CATEGORY_SLUGS.flatMap((cat) =>
     CITY_SLUGS.map((city) => ({
@@ -49,5 +36,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
-  return [...staticRoutes, ...designRoutes, ...productRoutes, ...seoRoutes];
+  return [...staticRoutes, ...designRoutes, ...seoRoutes];
 }

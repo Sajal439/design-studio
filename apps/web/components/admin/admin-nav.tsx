@@ -17,13 +17,7 @@ import {
 const items = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/designs", label: "Designs", icon: Images },
-  { href: "/admin/products", label: "Products", icon: Package },
-  { href: "/admin/quotes", label: "Quotes", icon: FileText },
-  { href: "/admin/consultations", label: "Consultations", icon: CalendarDays },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/module-templates", label: "Module templates", icon: Layers },
   { href: "/admin/pricing", label: "Price book", icon: IndianRupee },
-  { href: "/admin/product-mappings", label: "Product mappings", icon: Shuffle },
 ];
 
 export function AdminNav() {

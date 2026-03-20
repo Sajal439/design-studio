@@ -3,363 +3,456 @@
 /**
  * apps/web/components/marketing/simple-estimator.tsx
  *
- * Client component — receives priceBook as a serialized prop from the
- * server page (which loads it via loadPriceBook()).
- *
- * User flow:
- *   1. Pick category (kitchen, wardrobe, etc.)
- *   2. Enter size (1–2 fields)
- *   3. See Budget / Medium / Premium tabs — switch instantly
- *   4. Each tab shows material list + quantities + prices + total
- *   5. WhatsApp button pre-fills the selected grade's full breakdown
+ * Full-page estimator for /estimator route.
+ * - Light theme matching the existing site (bg-background, shadcn tokens)
+ * - Width + Height inputs for all categories (not a single "size")
+ * - Kitchen: separate lower cabinet + upper cabinet running-feet inputs
+ * - All pricing logic from flat-rate-engine.ts — no hardcoded rates here
  */
 
-import { useState, useMemo } from "react";
-import { MessageCircle, Phone } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { MessageCircle, Phone, Check, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { siteConfig } from "@/lib/site-config";
 import type { PriceBook } from "@/lib/estimator/priceBook";
-import { buildAllGrades, buildWaMessage, CategorySlug, EstimateInput, GradeKey } from "./estimator/estimator-engine";
+import {
+    CATEGORIES,
+    isKitchenCategory,
+    isKitchenInput,
+    type CategorySpec,
+    type KitchenCategorySpec,
+    type DimensionCategorySpec,
+    type TierKey,
+    type KitchenTierSpec,
+    type DimensionTierSpec,
+    type KitchenEstimateResult,
+    type DimensionEstimateResult,
+    calculateDimension,
+    calculateKitchen,
+    calculateAllDimensionTiers,
+    calculateAllKitchenTiers,
+    formatCompact,
+    formatFull,
+    buildWaUrl,
+    buildFallbackWaUrl,
+} from "@/lib/estimator/flat-rate-engine";
 
-// ─── Category metadata ────────────────────────────────────────────────────────
+// ── Dimension state helpers ───────────────────────────────────────────────────
 
-const CATEGORIES: {
-    slug: CategorySlug;
-    label: string;
-    icon: string;
-    widthLabel: string;
-    widthPlaceholder: string;
-    needsHeight: boolean;
-    heightLabel: string;
-    heightPlaceholder: string;
-    note: string;
-}[] = [
-        {
-            slug: "kitchen", label: "Kitchen", icon: "🍳",
-            widthLabel: "Running length (ft)", widthPlaceholder: "e.g. 10",
-            needsHeight: false, heightLabel: "", heightPlaceholder: "",
-            note: "L-shape: add both wall lengths together",
-        },
-        {
-            slug: "wardrobe", label: "Wardrobe", icon: "👔",
-            widthLabel: "Width (ft)", widthPlaceholder: "e.g. 6",
-            needsHeight: true, heightLabel: "Height (ft)", heightPlaceholder: "8",
-            note: "Toggle below for sliding shutters",
-        },
-        {
-            slug: "tv-unit", label: "TV unit", icon: "📺",
-            widthLabel: "Width (ft)", widthPlaceholder: "e.g. 8",
-            needsHeight: true, heightLabel: "Height (ft)", heightPlaceholder: "6",
-            note: "Includes back panel + cabinets + shelves",
-        },
-        {
-            slug: "bedroom", label: "Bedroom", icon: "🛏",
-            widthLabel: "Room width (ft)", widthPlaceholder: "e.g. 12",
-            needsHeight: true, heightLabel: "Ceiling height (ft)", heightPlaceholder: "10",
-            note: "Wardrobe along one wall + bed head panel",
-        },
-        {
-            slug: "study", label: "Study", icon: "📚",
-            widthLabel: "Width (ft)", widthPlaceholder: "e.g. 5",
-            needsHeight: true, heightLabel: "Height incl. shelf (ft)", heightPlaceholder: "5",
-            note: "Includes drawers + bookshelf above",
-        },
-        {
-            slug: "office", label: "Office", icon: "💼",
-            widthLabel: "Room width (ft)", widthPlaceholder: "e.g. 14",
-            needsHeight: true, heightLabel: "Ceiling height (ft)", heightPlaceholder: "9",
-            note: "Workstations + storage cabinets",
-        },
-    ];
+interface KitchenDims { lowerRft: string; upperRft: string }
+interface StdDims { width: string; height: string }
 
-const GRADE_ORDER: GradeKey[] = ["BUDGET", "STANDARD", "PREMIUM"];
+function emptyKitchen(): KitchenDims { return { lowerRft: "", upperRft: "" }; }
+function emptyStd(): StdDims { return { width: "", height: "" }; }
 
-const GRADE_COLORS: Record<GradeKey, string> = {
-    BUDGET: "border-gray-300 bg-gray-50 text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200",
-    STANDARD: "border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-100",
-    PREMIUM: "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100",
+// ── Tier badge colours (light-mode) ──────────────────────────────────────────
+
+const TIER_ACCENT: Record<TierKey, { ring: string; badge: string; badgeText: string }> = {
+    BUDGET: { ring: "ring-zinc-400", badge: "bg-zinc-100 text-zinc-600", badgeText: "" },
+    STANDARD: { ring: "ring-amber-500", badge: "bg-amber-50 text-amber-700", badgeText: "" },
+    PREMIUM: { ring: "ring-blue-500", badge: "bg-blue-50 text-blue-700", badgeText: "" },
 };
 
-const GRADE_ACTIVE: Record<GradeKey, string> = {
-    BUDGET: "bg-gray-700 text-white dark:bg-gray-300 dark:text-gray-900",
-    STANDARD: "bg-blue-600 text-white",
-    PREMIUM: "bg-amber-500 text-white",
-};
+// ── Tier card ─────────────────────────────────────────────────────────────────
 
-const GRADE_INACTIVE = "bg-transparent text-muted-foreground hover:text-foreground";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function fmtINR(n: number): string {
-    if (n >= 100_000) return `₹${(n / 100_000).toFixed(1)}L`;
-    return `₹${Math.round(n / 1_000)}K`;
-}
-
-function fmtFull(n: number): string {
-    return `₹${n.toLocaleString("en-IN")}`;
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
-export function SimpleEstimator({
-    priceBook,
-    defaultCategory = "kitchen",
+function TierCard({
+    tier,
+    result,
+    selected,
+    onSelect,
+    waUrl,
+    visible,
+    delay,
 }: {
-    priceBook: PriceBook;
-    defaultCategory?: CategorySlug;
+    tier: DimensionTierSpec | KitchenTierSpec;
+    result: DimensionEstimateResult | KitchenEstimateResult | null;
+    selected: boolean;
+    onSelect: () => void;
+    waUrl: string;
+    visible: boolean;
+    delay: number;
 }) {
-    const [slug, setSlug] = useState<CategorySlug>(defaultCategory);
-    const [width, setWidth] = useState("");
-    const [height, setHeight] = useState("");
-    const [sliding, setSliding] = useState(false);
-    const [grade, setGrade] = useState<GradeKey>("STANDARD");
-
-    const cat = CATEGORIES.find((c) => c.slug === slug)!;
-
-    const input: EstimateInput = {
-        category: slug,
-        width: parseFloat(width) || 0,
-        height: parseFloat(height) || 0,
-        sliding,
-    };
-
-    const allGrades = useMemo(
-        () => (input.width > 0 ? buildAllGrades(input, priceBook) : null),
-        [slug, input.width, input.height, sliding, priceBook]
-    );
-
-    const result = allGrades?.[grade] ?? null;
-
-    const waMsg = result
-        ? buildWaMessage(input, result, cat.label)
-        : `Hi! I want to know prices for ${cat.label.toLowerCase()} materials.`;
-
-    const waUrl = `https://wa.me/91${siteConfig.whatsapp}?text=${encodeURIComponent(waMsg)}`;
+    const accent = TIER_ACCENT[tier.key];
+    const hasResult = result !== null;
+    const isKitchenResult = result?.kind === "kitchen";
 
     return (
-        <div className="space-y-6">
+        <div
+            onClick={onSelect}
+            className={`
+        relative rounded-xl border bg-background cursor-pointer
+        transition-all duration-200 flex flex-col overflow-hidden
+        hover:shadow-md
+        ${selected
+                    ? `ring-2 ${accent.ring} shadow-sm`
+                    : "hover:border-border/80"
+                }
+      `}
+            style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(10px)",
+                transition: `opacity 0.28s ease ${delay}ms, transform 0.28s ease ${delay}ms`,
+            }}
+        >
+            {/* Selected check */}
+            {selected && (
+                <div className={`absolute top-3 right-3 h-5 w-5 rounded-full flex items-center justify-center
+          ${tier.key === "BUDGET" ? "bg-zinc-500" : tier.key === "STANDARD" ? "bg-amber-500" : "bg-blue-500"}`}
+                >
+                    <Check size={11} color="white" strokeWidth={3} />
+                </div>
+            )}
 
-            {/* ── Category tabs ── */}
-            <div>
-                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    What are you building?
-                </p>
-                <div className="flex flex-wrap gap-2">
-                    {CATEGORIES.map((c) => (
-                        <button
-                            key={c.slug}
-                            onClick={() => {
-                                setSlug(c.slug);
-                                setWidth("");
-                                setHeight("");
-                                setSliding(false);
-                            }}
-                            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ${slug === c.slug
-                                    ? "border-primary bg-primary text-primary-foreground"
-                                    : "border-border hover:border-primary/40"
-                                }`}
-                        >
-                            <span style={{ fontSize: 14 }}>{c.icon}</span>
-                            {c.label}
-                        </button>
+            <div className="p-4 flex-1 space-y-3">
+                {/* Header */}
+                <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                        <p className="font-semibold text-base text-foreground">{tier.label}</p>
+                        {tier.badge && (
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${accent.badge}`}>
+                                {tier.badge}
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                {/* Total */}
+                {hasResult ? (
+                    <div className={`rounded-lg px-3 py-2.5 ${tier.key === "BUDGET" ? "bg-zinc-50 border border-zinc-200" :
+                            tier.key === "STANDARD" ? "bg-amber-50 border border-amber-200" :
+                                "bg-blue-50 border border-blue-200"
+                        }`}>
+                        <p className="text-xs text-muted-foreground mb-0.5">Estimated Cost</p>
+                        <p className="text-2xl font-bold text-foreground leading-none">
+                            {formatCompact(result!.total)}
+                        </p>
+                        {isKitchenResult && (
+                            <p className="text-[10px] text-muted-foreground mt-1.5 opacity-80 tracking-tight">
+                                Based on standard kitchen dimensions
+                            </p>
+                        )}
+                    </div>
+                ) : (
+                    <div className="rounded-lg bg-muted/40 border border-border px-3 py-2.5 h-[60px] flex items-center">
+                        <p className="text-xs text-muted-foreground">Enter dimensions to see total</p>
+                    </div>
+                )}
+
+                {/* Materials */}
+                <div className="space-y-1.5">
+                    {tier.materials.map((m, i) => (
+                        <div key={i} className="flex gap-2 items-start">
+                            <div className={`w-1 h-1 rounded-full mt-2 shrink-0 ${tier.key === "BUDGET" ? "bg-zinc-400" :
+                                    tier.key === "STANDARD" ? "bg-amber-500" : "bg-blue-500"
+                                }`} />
+                            <p className="text-xs text-muted-foreground leading-relaxed">{m}</p>
+                        </div>
                     ))}
                 </div>
             </div>
 
-            {/* ── Size inputs ── */}
-            <div className="rounded-xl border bg-muted/20 p-4 space-y-3">
-                <div className="grid gap-3 sm:grid-cols-2">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">
-                            {cat.widthLabel}
-                        </label>
-                        <div className="relative">
-                            <Input
-                                type="number"
-                                placeholder={cat.widthPlaceholder}
-                                value={width}
-                                onChange={(e) => setWidth(e.target.value)}
-                                min="1"
-                                max="100"
-                                className="pr-8"
-                            />
-                            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                                ft
-                            </span>
-                        </div>
-                    </div>
+            {/* WA CTA — appears when selected + has result */}
+            <div
+                className="px-4 pb-4"
+                style={{
+                    opacity: selected && hasResult ? 1 : 0,
+                    transform: selected && hasResult ? "translateY(0)" : "translateY(4px)",
+                    transition: "opacity 0.2s ease, transform 0.2s ease",
+                    pointerEvents: selected && hasResult ? "auto" : "none",
+                    height: selected && hasResult ? "auto" : 0,
+                    overflow: "hidden",
+                }}
+            >
+                <a
+                    href={waUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 py-3 text-sm font-bold text-white hover:bg-[#22c55e] active:scale-[0.98] transition-all"
+                >
+                    <MessageCircle size={15} />
+                    Send estimate to WhatsApp
+                    <ChevronRight size={13} />
+                </a>
+            </div>
+        </div>
+    );
+}
 
-                    {cat.needsHeight && (
-                        <div>
-                            <label className="block text-sm font-medium mb-1">
-                                {cat.heightLabel}
-                            </label>
-                            <div className="relative">
-                                <Input
-                                    type="number"
-                                    placeholder={cat.heightPlaceholder}
-                                    value={height}
-                                    onChange={(e) => setHeight(e.target.value)}
-                                    min="1"
-                                    max="20"
-                                    className="pr-8"
-                                />
-                                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                                    ft
-                                </span>
-                            </div>
-                        </div>
-                    )}
+// ── Kitchen inputs ─────────────────────────────────────────────────────────────
+
+function KitchenInputs({
+    cat,
+    dims,
+    onChange,
+}: {
+    cat: KitchenCategorySpec;
+    dims: KitchenDims;
+    onChange: (d: KitchenDims) => void;
+}) {
+    return (
+        <div className="space-y-4">
+            {/* Lower input */}
+            <div>
+                <label className="text-sm font-medium text-foreground block mb-1.5">
+                    {cat.lowerLabel}
+                </label>
+                <div className="relative">
+                    <Input
+                        type="number"
+                        placeholder={cat.lowerPlaceholder}
+                        value={dims.lowerRft}
+                        onChange={(e) => onChange({ ...dims, lowerRft: e.target.value })}
+                        className="pr-10"
+                        min="0" max="50"
+                    />
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">
+                        rft
+                    </span>
                 </div>
+                <p className="text-[11px] text-muted-foreground mt-1">{cat.lowerHint}</p>
+            </div>
 
-                {slug === "wardrobe" && (
-                    <label className="flex items-center gap-2 cursor-pointer text-sm">
-                        <input
-                            type="checkbox"
-                            checked={sliding}
-                            onChange={(e) => setSliding(e.target.checked)}
-                            className="h-4 w-4 rounded border-input"
-                        />
-                        Sliding shutters instead of hinged
+            {/* Upper input */}
+            <div>
+                <label className="text-sm font-medium text-foreground block mb-1.5">
+                    {cat.upperLabel}
+                </label>
+                <div className="relative">
+                    <Input
+                        type="number"
+                        placeholder={cat.upperPlaceholder}
+                        value={dims.upperRft}
+                        onChange={(e) => onChange({ ...dims, upperRft: e.target.value })}
+                        className="pr-10"
+                        min="0" max="50"
+                    />
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">
+                        rft
+                    </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-1">{cat.upperHint}</p>
+            </div>
+        </div>
+    );
+}
+
+// ── Standard dimension inputs ─────────────────────────────────────────────────
+
+function DimensionInputs({
+    cat,
+    dims,
+    onChange,
+}: {
+    cat: DimensionCategorySpec;
+    dims: StdDims;
+    onChange: (d: StdDims) => void;
+}) {
+    const sqft = (parseFloat(dims.width) || 0) * (parseFloat(dims.height) || 0);
+
+    return (
+        <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+                <div>
+                    <label className="text-sm font-medium text-foreground block mb-1.5">
+                        {cat.widthLabel}
                     </label>
-                )}
+                    <div className="relative">
+                        <Input
+                            type="number"
+                            placeholder={cat.widthPlaceholder}
+                            value={dims.width}
+                            onChange={(e) => onChange({ ...dims, width: e.target.value })}
+                            className="pr-8"
+                            min="1" max="100"
+                        />
+                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">
+                            ft
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <label className="text-sm font-medium text-foreground block mb-1.5">
+                        {cat.heightLabel}
+                    </label>
+                    <div className="relative">
+                        <Input
+                            type="number"
+                            placeholder={cat.heightPlaceholder}
+                            value={dims.height}
+                            onChange={(e) => onChange({ ...dims, height: e.target.value })}
+                            className="pr-8"
+                            min="1" max="20"
+                        />
+                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">
+                            ft
+                        </span>
+                    </div>
+                </div>
+            </div>
 
-                {cat.note && (
-                    <p className="text-xs text-muted-foreground">{cat.note}</p>
+            {/* Sqft calc hint */}
+            <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+                <span>{cat.hint}</span>
+                {sqft > 0 && (
+                    <span className="font-semibold text-foreground tabular-nums">
+                        = {sqft} sqft
+                    </span>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+
+export function SimpleEstimator({
+    priceBook: _priceBook,
+    defaultCategory = "kitchen",
+}: {
+    priceBook?: PriceBook;
+    defaultCategory?: string;
+}) {
+    const initCat = CATEGORIES.find((c) => c.slug === defaultCategory) ?? CATEGORIES[0]!;
+    const [activeCat, setActiveCat] = useState<CategorySpec>(initCat);
+    const [kitchenDims, setKitchenDims] = useState<KitchenDims>(emptyKitchen());
+    const [stdDims, setStdDims] = useState<StdDims>(emptyStd());
+    const [selectedTier, setSelectedTier] = useState<TierKey>("STANDARD");
+    const [cardsVisible, setCardsVisible] = useState(false);
+
+    useEffect(() => {
+        const t = setTimeout(() => setCardsVisible(true), 100);
+        return () => clearTimeout(t);
+    }, []);
+
+    function switchCategory(cat: CategorySpec) {
+        if (cat.slug === activeCat.slug) return;
+        setCardsVisible(false);
+        setKitchenDims(emptyKitchen());
+        setStdDims(emptyStd());
+        setActiveCat(cat);
+        setTimeout(() => setCardsVisible(true), 80);
+    }
+
+    // Compute results for all tiers
+    const isKitchen = isKitchenCategory(activeCat);
+
+    const lowerRft = parseFloat(kitchenDims.lowerRft) || 0;
+    const upperRft = parseFloat(kitchenDims.upperRft) || 0;
+    const width = parseFloat(stdDims.width) || 0;
+    const height = parseFloat(stdDims.height) || 0;
+
+    const allResults = isKitchen
+        ? calculateAllKitchenTiers(activeCat as KitchenCategorySpec, lowerRft, upperRft)
+        : calculateAllDimensionTiers(activeCat as DimensionCategorySpec, width, height);
+
+    const hasAnyResult = Object.values(allResults).some((r) => r !== null);
+
+    return (
+        <div className="space-y-6">
+
+            {/* ── Category pills ── */}
+            <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
+                    What are you building?
+                </p>
+                <div className="flex flex-wrap gap-2">
+                    {CATEGORIES.map((c) => {
+                        const isActive = activeCat.slug === c.slug;
+                        return (
+                            <button
+                                key={c.slug}
+                                onClick={() => switchCategory(c)}
+                                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${isActive
+                                        ? "border-primary bg-primary text-primary-foreground"
+                                        : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                    }`}
+                            >
+                                <span>{c.icon}</span>
+                                {c.label}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* ── Dimension inputs ── */}
+            <div className="rounded-xl border bg-muted/10 p-5">
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-4">
+                    {isKitchen ? "Cabinet dimensions" : "Furniture dimensions"}
+                </p>
+
+                {isKitchen ? (
+                    <KitchenInputs
+                        cat={activeCat as KitchenCategorySpec}
+                        dims={kitchenDims}
+                        onChange={setKitchenDims}
+                    />
+                ) : (
+                    <DimensionInputs
+                        cat={activeCat as DimensionCategorySpec}
+                        dims={stdDims}
+                        onChange={setStdDims}
+                    />
                 )}
             </div>
 
-            {/* ── Results ── */}
-            {allGrades ? (
-                <div className="space-y-4">
+            {/* ── Tier cards ── */}
+            <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">
+                    {hasAnyResult ? "Choose quality tier — tap to select" : "Quality tiers"}
+                </p>
 
-                    {/* Grade selector tabs */}
-                    <div className="flex rounded-lg border overflow-hidden">
-                        {GRADE_ORDER.map((g) => {
-                            const r = allGrades[g];
-                            return (
-                                <button
-                                    key={g}
-                                    onClick={() => setGrade(g)}
-                                    className={`flex-1 py-2.5 text-sm font-medium transition-colors ${grade === g ? GRADE_ACTIVE[g] : GRADE_INACTIVE
-                                        }`}
-                                >
-                                    <span className="block text-xs opacity-80">
-                                        {g === "BUDGET" ? "Budget" : g === "STANDARD" ? "Medium" : "Premium"}
-                                    </span>
-                                    {r ? (
-                                        <span className="block font-semibold">
-                                            {fmtINR(r.grandTotal)}
-                                        </span>
-                                    ) : (
-                                        <span className="block text-xs opacity-50">—</span>
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {activeCat.tiers.map((tier, i) => {
+                        const result = allResults[tier.key] ?? null;
+                        const waUrl = result
+                            ? buildWaUrl(siteConfig.whatsapp, result)
+                            : buildFallbackWaUrl(siteConfig.whatsapp, activeCat);
 
-                    {/* Detail card for selected grade */}
-                    {result && (
-                        <div className={`rounded-xl border-2 overflow-hidden ${GRADE_COLORS[grade]}`}>
-
-                            {/* Header */}
-                            <div className="px-4 py-3 border-b border-current border-opacity-20">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="font-semibold text-sm">{result.gradeLabel} grade</p>
-                                        <p className="text-xs opacity-70 mt-0.5">{result.gradeDescription}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-xl font-bold">{fmtINR(result.grandTotal)}</p>
-                                        <p className="text-xs opacity-60">{result.basisNote}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Material table */}
-                            <div className="px-4 py-3 space-y-0">
-                                <p className="text-xs font-medium uppercase tracking-wide opacity-60 mb-2">
-                                    Materials
-                                </p>
-                                <div className="divide-y divide-current divide-opacity-10">
-                                    {result.lines.map((l) => (
-                                        <div key={l.name} className="flex justify-between py-2 text-sm">
-                                            <div>
-                                                <span className="font-medium">{l.name}</span>
-                                                <span className="opacity-60 ml-1.5">
-                                                    × {l.qty} {l.unit}
-                                                </span>
-                                            </div>
-                                            <div className="text-right ml-4 shrink-0">
-                                                <span className="opacity-50 text-xs">{fmtFull(l.unitPrice)}/{l.unit}</span>
-                                                <span className="block font-medium">{fmtFull(l.total)}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* Labour row */}
-                                <div className="flex justify-between py-2 text-sm border-t border-current border-opacity-20 mt-1">
-                                    <span className="opacity-70">
-                                        Labour &amp; installation
-                                        <span className="text-xs ml-1 opacity-50">
-                                            ({Math.round(priceBook.rates.labor * 100)}% of material)
-                                        </span>
-                                    </span>
-                                    <span className="font-medium">{fmtFull(result.labor)}</span>
-                                </div>
-
-                                {/* Total */}
-                                <div className="flex justify-between py-2 font-semibold border-t-2 border-current border-opacity-20">
-                                    <span>Total estimate</span>
-                                    <span>{fmtINR(result.grandTotal)}</span>
-                                </div>
-                            </div>
-
-                            {/* CTAs */}
-                            <div className="px-4 pb-4 pt-1 space-y-2">
-                                <a
-                                    href={waUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#22c55e] active:scale-[0.98] transition-all"
-                                >
-                                    <MessageCircle className="h-4 w-4" />
-                                    Send this estimate to WhatsApp
-                                </a>
-                                <a
-                                    href={`tel:${siteConfig.phone}`}
-                                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-white/50 dark:bg-black/20 px-4 py-2 text-sm font-medium hover:bg-white/70 transition-colors"
-                                >
-                                    <Phone className="h-4 w-4" />
-                                    Call {siteConfig.phone}
-                                </a>
-                                <p className="text-center text-xs opacity-60">
-                                    Prices updated by admin · Contact us for exact quote
-                                </p>
-                            </div>
-                        </div>
-                    )}
+                        return (
+                            <TierCard
+                                key={tier.key}
+                                tier={tier}
+                                result={result}
+                                selected={selectedTier === tier.key}
+                                onSelect={() => setSelectedTier(tier.key)}
+                                waUrl={waUrl}
+                                visible={cardsVisible}
+                                delay={i * 60}
+                            />
+                        );
+                    })}
                 </div>
-            ) : (
-                /* No size entered yet */
-                <div className="rounded-xl border bg-muted/20 px-5 py-8 text-center space-y-3">
-                    <p className="text-sm text-muted-foreground">
-                        Enter your {cat.widthLabel.toLowerCase()} to see Budget, Medium
-                        and Premium estimates side by side.
-                    </p>
+            </div>
+
+            {/* ── Footer note ── */}
+            <div className="rounded-xl border bg-muted/20 px-5 py-4 text-sm text-muted-foreground space-y-1.5">
+                <p className="font-medium text-foreground">How this works</p>
+                <p>
+                    Estimates covers both material cost and labour.
+                    Exact prices depend on current stock and are confirmed
+                    by our team on WhatsApp.
+                </p>
+                <p className="flex items-center gap-2 mt-1">
                     <a
-                        href={waUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#22c55e] transition-colors"
+                        href={`tel:${siteConfig.phone}`}
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:underline"
                     >
-                        <MessageCircle className="h-4 w-4" />
-                        Ask on WhatsApp instead
+                        <Phone className="h-3.5 w-3.5" />
+                        {siteConfig.phone}
                     </a>
-                </div>
-            )}
+                    <span className="text-border">·</span>
+                    <span>Available Mon–Sat, 9am–7pm</span>
+                </p>
+            </div>
+
+            <style>{`
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+      `}</style>
         </div>
     );
 }

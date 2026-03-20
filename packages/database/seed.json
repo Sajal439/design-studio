@@ -1,0 +1,79 @@
+[
+  {
+    "title": "Modular Kitchen",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-inspiration.jpg",
+    "description": "Premium BWP plywood, imported hardware, aesthetic finishes.",
+    "waText": "Hi! I want pricing for a modular kitchen."
+  },
+  {
+    "title": "Wardrobe",
+    "categorySlug": "wardrobe",
+    "isRealWork": false,
+    "filename": "wardrobe-inspiration.jpg",
+    "description": "Custom storage solutions with smooth sliding mechanisms.",
+    "waText": "Hi! I want pricing for a wardrobe."
+  },
+  {
+    "title": "TV Unit",
+    "categorySlug": "tv-unit",
+    "isRealWork": false,
+    "filename": "tv-unit-inspiration.jpg",
+    "description": "Elegant feature walls crafted with decorative laminates.",
+    "waText": "Hi! I want pricing for a TV unit."
+  },
+  {
+    "title": "Bedroom Interior",
+    "categorySlug": "bedroom",
+    "isRealWork": false,
+    "filename": "bedroom-inspiration.jpg",
+    "description": "Complete room transformation with synchronized materials.",
+    "waText": "Hi! I want pricing for bedroom interior."
+  },
+  {
+    "title": "Study & Office",
+    "categorySlug": "study",
+    "isRealWork": false,
+    "filename": "office-inspiration.jpg",
+    "description": "Ergonomic workstations built for durability and focus.",
+    "waText": "Hi! I want pricing for a study or office setup."
+  },
+  {
+    "title": "Complete Home",
+    "categorySlug": "miscellaneous",
+    "isRealWork": false,
+    "filename": "home-inspiration.jpg",
+    "description": "Unified design language across your entire property.",
+    "waText": "Hi! I want pricing for complete home interior."
+  },
+  {
+    "title": "L-Shape Modular Kitchen",
+    "categorySlug": "kitchen",
+    "isRealWork": true,
+    "location": "Sector 6, Karnal",
+    "priceRange": "₹1.2L - ₹1.5L",
+    "badge": "Installed in 7 days",
+    "filename": "karnal-kitchen.jpg",
+    "waText": "Hi! I want pricing for a kitchen like the L-Shape project in Sector 6."
+  },
+  {
+    "title": "Master Bedroom & Wardrobe",
+    "categorySlug": "bedroom",
+    "isRealWork": true,
+    "location": "Model Town, Panipat",
+    "priceRange": "₹2.5L - ₹3.2L",
+    "badge": "Customer visit available",
+    "filename": "panipat-bedroom.jpg",
+    "waText": "Hi! I want pricing for a bedroom like the one in Model Town."
+  },
+  {
+    "title": "Luxury TV Unit & Paneling",
+    "categorySlug": "tv-unit",
+    "isRealWork": true,
+    "location": "Sector 13, Kurukshetra",
+    "priceRange": "₹45K - ₹65K",
+    "filename": "kurukshetra-tv.jpg",
+    "waText": "Hi! I want pricing for a TV unit like the Sector 13 project."
+  }
+]

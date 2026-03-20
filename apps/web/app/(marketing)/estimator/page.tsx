@@ -37,21 +37,6 @@ export default async function EstimatorPage() {
         </div>
 
         <SimpleEstimator priceBook={priceBook} />
-
-        <div className="mt-8 rounded-xl border bg-muted/20 px-5 py-4 text-sm text-muted-foreground space-y-1.5">
-          <p className="font-medium text-foreground">How this works</p>
-          <p>
-            Quantities use standard Haryana contractor thumb rules — the same
-            approximations a local carpenter applies when giving you a quote.
-            No waste factor is added; what you see is the net material you need.
-          </p>
-          <p>
-            Prices are maintained by the Goel Traders team and updated directly
-            from our admin dashboard. Labour rate shown is the prevailing
-            Karnal market rate.
-          </p>
-        </div>
-
       </div>
     </div>
   );
