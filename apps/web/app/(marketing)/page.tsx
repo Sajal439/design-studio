@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { BrandLogosBar } from "@/components/marketing/brand-logos-bar";
 import { siteConfig } from "@/lib/site-config";
-import { cn } from "@/lib/utils"; // Assuming a standard shadcn/ui setup
+import { cn, getFirstImageUrl } from "@/lib/utils";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -208,9 +208,9 @@ export default async function Home() {
               >
                 {/* Background Image */}
                 <div className="absolute inset-0 z-0 bg-slate-100">
-                  {design.images?.[0] && (
+                  {getFirstImageUrl(design.images) && (
                     <Image 
-                      src={getOptimizedCloudinaryUrl(design.images[0])} 
+                      src={getOptimizedCloudinaryUrl(getFirstImageUrl(design.images))} 
                       alt={design.title}
                       fill
                       unoptimized

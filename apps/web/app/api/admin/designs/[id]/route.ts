@@ -48,7 +48,7 @@ export async function PATCH(
         estimatedCost: result.data.estimatedCost,
         roomSize: result.data.roomSize,
         style: result.data.style,
-        images: result.data.images,
+        images: result.data.images as any,
         categoryId: category.id,
       },
     });

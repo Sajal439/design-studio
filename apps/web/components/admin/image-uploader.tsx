@@ -5,9 +5,11 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+export type ImageItem = { url: string; publicId: string };
+
 type ImageUploaderProps = {
-  images: string[];
-  onChange: (images: string[]) => void;
+  images: ImageItem[];
+  onChange: (images: ImageItem[]) => void;
 };
 
 export function ImageUploader({ images, onChange }: ImageUploaderProps) {
@@ -51,7 +53,7 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
   function addManualUrl() {
     const value = manualUrl.trim();
     if (!value) return;
-    onChange([...images, value]);
+    onChange([...images, { url: value, publicId: "" }]);
     setManualUrl("");
   }
 
@@ -77,11 +79,11 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
       {images.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {images.map((image, index) => (
-            <div key={`${image}-${index}`} className="rounded-lg border p-3">
+            <div key={`${image.url}-${index}`} className="rounded-lg border p-3">
               <div className="relative aspect-video overflow-hidden rounded-md bg-muted">
-                <Image alt={`Uploaded asset ${index + 1}`} className="object-cover" fill sizes="(max-width: 768px) 100vw, 33vw" src={image} />
+                <Image alt={`Uploaded asset ${index + 1}`} className="object-cover" fill sizes="(max-width: 768px) 100vw, 33vw" src={image.url} />
               </div>
-              <p className="mt-2 truncate text-xs text-muted-foreground">{image}</p>
+              <p className="mt-2 truncate text-xs text-muted-foreground">{image.url}</p>
               <Button className="mt-2 w-full" onClick={() => removeImage(index)} type="button" variant="outline">Remove</Button>
             </div>
           ))}

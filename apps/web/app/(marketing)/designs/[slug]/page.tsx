@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, MessageCircle, Phone, Package } from "lucide-react";
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/site-config";
+import { getFirstImageUrl } from "@/lib/utils";
 
 async function getDesign(slug: string) {
   return prisma.design.findUnique({ where: { slug }, include: { category: true } });
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: design.title,
       description: design.description || "",
-      images: design.images[0] ? [{ url: design.images[0] }] : undefined,
+      images: getFirstImageUrl(design.images) ? [{ url: getFirstImageUrl(design.images)! }] : undefined,
     },
   };
 }
@@ -64,27 +65,27 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
         <div className="grid gap-10 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <div className="relative mb-4 aspect-video overflow-hidden rounded-xl bg-muted">
-              {design.images[0] ? (
+              {getFirstImageUrl(design.images) ? (
                 <Image
                   alt={design.title}
                   className="object-cover"
                   fill
                   sizes="(max-width: 1024px) 100vw, 66vw"
-                  src={design.images[0]}
+                  src={getFirstImageUrl(design.images)!}
                 />
               ) : null}
             </div>
 
-            {design.images.length > 1 ? (
+            {Array.isArray(design.images) && design.images.length > 1 ? (
               <div className="mb-6 grid gap-3 sm:grid-cols-3">
-                {design.images.slice(1).map((image: string, index: number) => (
-                  <div key={`${image}-${index}`} className="relative aspect-video overflow-hidden rounded-lg bg-muted">
+                {(design.images as any[]).slice(1).map((image: any, index: number) => (
+                  <div key={`${image.url}-${index}`} className="relative aspect-video overflow-hidden rounded-lg bg-muted">
                     <Image
                       alt={`${design.title} view ${index + 2}`}
                       className="object-cover"
                       fill
                       sizes="33vw"
-                      src={image}
+                      src={image.url}
                     />
                   </div>
                 ))}
@@ -186,10 +187,10 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
                 className="group rounded-2xl border bg-background overflow-hidden transition-all hover:-translate-y-1 hover:shadow-md"
               >
                 <div className="relative aspect-video overflow-hidden bg-muted">
-                  {d.images[0] ? (
+                  {getFirstImageUrl(d.images) ? (
                     <Image
                       alt={d.title}
-                      src={d.images[0]}
+                      src={getFirstImageUrl(d.images)!}
                       fill
                       className="object-cover transition-transform group-hover:scale-105"
                       sizes="(max-width: 1024px) 50vw, 33vw"

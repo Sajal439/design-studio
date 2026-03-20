@@ -34,7 +34,8 @@ model Design {
   estimatedCost String?
   roomSize      String?
   style         String?
-  images        String[]
+  images        Json     @default("[]")
+  tags          String[]
   
   // Marketing / Showcase fields
   isRealWork    Boolean  @default(false)

@@ -17,7 +17,7 @@ type Design = {
   estimatedCost: string;
   roomSize: string;
   style: string;
-  images: string[];
+  images: { url: string; publicId: string }[];
   category: { label: string; slug: string };
   materials: { id: string; name: string; quantity: number; unit: string }[];
 };
@@ -31,7 +31,7 @@ type DesignFormState = {
   estimatedCost: string;
   roomSize: string;
   style: string;
-  images: string[];
+  images: { url: string; publicId: string }[];
   materialsText: string;
 };
 
