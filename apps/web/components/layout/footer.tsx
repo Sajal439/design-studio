@@ -3,6 +3,8 @@ import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/lib/site-config";
 
 export function Footer() {
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteConfig.address)}`;
+
     return (
         <footer className="border-t bg-muted/30">
             <div className="container mx-auto px-4 py-12">
@@ -38,9 +40,26 @@ export function Footer() {
                     <div>
                         <h4 className="text-sm font-semibold mb-3">Contact</h4>
                         <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li>📍{siteConfig.address}</li>
-                            <li>📞 {siteConfig.phone}</li>
-                            <li>✉️ {siteConfig.email}</li>
+                            <li>
+                                <a
+                                    href={mapsUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:text-foreground"
+                                >
+                                    📍 {siteConfig.address}
+                                </a>
+                            </li>
+                            <li>
+                                <a href={`tel:${siteConfig.phone}`} className="hover:text-foreground">
+                                    📞 {siteConfig.phone}
+                                </a>
+                            </li>
+                            <li>
+                                <a href={`mailto:${siteConfig.email}`} className="hover:text-foreground">
+                                    ✉️ {siteConfig.email}
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>

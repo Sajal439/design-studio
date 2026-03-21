@@ -10,6 +10,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { BrandLogosBar } from "@/components/marketing/brand-logos-bar";
+import { LocationSection } from "@/components/marketing/location-section";
 import { siteConfig } from "@/lib/site-config";
 import { getFirstImageUrl } from "@/lib/utils";
 
@@ -359,7 +360,12 @@ export default async function Home() {
       </section>
 
       {/* ════════════════════════════════════════
-          4. MINIMAL POWERFUL CTA (Light Premium Theme)
+          4. SHOWROOM LOCATION
+          ════════════════════════════════════════ */}
+      <LocationSection />
+
+      {/* ════════════════════════════════════════
+          5. MINIMAL POWERFUL CTA (Light Premium Theme)
           ════════════════════════════════════════ */}
       <section className="py-24 lg:py-32 bg-slate-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
