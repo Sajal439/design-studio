@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageUploader } from "@/components/admin/image-uploader";
+import { ImageUploader, type ImageItem } from "@/components/admin/image-uploader";
 
 type Category = { id: string; slug: string; label: string };
 type Product = {
@@ -33,7 +33,7 @@ type ProductFormState = {
   priceRange: string;
   unit: string;
   inStock: boolean;
-  images: string[];
+  images: ImageItem[];
   specificationsText: string;
 };
 
@@ -83,7 +83,7 @@ export function ProductManager({ categories, products }: ProductManagerProps) {
       priceRange: product.priceRange,
       unit: product.unit,
       inStock: product.inStock,
-      images: product.images,
+      images: product.images.map((image) => ({ url: image, publicId: "" })),
       specificationsText: specificationsToText(product.specifications),
     });
     setError("");
@@ -104,7 +104,11 @@ export function ProductManager({ categories, products }: ProductManagerProps) {
       const response = await fetch(editingId ? `/api/admin/products/${editingId}` : "/api/admin/products", {
         method: editingId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, specifications: parseSpecifications(form.specificationsText) }),
+        body: JSON.stringify({
+          ...form,
+          images: form.images.map((image) => image.url),
+          specifications: parseSpecifications(form.specificationsText),
+        }),
       });
 
       if (!response.ok) {

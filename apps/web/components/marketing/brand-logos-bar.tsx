@@ -1,22 +1,14 @@
-/**
- * Brand logos marquee / trust strip.
- * Shows authorized brand names as text badges in a scrolling strip.
- * Replace text with actual <Image> tags once brand logo assets are available.
- */
-export function BrandLogosBar() {
-  const brands = [
-    "Century Ply",
-    "Greenply",
-    "Merino",
-    "Hettich",
-    "Hafele",
-    "Action TESA",
-    "Durian",
-    "Dorset",
-    "Pergo",
-    "Royale Touche",
-  ];
+import Image from "next/image";
 
+const brands = [
+  { name: "Action TESA", src: "/action%20tesa%20logo.png" },
+  { name: "Advance Laminates", src: "/advance%20laminates.webp" },
+  { name: "Dorset", src: "/dorset.png" },
+  { name: "Hafele", src: "/hafele.webp" },
+  { name: "Hettich", src: "/hettich.png" },
+];
+
+export function BrandLogosBar() {
   return (
     <section className="border-y bg-muted/30 py-6">
       <div className="container mx-auto px-4">
@@ -30,12 +22,20 @@ export function BrandLogosBar() {
 
           <div className="flex animate-marquee gap-8 whitespace-nowrap">
             {[...brands, ...brands].map((brand, i) => (
-              <span
-                key={`${brand}-${i}`}
-                className="inline-flex items-center rounded-full border bg-background px-4 py-2 text-sm font-semibold text-foreground shadow-sm"
+              <div
+                key={`${brand.name}-${i}`}
+                className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-slate-200/80 bg-white px-5 py-3 shadow-sm"
               >
-                {brand}
-              </span>
+                <div className="relative h-10 w-[120px] sm:w-[140px]">
+                  <Image
+                    src={brand.src}
+                    alt={`${brand.name} logo`}
+                    fill
+                    sizes="140px"
+                    className="object-contain"
+                  />
+                </div>
+              </div>
             ))}
           </div>
         </div>

@@ -1,6 +1,10 @@
 import type { MaterialGrade } from "./types";
 
 export type PriceBook = {
+  estimator: Record<
+    "kitchen" | "wardrobe" | "tv-unit" | "bedroom" | "study" | "office",
+    Record<MaterialGrade, number>
+  >;
   sheets: Record<MaterialGrade, { plywood: number; surface: number }>;
   hardware: Record<string, number>;
   rates: {
@@ -15,6 +19,14 @@ export type PriceBook = {
 
 // Fallback used only if DB is unreachable — never in production flow
 export const FALLBACK_PRICE_BOOK: PriceBook = {
+  estimator: {
+    kitchen: { BUDGET: 2200, STANDARD: 2800, PREMIUM: 3500 },
+    wardrobe: { BUDGET: 600, STANDARD: 1000, PREMIUM: 1800 },
+    "tv-unit": { BUDGET: 700, STANDARD: 1100, PREMIUM: 1800 },
+    bedroom: { BUDGET: 700, STANDARD: 1100, PREMIUM: 2000 },
+    study: { BUDGET: 550, STANDARD: 900, PREMIUM: 1500 },
+    office: { BUDGET: 650, STANDARD: 1050, PREMIUM: 1800 },
+  },
   sheets: {
     BUDGET: { plywood: 65, surface: 55 },
     STANDARD: { plywood: 95, surface: 65 },

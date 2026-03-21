@@ -21,7 +21,12 @@ export const designSchema = z.object({
   roomSize: z.string().min(1),
   style: z.string().min(1),
   images: z.array(imageItemSchema).min(1),
-  materials: z.array(materialSchema).min(1),
+  tags: z.array(z.string().min(1)).default([]),
+  isRealWork: z.boolean().default(false),
+  location: z.string().optional().or(z.literal("")),
+  priceRange: z.string().optional().or(z.literal("")),
+  badge: z.string().optional().or(z.literal("")),
+  waText: z.string().optional().or(z.literal("")),
 });
 
 // ── Product ───────────────────────────────────────────────────────────────────

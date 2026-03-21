@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, MessageCircle, Phone, Package } from "lucide-react";
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/site-config";
-import { getFirstImageUrl } from "@/lib/utils";
+import { buildWhatsAppUrl, getFirstImageUrl, normalizeDesignImages } from "@/lib/utils";
 
 async function getDesign(slug: string) {
   return prisma.design.findUnique({ where: { slug }, include: { category: true } });
@@ -47,10 +47,11 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
 
   const similarDesigns = await getSimilarDesigns(design.categoryId, design.slug);
 
-  const waText = encodeURIComponent(
+  const waText =
     `Hi! I'm interested in "${design.title}" (${design.estimatedCost}). Can you share the exact price?`
-  );
-  const waUrl = `https://wa.me/91${siteConfig.whatsapp}?text=${waText}`;
+  ;
+  const waUrl = buildWhatsAppUrl(`91${siteConfig.whatsapp}`, waText);
+  const galleryImages = normalizeDesignImages(design.images);
 
   return (
     <div className="py-12">
@@ -76,9 +77,9 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
               ) : null}
             </div>
 
-            {Array.isArray(design.images) && design.images.length > 1 ? (
+            {galleryImages.length > 1 ? (
               <div className="mb-6 grid gap-3 sm:grid-cols-3">
-                {(design.images as any[]).slice(1).map((image: any, index: number) => (
+                {galleryImages.slice(1).map((image, index) => (
                   <div key={`${image.url}-${index}`} className="relative aspect-video overflow-hidden rounded-lg bg-muted">
                     <Image
                       alt={`${design.title} view ${index + 2}`}

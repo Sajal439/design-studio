@@ -11,9 +11,10 @@ type Entry = {
     value: number; unit: string; notes: string | null; active: boolean;
 };
 
-const CATEGORY_ORDER = ["SHEET", "HARDWARE", "RATE"];
+const CATEGORY_ORDER = ["ESTIMATOR", "SHEET", "HARDWARE", "RATE"];
 
 const CATEGORY_LABELS: Record<string, string> = {
+    ESTIMATOR: "Estimator rates (per sqft)",
     SHEET: "Sheet prices (per sqft)",
     HARDWARE: "Hardware and accessory prices",
     RATE: "Rate percentages",

@@ -3,18 +3,15 @@ import Image from "next/image";
 import { prisma } from "@repo/database";
 import {
   MessageCircle,
-  Phone,
   MapPin,
   Star,
   ChevronRight,
   Calculator,
   CheckCircle2,
-  ShieldCheck,
-  TrendingUp,
 } from "lucide-react";
 import { BrandLogosBar } from "@/components/marketing/brand-logos-bar";
 import { siteConfig } from "@/lib/site-config";
-import { cn, getFirstImageUrl } from "@/lib/utils";
+import { getFirstImageUrl } from "@/lib/utils";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -27,6 +24,39 @@ function waUrl(text: string) {
 const HERO_WA = waUrl(
   "Hi! I'm looking for interior materials. Can you share prices for my project?"
 );
+
+const DESIGN_CATEGORIES = [
+  {
+    title: "Kitchen",
+    href: "/designs?category=kitchen",
+    description: "Modular layouts, finishes, shutters, hardware, and smart storage ideas.",
+    accent: "from-amber-200 via-orange-100 to-white",
+  },
+  {
+    title: "Wardrobes",
+    href: "/designs?category=wardrobe",
+    description: "Sliding and hinged wardrobes designed for clean storage and daily ease.",
+    accent: "from-stone-200 via-zinc-100 to-white",
+  },
+  {
+    title: "Study Tables",
+    href: "/designs?category=study",
+    description: "Compact study corners and work-from-home setups with shelves and drawers.",
+    accent: "from-sky-200 via-cyan-100 to-white",
+  },
+  {
+    title: "Office Interiors",
+    href: "/designs?category=office",
+    description: "Professional cabin, workstation, and storage concepts for productive offices.",
+    accent: "from-slate-300 via-slate-100 to-white",
+  },
+  {
+    title: "Bedrooms",
+    href: "/designs?category=bedroom",
+    description: "Warm bedroom concepts with coordinated wardrobes, panels, and headboards.",
+    accent: "from-rose-200 via-pink-100 to-white",
+  },
+] as const;
 
 
 
@@ -63,7 +93,7 @@ function getOptimizedCloudinaryUrl(url: string | null | undefined): string {
   if (!url) return "";
   // Check if it's already a Cloudinary upload URL without optimizations
   if (url.includes("/upload/") && !url.includes("f_auto,q_auto")) {
-     return url.replace("/upload/", "/upload/f_auto,q_auto,w_800/");
+    return url.replace("/upload/", "/upload/f_auto,q_auto,w_800/");
   }
   return url;
 }
@@ -71,11 +101,6 @@ function getOptimizedCloudinaryUrl(url: string | null | undefined): string {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function Home() {
-  const inspirations = await prisma.design.findMany({
-    where: { isRealWork: false },
-    take: 6,
-  });
-
   const realWork = await prisma.design.findMany({
     where: { isRealWork: true },
     orderBy: { createdAt: "desc" },
@@ -88,29 +113,8 @@ export default async function Home() {
           1. PREMIUM HERO SECTION
           ════════════════════════════════════════ */}
       <section className="relative overflow-hidden bg-[#FAFAFA] pt-32 pb-40 md:pt-40 md:pb-48">
-        
-        {/* Layered Background Depth */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Subtle textured blur image on the right */}
-          <div className="absolute -top-32 -right-32 w-[600px] h-[600px] opacity-[0.15] mix-blend-multiply">
-            <Image 
-              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800"
-              alt="Interior Texture Overlay"
-              fill
-              className="object-cover rounded-full blur-[80px]"
-              unoptimized
-            />
-          </div>
-
-          {/* Radial glow directly behind the headline */}
-          <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-100/40 blur-[100px] rounded-[100%]" />
-          
-          <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#FAFAFA] via-[#FAFAFA]/80 to-transparent" />
-        </div>
-
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center z-10 flex flex-col items-center">
-              
             <div className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200/60 bg-white/40 backdrop-blur-xl px-4 py-1.5 text-xs font-semibold text-slate-600 mb-10 tracking-widest uppercase shadow-sm">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               Karnal's Premium Interior Materials
@@ -122,8 +126,7 @@ export default async function Home() {
             </h1>
 
             <p className="text-lg sm:text-xl text-slate-600 mb-12 max-w-xl mx-auto leading-relaxed font-medium">
-              Authorized dealer for Century Ply, Merino, and Hettich. 
-              Skip the middlemen and get your complete bill of materials delivered.
+              Authorized dealer for Action Tesa, Advance Laminates and Hettich.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14 w-full sm:w-auto">
@@ -152,12 +155,8 @@ export default async function Home() {
                 <span>100% Genuine Brands</span>
               </div>
               <div className="flex items-center gap-2">
-                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                 <span>Factory Direct Pricing</span>
-              </div>
-              <div className="flex items-center gap-2">
-                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                 <span>End-to-End Delivery</span>
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <span>End-to-End Delivery</span>
               </div>
             </div>
 
@@ -169,24 +168,24 @@ export default async function Home() {
           Brand logos Bar
           ════════════════════════════════════════ */}
       <div className="relative -mt-8 z-20 container mx-auto px-4">
-          <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 flex items-center justify-center border border-slate-100">
-             <BrandLogosBar />
-          </div>
+        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 flex items-center justify-center border border-slate-100">
+          <BrandLogosBar />
+        </div>
       </div>
 
       {/* ════════════════════════════════════════
-          2. DESIGN INSPIRATIONS 
+          2. DESIGN CATEGORIES
           ════════════════════════════════════════ */}
       <section className="py-24 bg-white border-b border-slate-100">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
             <div className="max-w-2xl">
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-4">
-                Design Inspirations
+                Explore by Category
               </h2>
               <p className="text-lg text-slate-600 leading-relaxed">
-                Explore popular styles and get instant pricing for your space. Premium materials sourced directly for your home.
+                Start with the space you want to design, then browse matching ideas on the full designs page.
               </p>
             </div>
             <Link
@@ -197,50 +196,34 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {inspirations.map((design) => (
-              <a
-                href={waUrl(design.waText || `Hi! I want pricing for a ${design.title} interior.`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                key={design.id}
-                className="group relative rounded-3xl overflow-hidden aspect-[4/5] bg-slate-900 shadow-lg hover:shadow-2xl transition-all duration-500 isolation-isolate block cursor-pointer"
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
+            {DESIGN_CATEGORIES.map((category) => (
+              <Link
+                key={category.title}
+                href={category.href}
+                className="group relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50 p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/60"
               >
-                {/* Background Image */}
-                <div className="absolute inset-0 z-0 bg-slate-100">
-                  {getFirstImageUrl(design.images) && (
-                    <Image 
-                      src={getOptimizedCloudinaryUrl(getFirstImageUrl(design.images))} 
-                      alt={design.title}
-                      fill
-                      unoptimized
-                      className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-105 opacity-90 group-hover:opacity-100"
-                    />
-                  )}
-                  {/* Subtle Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent" />
-                </div>
+                <div className={`absolute inset-0 bg-gradient-to-br ${category.accent} opacity-80 transition-opacity duration-300 group-hover:opacity-100`} />
+                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/60 blur-2xl" />
+                <div className="relative z-10 flex h-full min-h-56 flex-col">
+                  <h3 className="mb-3 text-2xl font-bold text-slate-900">
+                    {category.title}
+                  </h3>
+                  <p className="max-w-xs text-sm leading-6 text-slate-600">
+                    {category.description}
+                  </p>
 
-                {/* Content */}
-                <div className="relative z-10 flex flex-col h-full p-8 md:p-10 justify-end">
-                  <h3 className="text-2xl font-bold text-white mb-2">{design.title}</h3>
-                  
-                  <div className="flex items-center justify-between mt-auto">
-                    <p className="text-sm font-medium text-emerald-300">
-                      Explore options
-                    </p>
-                    <div className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white group-hover:bg-white group-hover:text-slate-900 transition-colors">
+                  <div className="mt-auto flex items-center justify-between pt-8">
+                    <span className="text-sm font-semibold text-slate-700">
+                      View designs
+                    </span>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300/80 bg-white text-slate-700 transition-all duration-300 group-hover:border-slate-900 group-hover:bg-slate-900 group-hover:text-white">
                       <ChevronRight className="h-5 w-5" />
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             ))}
-            {inspirations.length === 0 && (
-               <div className="col-span-full py-10 text-center text-slate-400">
-                 No inspirations uploaded yet. Visit /admin/marketing.
-               </div>
-            )}
           </div>
         </div>
       </section>
@@ -250,7 +233,7 @@ export default async function Home() {
           ════════════════════════════════════════ */}
       <section className="py-24 lg:py-32 bg-slate-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <div className="max-w-2xl mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-4">
               Our Real Work
@@ -265,19 +248,19 @@ export default async function Home() {
               <div key={work.id} className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-200/60">
                 {/* Image Area */}
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
-                  {work.images?.[0] && (
-                    <Image 
-                      src={getOptimizedCloudinaryUrl(work.images[0])} 
-                      alt={work.title} 
-                      fill 
+                  {getFirstImageUrl(work.images) && (
+                    <Image
+                      src={getOptimizedCloudinaryUrl(getFirstImageUrl(work.images))}
+                      alt={work.title}
+                      fill
                       unoptimized
-                      className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-105" 
+                      className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
                     />
                   )}
                   {work.badge && (
                     <div className="absolute top-4 left-4 bg-emerald-500/90 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-bold tracking-wide flex items-center gap-1.5 shadow-sm">
-                       <CheckCircle2 className="h-3.5 w-3.5" />
-                       {work.badge}
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      {work.badge}
                     </div>
                   )}
                 </div>
@@ -285,28 +268,28 @@ export default async function Home() {
                 {/* Content Area */}
                 <div className="flex flex-col flex-1 p-8">
                   <div className="flex items-start justify-between gap-4 mb-4">
-                     <div>
-                       <h3 className="text-xl font-bold text-slate-900 mb-1">{work.title}</h3>
-                       {work.location && (
-                         <p className="text-sm font-medium text-slate-500 flex items-center gap-1">
-                           <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                           {work.location}
-                         </p>
-                       )}
-                     </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 mb-1">{work.title}</h3>
+                      {work.location && (
+                        <p className="text-sm font-medium text-slate-500 flex items-center gap-1">
+                          <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                          {work.location}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   <p className="text-sm text-slate-600 mb-6 flex-1">
-                     <span className="font-semibold text-slate-700 block mb-1">Materials Used:</span>
-                     {work.description}
+                    <span className="font-semibold text-slate-700 block mb-1">Materials Used:</span>
+                    {work.description}
                   </p>
 
                   <div className="flex items-center justify-between pt-6 border-t border-slate-100">
-                     <div className="text-sm">
-                       <span className="text-slate-500 block mb-0.5 tracking-tight">Project Value Approx.</span>
-                       <span className="font-bold text-slate-900">{work.priceRange}</span>
-                     </div>
-                     <a
+                    <div className="text-sm">
+                      <span className="text-slate-500 block mb-0.5 tracking-tight">Project Value Approx.</span>
+                      <span className="font-bold text-slate-900">{work.priceRange}</span>
+                    </div>
+                    <a
                       href={waUrl(work.waText || `Hi! I want pricing for a project like ${work.title}`)}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -319,9 +302,9 @@ export default async function Home() {
               </div>
             ))}
             {realWork.length === 0 && (
-               <div className="col-span-full py-10 text-center text-slate-400">
-                 No portfolio projects uploaded yet. Visit /admin/marketing.
-               </div>
+              <div className="col-span-full py-10 text-center text-slate-400">
+                No portfolio projects uploaded yet. Visit /admin/marketing.
+              </div>
             )}
           </div>
         </div>
@@ -334,7 +317,7 @@ export default async function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-4">
-               Trusted by Haryana's homeowners
+              Trusted by Haryana's homeowners
             </h2>
             <p className="text-lg text-slate-600">
               Don't just take our word for it. Hundreds of families have built their dream homes using our direct-supply model.
@@ -355,14 +338,14 @@ export default async function Home() {
                     />
                   ))}
                 </div>
-                
+
                 <p className="text-slate-700 text-base leading-relaxed mb-8">
                   "{t.text}"
                 </p>
-                
+
                 <div className="flex items-center gap-4 mt-auto">
                   <div className="relative h-12 w-12 rounded-full overflow-hidden border-2 border-white shadow-md">
-                     <Image src={t.avatar} alt={t.name} fill className="object-cover" />
+                    <Image src={t.avatar} alt={t.name} fill className="object-cover" />
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900 text-sm">{t.name}</h4>
@@ -382,21 +365,18 @@ export default async function Home() {
           ════════════════════════════════════════ */}
       <section className="py-24 lg:py-32 bg-slate-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-          <div className="relative rounded-[3rem] overflow-hidden bg-white border border-slate-100 p-10 md:p-20 text-center shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)]">
-            
-            {/* Background pattern */}
-            <div className="absolute inset-0 opacity-[0.4]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f1f5f9' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`}} />
-            
-            <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100/50 rounded-full blur-[128px] pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-100/50 rounded-full blur-[128px] pointer-events-none" />
+          <div className="relative rounded-[3rem] overflow-hidden bg-white border border-slate-100 p-10 md:p-20 text-center">
+
+            <div className="absolute top-0 right-0 w-96 h-96 rounded-full blur-[128px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full blur-[128px] pointer-events-none" />
 
             <div className="relative z-10">
               <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">
-                Get a transparent quote. <br className="hidden md:block"/> 
+                Get a transparent quote. <br className="hidden md:block" />
                 <span className="text-slate-400">No hidden fees.</span>
               </h2>
               <p className="text-lg text-slate-500 mb-10 max-w-2xl mx-auto">
-                Share your room layout or carpenter's material list. 
+                Share your room layout or carpenter's material list.
                 Our team will reply with exact availability and factory-direct pricing.
               </p>
 
@@ -415,7 +395,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

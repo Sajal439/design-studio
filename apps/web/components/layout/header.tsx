@@ -1,9 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Phone } from "lucide-react";
-import { UserNav } from "@/components/layout/user-nav";
 import { siteConfig } from "@/lib/site-config";
+import { buildWhatsAppUrl } from "@/lib/utils";
 
 const navLinks = [
     { href: "/designs", label: "Designs" },
@@ -17,7 +18,7 @@ export function Header() {
 
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2">
-                    <img src="/logo.svg" className="h-10 w-auto" alt="Goel Traders" />
+                    <Image src="/logo.svg" className="h-10 w-auto" alt="Goel Traders" width={160} height={40} priority />
                 </Link>
 
                 {/* Desktop Navigation */}
@@ -44,18 +45,13 @@ export function Header() {
 
                     {/* WhatsApp CTA (PRIMARY) */}
                     <a
-                        href={`https://wa.me/${siteConfig.phone}`}
+                        href={buildWhatsAppUrl(siteConfig.whatsapp)}
                         target="_blank"
+                        rel="noopener noreferrer"
                         className="px-4 py-2 rounded-md bg-green-500 text-white text-sm font-semibold hover:bg-green-600 transition"
                     >
                         WhatsApp
                     </a>
-
-                    {/* Optional login (de-emphasized) */}
-                    <div className="ml-2 opacity-70 hover:opacity-100">
-                        <UserNav />
-                    </div>
-
                 </nav>
 
                 {/* Mobile Menu */}
@@ -87,16 +83,13 @@ export function Header() {
                             </a>
 
                             <a
-                                href={`https://wa.me/${siteConfig.phone}`}
+                                href={buildWhatsAppUrl(siteConfig.whatsapp)}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="bg-green-500 text-white text-center py-3 rounded-md font-semibold"
                             >
                                 WhatsApp
                             </a>
-
-                            <div className="h-px bg-border my-2" />
-
-                            <UserNav />
-
                         </nav>
                     </SheetContent>
                 </Sheet>
