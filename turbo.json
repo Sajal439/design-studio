@@ -51,6 +51,9 @@
         "../../node_modules/.prisma/client/**"
       ]
     },
+    "check-types": {
+      "dependsOn": ["^check-types"]
+    },
     "typecheck": {
       "dependsOn": ["^typecheck"]
     },

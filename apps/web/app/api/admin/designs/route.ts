@@ -38,9 +38,15 @@ export async function POST(request: Request) {
         estimatedCost: result.data.estimatedCost,
         roomSize: result.data.roomSize,
         style: result.data.style,
-        images: result.data.images as any,
+        images: result.data.images,
+        tags: result.data.tags,
+        isRealWork: result.data.isRealWork,
+        location: result.data.location || null,
+        priceRange: result.data.priceRange || null,
+        badge: result.data.badge || null,
+        waText: result.data.waText || null,
         categoryId: category.id,
-      },
+      } as any,
     });
     revalidateDesignPaths();
     return NextResponse.json(created, { status: 201 });

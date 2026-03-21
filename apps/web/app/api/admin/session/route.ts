@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { ADMIN_SESSION_COOKIE, getAdminSessionToken, isValidAdminPassword } from "@/lib/admin-auth";
+import { ADMIN_SESSION_COOKIE, isValidAdminPassword } from "@/lib/admin-auth";
+import { SESSION_COOKIE_NAME, signToken } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
@@ -11,16 +12,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid password" }, { status: 401 });
     }
 
-    const token = await getAdminSessionToken();
+    const token = await signToken({
+      userId: "admin",
+      email: "admin@goeltraders.local",
+      role: "admin",
+    });
     const cookieStore = await cookies();
 
-    cookieStore.set(ADMIN_SESSION_COOKIE, token, {
+    cookieStore.set(SESSION_COOKIE_NAME, token, {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       path: "/",
       maxAge: 60 * 60 * 8,
     });
+    cookieStore.delete(ADMIN_SESSION_COOKIE);
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -31,6 +37,7 @@ export async function POST(request: Request) {
 
 export async function DELETE() {
   const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE_NAME);
   cookieStore.delete(ADMIN_SESSION_COOKIE);
   return NextResponse.json({ success: true });
 }

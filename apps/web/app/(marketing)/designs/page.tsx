@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
-import { cn, getFirstImageUrl } from "@/lib/utils";
+import { getFirstImageUrl } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Design Gallery | Goel Traders Design Studio",

@@ -10,16 +10,14 @@
  * - All pricing logic from flat-rate-engine.ts — no hardcoded rates here
  */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { MessageCircle, Phone, Check, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { siteConfig } from "@/lib/site-config";
 import type { PriceBook } from "@/lib/estimator/priceBook";
 import {
-    CATEGORIES,
     isKitchenCategory,
-    isKitchenInput,
+    getEstimatorCategories,
     type CategorySpec,
     type KitchenCategorySpec,
     type DimensionCategorySpec,
@@ -28,12 +26,9 @@ import {
     type DimensionTierSpec,
     type KitchenEstimateResult,
     type DimensionEstimateResult,
-    calculateDimension,
-    calculateKitchen,
     calculateAllDimensionTiers,
     calculateAllKitchenTiers,
     formatCompact,
-    formatFull,
     buildWaUrl,
     buildFallbackWaUrl,
 } from "@/lib/estimator/flat-rate-engine";
@@ -308,13 +303,14 @@ function DimensionInputs({
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function SimpleEstimator({
-    priceBook: _priceBook,
+    priceBook,
     defaultCategory = "kitchen",
 }: {
     priceBook?: PriceBook;
     defaultCategory?: string;
 }) {
-    const initCat = CATEGORIES.find((c) => c.slug === defaultCategory) ?? CATEGORIES[0]!;
+    const categories = useMemo(() => getEstimatorCategories(priceBook), [priceBook]);
+    const initCat = categories.find((c) => c.slug === defaultCategory) ?? categories[0]!;
     const [activeCat, setActiveCat] = useState<CategorySpec>(initCat);
     const [kitchenDims, setKitchenDims] = useState<KitchenDims>(emptyKitchen());
     const [stdDims, setStdDims] = useState<StdDims>(emptyStd());
@@ -325,6 +321,12 @@ export function SimpleEstimator({
         const t = setTimeout(() => setCardsVisible(true), 100);
         return () => clearTimeout(t);
     }, []);
+
+    useEffect(() => {
+        const nextActive =
+            categories.find((category) => category.slug === activeCat.slug) ?? categories[0]!;
+        setActiveCat(nextActive);
+    }, [activeCat.slug, categories]);
 
     function switchCategory(cat: CategorySpec) {
         if (cat.slug === activeCat.slug) return;
@@ -358,7 +360,7 @@ export function SimpleEstimator({
                     What are you building?
                 </p>
                 <div className="flex flex-wrap gap-2">
-                    {CATEGORIES.map((c) => {
+                    {categories.map((c) => {
                         const isActive = activeCat.slug === c.slug;
                         return (
                             <button

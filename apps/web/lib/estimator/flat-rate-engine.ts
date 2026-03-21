@@ -15,6 +15,8 @@
  *
  * Nothing in this file has side effects — pure data + pure functions.
  */
+import type { PriceBook } from "./priceBook";
+import type { CategorySlug } from "./types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -80,7 +82,7 @@ export interface KitchenTierSpec {
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface BaseCategorySpec {
-  slug: string;
+  slug: CategorySlug;
   label: string;
   icon: string;
 }
@@ -463,6 +465,47 @@ export const CATEGORIES: CategorySpec[] = [
     ],
   },
 ];
+
+function formatRateLabel(rate: number): string {
+  return `₹${Math.round(rate).toLocaleString("en-IN")} / sqft`;
+}
+
+export function getEstimatorCategories(priceBook?: PriceBook): CategorySpec[] {
+  if (!priceBook) {
+    return CATEGORIES;
+  }
+
+  return CATEGORIES.map((category) => {
+    if (category.inputType === "kitchen") {
+      const tiers = category.tiers.map((tier) => {
+        return {
+          ...tier,
+          ratePerSqft: priceBook.estimator[category.slug][tier.key],
+        };
+      }) as [KitchenTierSpec, KitchenTierSpec, KitchenTierSpec];
+
+      return {
+        ...category,
+        tiers,
+      };
+    }
+
+    const tiers = category.tiers.map((tier) => {
+      const rate = priceBook.estimator[category.slug][tier.key];
+
+      return {
+        ...tier,
+        rate,
+        rateLabel: formatRateLabel(rate),
+      };
+    }) as [DimensionTierSpec, DimensionTierSpec, DimensionTierSpec];
+
+    return {
+      ...category,
+      tiers,
+    };
+  });
+}
 
 // ── Lookup helpers ────────────────────────────────────────────────────────────
 

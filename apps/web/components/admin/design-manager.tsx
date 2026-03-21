@@ -7,19 +7,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "@/components/admin/image-uploader";
+import { normalizeDesignImages } from "@/lib/utils";
 
 type Category = { id: string; slug: string; label: string };
 type Design = {
   id: string;
   title: string;
   slug: string;
-  description: string;
-  estimatedCost: string;
-  roomSize: string;
-  style: string;
-  images: { url: string; publicId: string }[];
+  description: string | null;
+  estimatedCost: string | null;
+  roomSize: string | null;
+  style: string | null;
+  images: unknown;
+  tags: string[];
+  isRealWork: boolean;
+  location: string | null;
+  priceRange: string | null;
+  badge: string | null;
+  waText: string | null;
   category: { label: string; slug: string };
-  materials: { id: string; name: string; quantity: number; unit: string }[];
 };
 
 type DesignManagerProps = { categories: Category[]; designs: Design[] };
@@ -32,7 +38,12 @@ type DesignFormState = {
   roomSize: string;
   style: string;
   images: { url: string; publicId: string }[];
-  materialsText: string;
+  tagsText: string;
+  isRealWork: boolean;
+  location: string;
+  priceRange: string;
+  badge: string;
+  waText: string;
 };
 
 const initialState: DesignFormState = {
@@ -44,18 +55,23 @@ const initialState: DesignFormState = {
   roomSize: "",
   style: "",
   images: [],
-  materialsText: "",
+  tagsText: "",
+  isRealWork: false,
+  location: "",
+  priceRange: "",
+  badge: "",
+  waText: "",
 };
 
-function materialsToText(materials: Design["materials"]) {
-  return materials.map((material) => `${material.name}|${material.quantity}|${material.unit}`).join("\n");
+function tagsToText(tags: string[]) {
+  return tags.join(", ");
 }
 
-function parseMaterials(materialsText: string) {
-  return materialsText.split("\n").map((line) => line.trim()).filter(Boolean).map((line) => {
-    const [name, quantity, unit] = line.split("|").map((part) => part.trim());
-    return { name, quantity: Number(quantity), unit };
-  });
+function parseTags(tagsText: string) {
+  return tagsText
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 }
 
 export function DesignManager({ categories, designs }: DesignManagerProps) {
@@ -75,12 +91,17 @@ export function DesignManager({ categories, designs }: DesignManagerProps) {
       title: design.title,
       slug: design.slug,
       categorySlug: design.category.slug,
-      description: design.description,
-      estimatedCost: design.estimatedCost,
-      roomSize: design.roomSize,
-      style: design.style,
-      images: design.images,
-      materialsText: materialsToText(design.materials),
+      description: design.description ?? "",
+      estimatedCost: design.estimatedCost ?? "",
+      roomSize: design.roomSize ?? "",
+      style: design.style ?? "",
+      images: normalizeDesignImages(design.images),
+      tagsText: tagsToText(design.tags),
+      isRealWork: design.isRealWork,
+      location: design.location ?? "",
+      priceRange: design.priceRange ?? "",
+      badge: design.badge ?? "",
+      waText: design.waText ?? "",
     });
     setError("");
   }
@@ -100,7 +121,7 @@ export function DesignManager({ categories, designs }: DesignManagerProps) {
       const response = await fetch(editingId ? `/api/admin/designs/${editingId}` : "/api/admin/designs", {
         method: editingId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, materials: parseMaterials(form.materialsText) }),
+        body: JSON.stringify({ ...form, tags: parseTags(form.tagsText) }),
       });
 
       if (!response.ok) {
@@ -143,18 +164,30 @@ export function DesignManager({ categories, designs }: DesignManagerProps) {
               <Input placeholder="Estimated cost" value={form.estimatedCost} onChange={(event) => updateField("estimatedCost", event.target.value)} />
               <Input placeholder="Room size" value={form.roomSize} onChange={(event) => updateField("roomSize", event.target.value)} />
               <Input placeholder="Style" value={form.style} onChange={(event) => updateField("style", event.target.value)} />
+              <Input placeholder="Tags (comma separated)" value={form.tagsText} onChange={(event) => updateField("tagsText", event.target.value)} />
+              <Input placeholder="Location" value={form.location} onChange={(event) => updateField("location", event.target.value)} />
+              <Input placeholder="Project value / price range" value={form.priceRange} onChange={(event) => updateField("priceRange", event.target.value)} />
+              <Input placeholder="Badge" value={form.badge} onChange={(event) => updateField("badge", event.target.value)} />
             </div>
 
             <Textarea placeholder="Description" rows={4} value={form.description} onChange={(event) => updateField("description", event.target.value)} />
+            <Textarea placeholder="Custom WhatsApp message" rows={3} value={form.waText} onChange={(event) => updateField("waText", event.target.value)} />
 
             <div className="space-y-2">
               <p className="text-sm font-medium">Images</p>
               <ImageUploader images={form.images} onChange={(images) => updateField("images", images)} />
             </div>
 
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Materials</p>
-              <Textarea placeholder="One material per line: Material Name|Quantity|Unit" rows={6} value={form.materialsText} onChange={(event) => updateField("materialsText", event.target.value)} />
+            <div className="flex items-center gap-3 rounded-md border px-3 py-2">
+              <input
+                checked={form.isRealWork}
+                id="is-real-work"
+                onChange={(event) => updateField("isRealWork", event.target.checked)}
+                type="checkbox"
+              />
+              <label className="text-sm" htmlFor="is-real-work">
+                Mark as real work / portfolio project
+              </label>
             </div>
 
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
@@ -177,7 +210,9 @@ export function DesignManager({ categories, designs }: DesignManagerProps) {
                   <div>
                     <p className="font-semibold">{design.title}</p>
                     <p className="text-sm text-muted-foreground">{design.category.label} • {design.slug}</p>
-                    <p className="text-sm text-muted-foreground">{design.materials.length} materials • {design.images.length} images</p>
+                    <p className="text-sm text-muted-foreground">
+                      {design.isRealWork ? "Real work" : "Inspiration"} • {normalizeDesignImages(design.images).length} images
+                    </p>
                   </div>
                   <div className="flex gap-2">
                     <Button onClick={() => startEdit(design)} type="button" variant="outline">Edit</Button>

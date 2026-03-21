@@ -7,7 +7,7 @@ import pLimit from "p-limit";
 // Configuration
 const SEED_DIR = path.join(__dirname, "../");
 const IMAGES_DIR = path.join(SEED_DIR, "seed-images");
-const JSON_FILE = path.join(SEED_DIR, "seed.json");
+const JSON_FILE = path.join(SEED_DIR, "scripts/data/designs.json");
 const CONCURRENCY = 5;
 
 const prisma = new PrismaClient();
@@ -33,7 +33,7 @@ async function main() {
   console.log("🚀 Starting bulk design seeding...\n");
 
   if (!fs.existsSync(JSON_FILE)) {
-    console.error(`❌ Error: seed.json not found at ${JSON_FILE}`);
+    console.error(`❌ Error: designs manifest not found at ${JSON_FILE}`);
     process.exit(1);
   }
 
@@ -41,7 +41,7 @@ async function main() {
   const designs = JSON.parse(rawData);
 
   if (!Array.isArray(designs)) {
-    console.error("❌ Error: seed.json must be an array.");
+    console.error("❌ Error: scripts/data/designs.json must be an array.");
     process.exit(1);
   }
 

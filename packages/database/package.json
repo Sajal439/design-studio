@@ -13,7 +13,9 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "tsx seed.ts",
-    "seed:bulk": "tsx scripts/seed-bulk-designs.ts",
+    "db:generate:design-manifest": "tsx scripts/generate-design-manifest.ts",
+    "db:import:designs": "tsx scripts/import-designs.ts",
+    "check-types": "tsc --noEmit",
     "db:studio": "prisma studio"
   },
   "dependencies": {

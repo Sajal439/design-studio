@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Modern Parallel Kitchen",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "modern-parallel-kitchen.jpg",
+    "description": "Matte shutters, tall storage, and durable countertop details for family kitchens.",
+    "waText": "Hi! I want pricing for a modern parallel kitchen."
+  },
+  {
+    "title": "Sliding Door Wardrobe",
+    "categorySlug": "wardrobe",
+    "isRealWork": false,
+    "filename": "sliding-door-wardrobe.jpg",
+    "description": "Full-height wardrobe with loft storage and clean laminate finish.",
+    "waText": "Hi! I want pricing for a sliding door wardrobe."
+  },
+  {
+    "title": "Compact Study Table",
+    "categorySlug": "study",
+    "isRealWork": false,
+    "filename": "compact-study-table.jpg",
+    "description": "Space-saving study setup with drawers, shelves, and cable management.",
+    "waText": "Hi! I want pricing for a compact study table."
+  },
+  {
+    "title": "Executive Office Cabin",
+    "categorySlug": "office",
+    "isRealWork": false,
+    "filename": "executive-office-cabin.jpg",
+    "description": "Professional office furniture with storage, desk, and premium finishes.",
+    "waText": "Hi! I want pricing for an executive office cabin."
+  },
+  {
+    "title": "Luxury Bedroom Interior",
+    "categorySlug": "bedroom",
+    "isRealWork": false,
+    "filename": "luxury-bedroom-interior.jpg",
+    "description": "Bedroom concept with coordinated headboard, wardrobe, and warm detailing.",
+    "waText": "Hi! I want pricing for a luxury bedroom interior."
+  },
+  {
+    "title": "Floating TV Unit",
+    "categorySlug": "tv-unit",
+    "isRealWork": false,
+    "filename": "floating-tv-unit.jpg",
+    "description": "Modern TV wall with storage, paneling, and low-maintenance finishes.",
+    "waText": "Hi! I want pricing for a floating TV unit."
+  }
+]

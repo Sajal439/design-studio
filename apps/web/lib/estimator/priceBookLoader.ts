@@ -1,9 +1,17 @@
 import { prisma } from "@repo/database";
 import { cache } from "react";
 import { type PriceBook, FALLBACK_PRICE_BOOK } from "./priceBook";
-import type { MaterialGrade } from "./types";
+import type { CategorySlug, MaterialGrade } from "./types";
 
 const GRADES: MaterialGrade[] = ["BUDGET", "STANDARD", "PREMIUM"];
+const ESTIMATOR_CATEGORIES: CategorySlug[] = [
+  "kitchen",
+  "wardrobe",
+  "tv-unit",
+  "bedroom",
+  "study",
+  "office",
+];
 
 export const loadPriceBook = cache(async (): Promise<PriceBook> => {
   try {
@@ -23,6 +31,7 @@ export const loadPriceBook = cache(async (): Promise<PriceBook> => {
       byKey.get(key) ?? fallback;
 
     const pb: PriceBook = {
+      estimator: {} as PriceBook["estimator"],
       sheets: {} as PriceBook["sheets"],
       hardware: {},
       rates: {
@@ -40,6 +49,23 @@ export const loadPriceBook = cache(async (): Promise<PriceBook> => {
         customer: get("rate.customer", FALLBACK_PRICE_BOOK.rates.customer),
       },
     };
+
+    for (const category of ESTIMATOR_CATEGORIES) {
+      pb.estimator[category] = {
+        BUDGET: get(
+          `estimator.${category}.BUDGET`,
+          FALLBACK_PRICE_BOOK.estimator[category].BUDGET,
+        ),
+        STANDARD: get(
+          `estimator.${category}.STANDARD`,
+          FALLBACK_PRICE_BOOK.estimator[category].STANDARD,
+        ),
+        PREMIUM: get(
+          `estimator.${category}.PREMIUM`,
+          FALLBACK_PRICE_BOOK.estimator[category].PREMIUM,
+        ),
+      };
+    }
 
     // Sheet prices
     for (const grade of GRADES) {

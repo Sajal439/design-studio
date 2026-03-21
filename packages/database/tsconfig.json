@@ -8,6 +8,6 @@
     "skipLibCheck": true,
     "outDir": "./dist"
   },
-  "include": ["*.ts", "seed.ts"],
+  "include": ["*.ts", "scripts/**/*.ts", "seed.ts"],
   "exclude": ["node_modules", "dist"]
 }
