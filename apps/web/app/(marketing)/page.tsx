@@ -168,9 +168,7 @@ export default async function Home() {
           Brand logos Bar
           ════════════════════════════════════════ */}
       <div className="relative -mt-8 z-20 container mx-auto px-4">
-        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 flex items-center justify-center border border-slate-100">
-          <BrandLogosBar />
-        </div>
+        <BrandLogosBar />
       </div>
 
       {/* ════════════════════════════════════════

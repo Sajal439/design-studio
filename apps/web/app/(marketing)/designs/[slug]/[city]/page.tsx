@@ -6,6 +6,7 @@ import { ArrowRight, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { DesignSaveButton } from "@/components/marketing/design-save-button";
 import { prisma } from "@repo/database";
 import { getFirstImageUrl } from "@/lib/utils";
 
@@ -128,28 +129,42 @@ export default async function CategoryCityLandingPage({ params }: PageParams) {
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {designs.map((d) => (
-                <Link
+                <div
                   key={d.slug}
-                  href={`/designs/${d.slug}`}
-                  className="group rounded-2xl border bg-background overflow-hidden transition-all hover:-translate-y-1 hover:shadow-md"
+                  className="group relative rounded-2xl border bg-background overflow-hidden transition-all hover:-translate-y-1 hover:shadow-md"
                 >
-                  <div className="relative aspect-video overflow-hidden bg-muted">
-                    {getFirstImageUrl(d.images) ? (
-                      <Image
-                        alt={d.title}
-                        src={getFirstImageUrl(d.images)!}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
-                        sizes="(max-width: 1024px) 50vw, 33vw"
-                      />
-                    ) : null}
-                  </div>
-                  <div className="p-4">
-                    <Badge variant="outline" className="mb-2">{d.style}</Badge>
-                    <h3 className="font-semibold">{d.title}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{d.estimatedCost}</p>
-                  </div>
-                </Link>
+                  <DesignSaveButton
+                    design={{
+                      slug: d.slug,
+                      title: d.title,
+                      imageUrl: getFirstImageUrl(d.images),
+                      categoryLabel: cat.label,
+                      estimatedCost: d.estimatedCost,
+                    }}
+                    className="absolute top-3 right-3 z-10"
+                  />
+                  <Link
+                    href={`/designs/${d.slug}`}
+                    className="block"
+                  >
+                    <div className="relative aspect-video overflow-hidden bg-muted">
+                      {getFirstImageUrl(d.images) ? (
+                        <Image
+                          alt={d.title}
+                          src={getFirstImageUrl(d.images)!}
+                          fill
+                          className="object-cover transition-transform group-hover:scale-105"
+                          sizes="(max-width: 1024px) 50vw, 33vw"
+                        />
+                      ) : null}
+                    </div>
+                    <div className="p-4">
+                      {d.style ? <Badge variant="outline" className="mb-2">{d.style}</Badge> : null}
+                      <h3 className="font-semibold">{d.title}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{d.estimatedCost}</p>
+                    </div>
+                  </Link>
+                </div>
               ))}
             </div>
           )}

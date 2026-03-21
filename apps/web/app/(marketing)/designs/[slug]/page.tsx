@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, MessageCircle, Phone, Package } from "lucide-react";
 import type { Metadata } from "next";
+import { DesignSaveButton } from "@/components/marketing/design-save-button";
 import { siteConfig } from "@/lib/site-config";
 import { buildWhatsAppUrl, getFirstImageUrl, normalizeDesignImages } from "@/lib/utils";
 
@@ -23,6 +24,8 @@ async function getSimilarDesigns(categoryId: string, excludeSlug: string) {
     take: 3,
   });
 }
+
+type SimilarDesign = Awaited<ReturnType<typeof getSimilarDesigns>>[number];
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -93,9 +96,21 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
               </div>
             ) : null}
 
-            <div className="mb-3 flex items-center gap-3">
-              <Badge>{design.category?.label}</Badge>
-              {design.style && <Badge variant="outline">{design.style}</Badge>}
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <Badge>{design.category?.label}</Badge>
+                {design.style && <Badge variant="outline">{design.style}</Badge>}
+              </div>
+              <DesignSaveButton
+                variant="inline"
+                design={{
+                  slug: design.slug,
+                  title: design.title,
+                  imageUrl: getFirstImageUrl(design.images),
+                  categoryLabel: design.category?.label,
+                  estimatedCost: design.estimatedCost,
+                }}
+              />
             </div>
             <h1 className="mb-2 text-3xl font-bold">{design.title}</h1>
             <p className="mb-6 leading-relaxed text-muted-foreground">{design.description}</p>
@@ -181,29 +196,43 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
         <div className="container mx-auto px-4 py-10 border-t mt-12">
           <h2 className="mb-6 text-2xl font-bold">Similar Designs</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {similarDesigns.map((d: any) => (
-              <Link
+            {similarDesigns.map((d: SimilarDesign) => (
+              <div
                 key={d.slug}
-                href={`/designs/${d.slug}`}
-                className="group rounded-2xl border bg-background overflow-hidden transition-all hover:-translate-y-1 hover:shadow-md"
+                className="group relative rounded-2xl border bg-background overflow-hidden transition-all hover:-translate-y-1 hover:shadow-md"
               >
-                <div className="relative aspect-video overflow-hidden bg-muted">
-                  {getFirstImageUrl(d.images) ? (
-                    <Image
-                      alt={d.title}
-                      src={getFirstImageUrl(d.images)!}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                      sizes="(max-width: 1024px) 50vw, 33vw"
-                    />
-                  ) : null}
-                </div>
-                <div className="p-4">
-                  {d.style && <Badge variant="outline" className="mb-2">{d.style}</Badge>}
-                  <h3 className="font-semibold">{d.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{d.category?.label} • {d.estimatedCost || "Custom"}</p>
-                </div>
-              </Link>
+                <DesignSaveButton
+                  design={{
+                    slug: d.slug,
+                    title: d.title,
+                    imageUrl: getFirstImageUrl(d.images),
+                    categoryLabel: d.category?.label,
+                    estimatedCost: d.estimatedCost,
+                  }}
+                  className="absolute top-3 right-3 z-10"
+                />
+                <Link
+                  href={`/designs/${d.slug}`}
+                  className="block"
+                >
+                  <div className="relative aspect-video overflow-hidden bg-muted">
+                    {getFirstImageUrl(d.images) ? (
+                      <Image
+                        alt={d.title}
+                        src={getFirstImageUrl(d.images)!}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        sizes="(max-width: 1024px) 50vw, 33vw"
+                      />
+                    ) : null}
+                  </div>
+                  <div className="p-4">
+                    {d.style && <Badge variant="outline" className="mb-2">{d.style}</Badge>}
+                    <h3 className="font-semibold">{d.title}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{d.category?.label} • {d.estimatedCost || "Custom"}</p>
+                  </div>
+                </Link>
+              </div>
             ))}
           </div>
         </div>
