@@ -50,19 +50,19 @@ const jsonLd = {
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
-    <>
+    <div className="min-h-screen w-full overflow-x-hidden">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Header />
-      <div className="pb-16 md:pb-0">
+      <div className="pb-28 md:pb-0">
         {children}
       </div>
       <Footer />
       <WhatsAppFab />
       <MobileContactBar />
       <ExitIntentPopup />
-    </>
+    </div>
   );
 }
