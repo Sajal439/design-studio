@@ -9,9 +9,6 @@ if (!secret) throw new Error("JWT_SECRET_KEY environment variable is not set.");
 const encodedKey = new TextEncoder().encode(secret);
 
 // ── Route sets ────────────────────────────────────────────────────────────────
-// Paths that are always public — no session required.
-const PUBLIC_ADMIN_PATHS = new Set(["/admin/login", "/api/admin/session"]);
-
 // Auth pages — logged-in users should be redirected away from these.
 const AUTH_PAGES = new Set(["/login", "/register"]);
 
@@ -32,6 +29,7 @@ async function verifySession(
 // ── Middleware ─────────────────────────────────────────────────────────────────
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const lowercasePath = pathname.toLowerCase();
 
   // Read JWT session cookie only — legacy admin_session cookie is no longer
   // used for route protection. It will be cleared on next login.
@@ -39,13 +37,21 @@ export async function middleware(req: NextRequest) {
   const session = sessionToken ? await verifySession(sessionToken) : null;
 
   // ── 1. Admin routes ────────────────────────────────────────────────────────
+  // Robust check: catch /admin, /Admin, /admin/, etc.
   const isAdminPath =
-    pathname.startsWith("/admin") || pathname.startsWith("/api/admin");
+    lowercasePath === "/admin" ||
+    lowercasePath.startsWith("/admin/") ||
+    lowercasePath.startsWith("/api/admin");
 
-  if (isAdminPath && !PUBLIC_ADMIN_PATHS.has(pathname)) {
+  // We check against the normalized lowercase path for public routes as well
+  const isPublicAdminPath =
+    lowercasePath === "/admin/login" || 
+    lowercasePath === "/api/admin/session";
+
+  if (isAdminPath && !isPublicAdminPath) {
     // No session at all → redirect to admin login
     if (!session) {
-      if (pathname.startsWith("/api/")) {
+      if (lowercasePath.startsWith("/api/")) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
       const loginUrl = new URL("/admin/login", req.url);
@@ -55,7 +61,7 @@ export async function middleware(req: NextRequest) {
 
     // Session exists but role is not admin → forbidden
     if (session.role !== "admin") {
-      if (pathname.startsWith("/api/")) {
+      if (lowercasePath.startsWith("/api/")) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
       return NextResponse.redirect(new URL("/", req.url));
@@ -63,7 +69,10 @@ export async function middleware(req: NextRequest) {
   }
 
   // ── 2. Protected user routes (future dashboard, saved estimates, etc.) ─────
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/account")) {
+  if (
+    lowercasePath.startsWith("/dashboard") ||
+    lowercasePath.startsWith("/account")
+  ) {
     if (!session) {
       return NextResponse.redirect(
         new URL(`/login?redirect=${encodeURIComponent(pathname)}`, req.url),
@@ -72,7 +81,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // ── 3. Auth pages — redirect logged-in users away ─────────────────────────
-  if (AUTH_PAGES.has(pathname) && session) {
+  if (AUTH_PAGES.has(lowercasePath) && session) {
     return NextResponse.redirect(
       new URL(session.role === "admin" ? "/admin" : "/", req.url),
     );
