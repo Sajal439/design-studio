@@ -71,6 +71,7 @@ export default async function DesignsPage({
             description: design.description,
             estimatedCost: design.estimatedCost,
             imageUrl: getFirstImageUrl(design.images),
+            isRealWork: design.isRealWork,
             category: {
               label: design.category.label,
               slug: design.category.slug,

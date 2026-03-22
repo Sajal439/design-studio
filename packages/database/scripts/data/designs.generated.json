@@ -1,1 +1,90 @@
-[]
+[
+  {
+    "title": "Modern L-Shaped Kitchen with Green Cabinets",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-l-shaped-green-2.jpg",
+    "description": "Modern L-shaped kitchen with green base cabinets, overhead storage, and a compact work triangle.",
+    "waText": "Hi! I want pricing for a modern L-shaped kitchen with green cabinets."
+  },
+  {
+    "title": "Modern Kitchen with LED Backsplash",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-led-5.jpg",
+    "description": "Contemporary modular kitchen with LED backsplash lighting, sleek shutters, and a premium finish.",
+    "waText": "Hi! I want pricing for a modern kitchen with LED backsplash lighting."
+  },
+  {
+    "title": "Minimal Beige Modular Kitchen",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-minimal-11.jpg",
+    "description": "Minimal beige modular kitchen with clean lines, soft tones, and practical storage.",
+    "waText": "Hi! I want pricing for a minimal beige modular kitchen."
+  },
+  {
+    "title": "Minimal White Modular Kitchen",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-minimal-6.jpg",
+    "description": "Minimal white modular kitchen with a bright finish, efficient layout, and modern storage.",
+    "waText": "Hi! I want pricing for a minimal white modular kitchen."
+  },
+  {
+    "title": "Modern Kitchen with Blue Cabinets",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-modern-1.jpg",
+    "description": "Modern kitchen with blue cabinets, warm accents, and a compact modular layout.",
+    "waText": "Hi! I want pricing for a modern kitchen with blue cabinets."
+  },
+  {
+    "title": "Open White Modular Kitchen",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-open-white-3.jpg",
+    "description": "Open-plan white modular kitchen with a spacious layout, bright finish, and modern styling.",
+    "waText": "Hi! I want pricing for an open white modular kitchen."
+  },
+  {
+    "title": "Walnut Finish Modular Kitchen",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-walnut-10.jpg",
+    "description": "Warm walnut-finish modular kitchen with elegant cabinetry and a premium natural wood look.",
+    "waText": "Hi! I want pricing for a walnut finish modular kitchen."
+  },
+  {
+    "title": "Modern White Kitchen with Glass Partition",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-white-7.jpg",
+    "description": "Modern white kitchen with a clean layout, glossy finish, and glass partition detailing.",
+    "waText": "Hi! I want pricing for a modern white kitchen with glass partition."
+  },
+  {
+    "title": "U-Shaped White Modular Kitchen",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-white-9.jpg",
+    "description": "U-shaped white modular kitchen designed for efficient movement, storage, and a bright modern look.",
+    "waText": "Hi! I want pricing for a U-shaped white modular kitchen."
+  },
+  {
+    "title": "Wood Finish Modular Kitchen",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-wooden-color-8.jpg",
+    "description": "Wood-finish modular kitchen with warm cabinetry, practical counters, and a natural modern feel.",
+    "waText": "Hi! I want pricing for a wood finish modular kitchen."
+  },
+  {
+    "title": "Yellow and Grey Modular Kitchen",
+    "categorySlug": "kitchen",
+    "isRealWork": false,
+    "filename": "kitchen-yellow-gray-4.jpg",
+    "description": "Bold yellow and grey modular kitchen with a modern color-blocked look and efficient storage.",
+    "waText": "Hi! I want pricing for a yellow and grey modular kitchen."
+  }
+]

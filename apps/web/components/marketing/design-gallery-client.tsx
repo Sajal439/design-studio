@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight, Heart } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { DesignSaveButton } from "@/components/marketing/design-save-button";
@@ -23,6 +23,7 @@ type DesignGalleryItem = {
   description: string | null;
   estimatedCost: string | null;
   imageUrl: string | null;
+  isRealWork: boolean;
   category: {
     label: string;
     slug: string;
@@ -42,6 +43,7 @@ export function DesignGalleryClient({
 }: DesignGalleryClientProps) {
   const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [showOurWorkOnly, setShowOurWorkOnly] = useState(false);
 
   useEffect(() => {
     const syncSavedDesigns = () => {
@@ -58,41 +60,50 @@ export function DesignGalleryClient({
     };
   }, []);
 
-  const visibleDesigns = showSavedOnly
-    ? designs.filter((design) => savedSlugs.includes(design.slug))
-    : designs;
+  const visibleDesigns = designs.filter((design) => {
+    if (showSavedOnly && !savedSlugs.includes(design.slug)) {
+      return false;
+    }
+
+    if (showOurWorkOnly && !design.isRealWork) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const filterButtonClass = (active: boolean) =>
+    cn(
+      "inline-flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+      active
+        ? "border-primary bg-primary text-primary-foreground"
+        : "border-border bg-background text-foreground hover:bg-muted"
+    );
 
   return (
     <>
       <div className="mb-10">
         <div className="flex flex-wrap justify-center gap-2">
-          <Link href="/designs">
-            <Badge
-              variant={activeCategory === "all" ? "default" : "outline"}
-              className="cursor-pointer px-4 py-2 text-sm"
-            >
+          <Link href="/designs" className={filterButtonClass(activeCategory === "all")}>
+            <span>
               All
-            </Badge>
+            </span>
           </Link>
           {categories.map((cat) => (
-            <Link key={cat.id} href={`/designs?category=${cat.slug}`}>
-              <Badge
-                variant={activeCategory === cat.slug ? "default" : "outline"}
-                className="cursor-pointer px-4 py-2 text-sm"
-              >
+            <Link
+              key={cat.id}
+              href={`/designs?category=${cat.slug}`}
+              className={filterButtonClass(activeCategory === cat.slug)}
+            >
+              <span>
                 {cat.label}
-              </Badge>
+              </span>
             </Link>
           ))}
           <button
             type="button"
             onClick={() => setShowSavedOnly((current) => !current)}
-            className={cn(
-              "inline-flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-              showSavedOnly
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-background text-foreground hover:bg-muted"
-            )}
+            className={filterButtonClass(showSavedOnly)}
           >
             <Heart className={cn("h-4 w-4", showSavedOnly && "fill-current")} />
             Saved
@@ -100,10 +111,15 @@ export function DesignGalleryClient({
               {savedSlugs.length}
             </span>
           </button>
+          <button
+            type="button"
+            onClick={() => setShowOurWorkOnly((current) => !current)}
+            className={filterButtonClass(showOurWorkOnly)}
+          >
+            <BriefcaseBusiness className="h-4 w-4" />
+            Our Work
+          </button>
         </div>
-        <p className="mt-3 text-center text-xs text-muted-foreground">
-          Saved designs stay on this device only.
-        </p>
       </div>
 
       {visibleDesigns.length === 0 ? (
@@ -111,17 +127,24 @@ export function DesignGalleryClient({
           <p className="text-base font-medium text-foreground">
             {showSavedOnly
               ? "No saved designs yet on this device."
+              : showOurWorkOnly
+              ? "No real project designs found for this filter."
               : "No designs found for this filter."}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             {showSavedOnly
               ? "Tap the heart on any design card to keep it here for quick access."
+              : showOurWorkOnly
+              ? "Turn off Our Work to browse all design inspirations as well."
               : "Try another category to explore more options."}
           </p>
-          {showSavedOnly ? (
+          {showSavedOnly || showOurWorkOnly ? (
             <button
               type="button"
-              onClick={() => setShowSavedOnly(false)}
+              onClick={() => {
+                setShowSavedOnly(false);
+                setShowOurWorkOnly(false);
+              }}
               className="mt-5 inline-flex rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-muted"
             >
               View All Designs
@@ -156,9 +179,16 @@ export function DesignGalleryClient({
                   ) : null}
                 </div>
                 <CardContent className="p-5">
-                  <Badge variant="secondary" className="mb-2">
-                    {design.category.label}
-                  </Badge>
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    <Badge variant="secondary">
+                      {design.category.label}
+                    </Badge>
+                    {design.isRealWork ? (
+                      <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
+                        Our Work
+                      </Badge>
+                    ) : null}
+                  </div>
                   <h3 className="mb-1 text-lg font-semibold transition-colors group-hover:text-primary">
                     {design.title}
                   </h3>
