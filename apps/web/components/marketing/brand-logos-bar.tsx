@@ -6,6 +6,7 @@ const brands = [
   { name: "Dorset", src: "/dorset.png" },
   { name: "Hafele", src: "/hafele.webp" },
   { name: "Hettich", src: "/hettich.png" },
+  { name: "Sris ma Fils", src: "/srismafils.png" },
 ];
 
 export function BrandLogosBar() {

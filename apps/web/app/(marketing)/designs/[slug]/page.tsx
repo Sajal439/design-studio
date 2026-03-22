@@ -7,7 +7,7 @@ import { prisma } from "@repo/database";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, MessageCircle, Phone, Package } from "lucide-react";
+import { ArrowLeft, GalleryHorizontal, MapPin, MessageCircle, Phone, Package } from "lucide-react";
 import type { Metadata } from "next";
 import { DesignSaveButton } from "@/components/marketing/design-save-button";
 import { siteConfig } from "@/lib/site-config";
@@ -51,10 +51,11 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
   const similarDesigns = await getSimilarDesigns(design.categoryId, design.slug);
 
   const waText =
-    `Hi! I'm interested in "${design.title}" (${design.estimatedCost}). Can you share the exact price?`
+    `Hi! I'm interested in "${design.title}" (${design.estimatedCost || design.priceRange || "custom"}). Can you share the exact price?`
   ;
   const waUrl = buildWhatsAppUrl(`91${siteConfig.whatsapp}`, waText);
   const galleryImages = normalizeDesignImages(design.images);
+  const isRealProject = design.isRealWork;
 
   return (
     <div className="py-12">
@@ -81,18 +82,24 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
             </div>
 
             {galleryImages.length > 1 ? (
-              <div className="mb-6 grid gap-3 sm:grid-cols-3">
-                {galleryImages.slice(1).map((image, index) => (
-                  <div key={`${image.url}-${index}`} className="relative aspect-video overflow-hidden rounded-lg bg-muted">
-                    <Image
-                      alt={`${design.title} view ${index + 2}`}
-                      className="object-cover"
-                      fill
-                      sizes="33vw"
-                      src={image.url}
-                    />
-                  </div>
-                ))}
+              <div className="mb-6">
+                <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <GalleryHorizontal className="h-4 w-4" />
+                  {isRealProject ? "Project Gallery" : "More Views"}
+                </div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {galleryImages.slice(1).map((image, index) => (
+                    <div key={`${image.url}-${index}`} className="relative aspect-video overflow-hidden rounded-lg bg-muted">
+                      <Image
+                        alt={`${design.title} view ${index + 2}`}
+                        className="object-cover"
+                        fill
+                        sizes="33vw"
+                        src={image.url}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : null}
 
@@ -100,6 +107,11 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
               <div className="flex flex-wrap items-center gap-3">
                 <Badge>{design.category?.label}</Badge>
                 {design.style && <Badge variant="outline">{design.style}</Badge>}
+                {isRealProject ? (
+                  <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
+                    Real Project
+                  </Badge>
+                ) : null}
               </div>
               <DesignSaveButton
                 variant="inline"
@@ -118,7 +130,7 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" /> Requirements & Actions
+                  <Package className="h-5 w-5" /> {isRealProject ? "Project Details & Actions" : "Requirements & Actions"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -131,7 +143,7 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 py-3 text-sm font-medium text-white hover:bg-[#22c55e] active:bg-[#16a34a] transition-colors"
                   >
                     <MessageCircle className="h-4 w-4" />
-                    Get Price on WhatsApp
+                    {isRealProject ? "Ask About Similar Work" : "Get Price on WhatsApp"}
                   </a>
 
                   {/* Secondary Call to Action: Call */}
@@ -140,12 +152,14 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
                     className="flex w-full items-center justify-center gap-2 rounded-lg border border-input bg-background px-4 py-3 text-sm font-medium hover:bg-muted transition-colors"
                   >
                     <Phone className="h-4 w-4" />
-                    Call {siteConfig.phone}
+                    {isRealProject ? "Call the Showroom" : `Call ${siteConfig.phone}`}
                   </a>
 
                   {/* Trust signal */}
                   <p className="text-xs text-center text-muted-foreground mt-2">
-                    Available at our Karnal showroom · Usually responds within 1 hr
+                    {isRealProject
+                      ? "Visit the showroom to compare finishes and discuss a similar project with our team."
+                      : "Available at our Karnal showroom · Usually responds within 1 hr"}
                   </p>
                 </div>
               </CardContent>
@@ -155,21 +169,46 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
           <div className="space-y-6">
             <Card>
               <CardContent className="p-6">
-                <p className="mb-1 text-sm text-muted-foreground">Estimated Cost</p>
-                <p className="mb-1 text-2xl font-bold">{design.estimatedCost || "Custom"}</p>
-                <p className="text-xs text-muted-foreground">varies by material choice & location</p>
+                <p className="mb-1 text-sm text-muted-foreground">
+                  {isRealProject ? "Project Value Approx." : "Estimated Cost"}
+                </p>
+                <p className="mb-1 text-2xl font-bold">{design.priceRange || design.estimatedCost || "Custom"}</p>
+                <p className="text-xs text-muted-foreground">
+                  {isRealProject ? "reference budget for a similar scope and finish level" : "varies by material choice & location"}
+                </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardContent className="p-6">
-                <h3 className="mb-4 font-semibold">Quick Facts</h3>
+                <h3 className="mb-4 font-semibold">{isRealProject ? "Project Snapshot" : "Quick Facts"}</h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Category</span>
                     <span className="font-medium">{design.category?.label}</span>
                   </div>
                   <Separator />
+                  {design.location && (
+                    <>
+                      <div className="flex justify-between gap-4">
+                        <span className="text-muted-foreground">Location</span>
+                        <span className="flex items-center gap-1 font-medium text-right">
+                          <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                          {design.location}
+                        </span>
+                      </div>
+                      <Separator />
+                    </>
+                  )}
+                  {design.badge && (
+                    <>
+                      <div className="flex justify-between gap-4">
+                        <span className="text-muted-foreground">Highlight</span>
+                        <span className="font-medium text-right">{design.badge}</span>
+                      </div>
+                      <Separator />
+                    </>
+                  )}
                   {design.style && (
                     <>
                       <div className="flex justify-between">
@@ -194,7 +233,7 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
 
       {similarDesigns.length > 0 && (
         <div className="container mx-auto px-4 py-10 border-t mt-12">
-          <h2 className="mb-6 text-2xl font-bold">Similar Designs</h2>
+          <h2 className="mb-6 text-2xl font-bold">{isRealProject ? "More Designs to Explore" : "Similar Designs"}</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {similarDesigns.map((d: SimilarDesign) => (
               <div
