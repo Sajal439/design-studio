@@ -121,13 +121,16 @@ export default async function Home() {
               Karnal's Premium Interior Materials
             </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-[5.5rem] font-extrabold tracking-tighter text-slate-900 mb-8 leading-[1.05]">
-              Premium interiors, <br className="hidden sm:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500">sourced directly.</span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 mb-4 leading-tight">
+              Plywood, Laminates & Hardware
             </h1>
 
-            <p className="text-lg sm:text-xl text-slate-600 mb-12 max-w-xl mx-auto leading-relaxed font-medium">
-              Authorized dealer for Action Tesa, Advance Laminates and Hettich.
+            <p className="text-lg sm:text-xl text-slate-600 mb-6 max-w-2xl">
+              All in one place — know your cost before you buy.
+            </p>
+
+            <p className="text-base text-slate-500 max-w-xl">
+              Get instant estimates, genuine brands, and expert guidance for your project.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14 w-full sm:w-auto">

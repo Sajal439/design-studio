@@ -28,7 +28,7 @@ export default async function EstimatorPage() {
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight mb-2">
-            Material estimator
+            Know your interior material cost in 2 minutes
           </h1>
           <p className="text-muted-foreground">
             Enter your furniture size — see Budget, Medium, and Premium

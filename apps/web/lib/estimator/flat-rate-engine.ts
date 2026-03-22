@@ -172,37 +172,33 @@ export const CATEGORIES: CategorySpec[] = [
     lowerHint: "Running feet along the wall at counter level",
     upperHint: "Running feet of wall-mounted cabinets above counter",
     tiers: [
-  {
-    key: "BUDGET",
-    label: "Budget",
-    ratePerSqft: 2200,
-    materials: [
-      "BWR plywood basic",
-      "Laminate finish",
-      "Standard hardware",
-    ],
-  },
-  {
-    key: "STANDARD",
-    label: "Standard",
-    ratePerSqft: 2800,
-    materials: [
-      "BWR plywood",
-      "Designer laminate",
-      "Soft-close hardware",
-    ],
-  },
-  {
-    key: "PREMIUM",
-    label: "Premium",
-    ratePerSqft: 3500,
-    materials: [
-      "BWP plywood / HDHMR",
-      "Acrylic / veneer",
-      "Hettich / Hafele hardware",
-    ],
-  },
-] as [KitchenTierSpec, KitchenTierSpec, KitchenTierSpec],
+      {
+        key: "BUDGET",
+        label: "Budget",
+        ratePerSqft: 2200,
+        materials: [
+          "BWR plywood basic",
+          "Laminate finish",
+          "Standard hardware",
+        ],
+      },
+      {
+        key: "STANDARD",
+        label: "Standard",
+        ratePerSqft: 2800,
+        materials: ["BWR plywood", "Designer laminate", "Soft-close hardware"],
+      },
+      {
+        key: "PREMIUM",
+        label: "Premium",
+        ratePerSqft: 3500,
+        materials: [
+          "BWP plywood / HDHMR",
+          "Acrylic / veneer",
+          "Hettich / Hafele hardware",
+        ],
+      },
+    ] as [KitchenTierSpec, KitchenTierSpec, KitchenTierSpec],
   },
 
   // ── Wardrobe ──────────────────────────────────────────────────────────────
@@ -553,7 +549,7 @@ export function calculateKitchen(
   const LOWER_HEIGHT = 2.5;
   const UPPER_HEIGHT = 2.0;
 
-  const totalArea = (lowerRft * LOWER_HEIGHT) + (upperRft * UPPER_HEIGHT);
+  const totalArea = lowerRft * LOWER_HEIGHT + upperRft * UPPER_HEIGHT;
   const total = Math.round(totalArea * tier.ratePerSqft);
 
   return {
@@ -622,19 +618,23 @@ export function buildWaMessage(
   result: EstimateResult,
   options: WaMessageOptions = {},
 ): string {
-  const { designTitle, closingLine } = options;
+  const { designTitle } = options;
   const lines: string[] = [];
 
-  if (designTitle) {
-    lines.push(`Hi! I'm interested in the "${designTitle}" design.`);
-  } else {
-    lines.push(`Hi! I used your material estimator.`);
-  }
-  lines.push(``);
+  // Opening
+  lines.push(
+    designTitle
+      ? `Hi, I'm interested in the "${designTitle}" setup.`
+      : `Hi, I just calculated my material cost on your website.`,
+  );
+  lines.push("");
 
+  // Details
   if (result.kind === "kitchen") {
     lines.push(`📐 *Furniture:* Modular Kitchen`);
-    lines.push(`📏 *Size approx:* ${result.lowerRft}ft lower, ${result.upperRft}ft upper`);
+    lines.push(
+      `📏 *Size:* ${result.lowerRft}ft lower + ${result.upperRft}ft upper`,
+    );
   } else {
     lines.push(`📐 *Furniture:* ${result.category.label}`);
     lines.push(
@@ -642,18 +642,23 @@ export function buildWaMessage(
     );
   }
 
+  lines.push(`🏷 *Quality:* ${result.tier.label}`);
+  lines.push(`💰 *Estimated Cost:* ${formatCompact(result.total)}`);
+
+  lines.push("");
+
+  // 🔥 Conversion Push
   lines.push(
-    `✅ *Quality:* ${result.tier.label} — ${result.tier.materials[0]}`,
+    `I want the exact material list with current prices and brand options.`,
   );
-  lines.push(`💰 *Total estimate:* ${formatCompact(result.total)}`);
-  lines.push(``);
-  lines.push(
-    closingLine ?? `Can you confirm current pricing and availability?`,
-  );
+
+  lines.push(`Can you share final costing and availability on WhatsApp?`);
+
+  lines.push("");
+  lines.push(`(Sent via Goel Traders estimator)`);
 
   return lines.join("\n");
 }
-
 export function buildWaUrl(
   whatsappNumber: string,
   result: EstimateResult,

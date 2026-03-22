@@ -115,8 +115,8 @@ function TierCard({
                 {/* Total */}
                 {hasResult ? (
                     <div className={`rounded-lg px-3 py-2.5 ${tier.key === "BUDGET" ? "bg-zinc-50 border border-zinc-200" :
-                            tier.key === "STANDARD" ? "bg-amber-50 border border-amber-200" :
-                                "bg-blue-50 border border-blue-200"
+                        tier.key === "STANDARD" ? "bg-amber-50 border border-amber-200" :
+                            "bg-blue-50 border border-blue-200"
                         }`}>
                         <p className="text-xs text-muted-foreground mb-0.5">Estimated Cost</p>
                         <p className="text-2xl font-bold text-foreground leading-none">
@@ -139,7 +139,7 @@ function TierCard({
                     {tier.materials.map((m, i) => (
                         <div key={i} className="flex gap-2 items-start">
                             <div className={`w-1 h-1 rounded-full mt-2 shrink-0 ${tier.key === "BUDGET" ? "bg-zinc-400" :
-                                    tier.key === "STANDARD" ? "bg-amber-500" : "bg-blue-500"
+                                tier.key === "STANDARD" ? "bg-amber-500" : "bg-blue-500"
                                 }`} />
                             <p className="text-xs text-muted-foreground leading-relaxed">{m}</p>
                         </div>
@@ -167,7 +167,7 @@ function TierCard({
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 py-3 text-sm font-bold text-white hover:bg-[#22c55e] active:scale-[0.98] transition-all"
                 >
                     <MessageCircle size={15} />
-                    Send estimate to WhatsApp
+                    Get exact price on WhatsApp
                     <ChevronRight size={13} />
                 </a>
             </div>
@@ -367,8 +367,8 @@ export function SimpleEstimator({
                                 key={c.slug}
                                 onClick={() => switchCategory(c)}
                                 className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${isActive
-                                        ? "border-primary bg-primary text-primary-foreground"
-                                        : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
                                     }`}
                             >
                                 <span>{c.icon}</span>
@@ -431,11 +431,9 @@ export function SimpleEstimator({
 
             {/* ── Footer note ── */}
             <div className="rounded-xl border bg-muted/20 px-5 py-4 text-sm text-muted-foreground space-y-1.5">
-                <p className="font-medium text-foreground">How this works</p>
                 <p>
-                    Estimates covers both material cost and labour.
-                    Exact prices depend on current stock and are confirmed
-                    by our team on WhatsApp.
+                    We supply materials. Labour can be arranged on request.
+                    The estimation includes approx cost of labour and materials.
                 </p>
                 <p className="flex items-center gap-2 mt-1">
                     <a
