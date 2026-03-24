@@ -8,11 +8,13 @@ import {
   ChevronRight,
   Calculator,
   CheckCircle2,
+  ArrowRight,
 } from "lucide-react";
 import { BrandLogosBar } from "@/components/marketing/brand-logos-bar";
 import { LocationSection } from "@/components/marketing/location-section";
 import { siteConfig } from "@/lib/site-config";
 import { getFirstImageUrl } from "@/lib/utils";
+import { HeroCollage } from "@/components/marketing/hero-collage";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -99,12 +101,18 @@ function getOptimizedCloudinaryUrl(url: string | null | undefined): string {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function Home() {
-  const realWork = await prisma.design.findMany({
-    where: { isRealWork: true },
-    orderBy: { createdAt: "desc" },
-  });
-  const featuredRealWork = realWork[0];
-  const additionalRealWork = realWork.slice(1, 4);
+  const [heroDesigns, realWork] = await Promise.all([
+    prisma.design.findMany({
+      select: { images: true },
+      orderBy: { createdAt: "desc" },
+      take: 12,
+    }),
+    prisma.design.findMany({
+      where: { isRealWork: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+  const heroImages = heroDesigns.map(d => getFirstImageUrl(d.images)).filter((url): url is string => Boolean(url));
 
   return (
     <div className="bg-slate-50 font-sans selection:bg-primary/20">
@@ -112,56 +120,39 @@ export default async function Home() {
       {/* ════════════════════════════════════════
           1. PREMIUM HERO SECTION
           ════════════════════════════════════════ */}
-      <section className="relative overflow-hidden bg-[#FAFAFA] pt-32 pb-40 md:pt-40 md:pb-48">
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center z-10 flex flex-col items-center">
-            <div className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200/60 bg-white/40 backdrop-blur-xl px-4 py-1.5 text-xs font-semibold text-slate-600 mb-10 tracking-widest uppercase shadow-sm">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              Karnal's Premium Interior Materials
-            </div>
+      <section className="bg-white pt-12 pb-16 md:pt-24 md:pb-28">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 mb-4 leading-tight">
-              Plywood, Laminates & Hardware
-            </h1>
-
-            <p className="text-lg sm:text-xl text-slate-600 mb-6 max-w-2xl">
-              All in one place — know your cost before you buy.
-            </p>
-
-            <p className="text-base text-slate-500 max-w-xl">
-              Get instant estimates, genuine brands, and expert guidance for your project.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14 w-full sm:w-auto">
-              <a
-                href={HERO_WA}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-10 py-4 text-lg font-bold text-white hover:bg-[#20bd5a] hover:shadow-xl hover:shadow-[#25D366]/20 hover:-translate-y-1 transition-all duration-300"
-              >
-                <MessageCircle className="h-6 w-6" />
-                Chat on WhatsApp
-              </a>
-              <Link
-                href="/estimator"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-white border border-slate-200 px-10 py-4 text-lg font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all duration-300 shadow-sm hover:-translate-y-1"
-              >
-                <Calculator className="h-5 w-5" />
-                Get an Estimate
-              </Link>
-            </div>
-
-            {/* Trust markers */}
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm text-slate-500 font-medium tracking-wide">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <span>100% Genuine Brands</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <span>End-to-End Delivery</span>
+            {/* Left — Text */}
+            <div className="text-center lg:text-left">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500 mb-4">
+                Your Trusted Interior Materials Partner
+              </p>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.05] mb-5">
+                Design Your Dream Interior Powered by Premium Materials from Goel Traders
+              </h1>
+              <p className="text-base sm:text-lg text-slate-500 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
+                Browse interior design inspirations, estimate materials, and get quotes — all from Goel Traders, your reliable local supplier.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <Link
+                  href="/designs"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-7 py-4 text-base font-semibold text-white hover:bg-slate-700 transition-all"
+                >
+                  Explore Designs <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/consultation"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-7 py-4 text-base font-semibold text-slate-700 hover:bg-slate-50 transition-all"
+                >
+                  Book Free Consultation
+                </Link>
               </div>
             </div>
+
+            {/* Right — Collage */}
+            <HeroCollage images={heroImages} />
 
           </div>
         </div>
@@ -256,164 +247,71 @@ export default async function Home() {
             </Link>
           </div>
 
-          {featuredRealWork ? (
-            <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-              <div className="group overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white shadow-[0_30px_70px_-35px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_35px_90px_-35px_rgba(15,23,42,0.45)]">
-                <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
-                  <div className="relative min-h-[320px] overflow-hidden bg-slate-100">
-                    <Link href={`/designs/${featuredRealWork.slug}`} className="absolute inset-0 z-0">
-                      <span className="sr-only">View {featuredRealWork.title}</span>
-                    </Link>
-                    {getFirstImageUrl(featuredRealWork.images) ? (
-                      <Image
-                        src={getOptimizedCloudinaryUrl(getFirstImageUrl(featuredRealWork.images))}
-                        alt={featuredRealWork.title}
-                        fill
-                        unoptimized
-                        className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
-                      />
-                    ) : null}
-                    <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-slate-950/70 to-transparent" />
-                    <div className="absolute left-5 top-5 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-bold tracking-wide text-white shadow-sm">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Real Project
-                      </span>
-                      {featuredRealWork.badge ? (
-                        <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-700 backdrop-blur-sm">
-                          {featuredRealWork.badge}
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col p-8 md:p-10">
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                      Featured Delivery
-                    </p>
-                    <h3 className="mb-3 text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
-                      {featuredRealWork.title}
-                    </h3>
-                    {featuredRealWork.location ? (
-                      <p className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-500">
-                        <MapPin className="h-4 w-4 text-slate-400" />
-                        {featuredRealWork.location}
-                      </p>
-                    ) : null}
-
-                    <p className="mb-8 text-sm leading-7 text-slate-600">
-                      {featuredRealWork.description}
-                    </p>
-
-                    <div className="grid gap-4 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:grid-cols-2">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                          Project Value
-                        </p>
-                        <p className="mt-2 text-lg font-bold text-slate-900">
-                          {featuredRealWork.priceRange || "Custom Quote"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                          What You Can See
-                        </p>
-                        <p className="mt-2 text-lg font-bold text-slate-900">
-                          Photos, finishes, and material details
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-auto flex flex-col gap-3 pt-8 sm:flex-row">
-                      <Link
-                        href={`/designs/${featuredRealWork.slug}`}
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-6 py-4 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
-                      >
-                        View Project Details
-                        <ChevronRight className="h-4 w-4" />
-                      </Link>
-                      <a
-                        href={waUrl(featuredRealWork.waText || `Hi! I want pricing for a project like ${featuredRealWork.title}`)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-6 py-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100"
-                      >
-                        <MessageCircle className="h-4 w-4 text-[#25D366]" />
-                        Ask About Similar Work
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-6">
-                {additionalRealWork.map((work) => (
+          {realWork.length === 0 ? (
+            <div className="py-10 text-center text-slate-400">
+              No portfolio projects uploaded yet.
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {realWork.slice(0, 6).map((work) => (
                   <Link
                     key={work.id}
                     href={`/designs/${work.slug}`}
-                    className="group overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/60"
+                    className="group relative rounded-3xl overflow-hidden bg-slate-100 aspect-[4/3] block"
                   >
-                    <div className="grid min-h-full grid-cols-[112px_1fr]">
-                      <div className="relative h-full min-h-[170px] overflow-hidden bg-slate-100">
-                        {getFirstImageUrl(work.images) ? (
-                          <Image
-                            src={getOptimizedCloudinaryUrl(getFirstImageUrl(work.images))}
-                            alt={work.title}
-                            fill
-                            unoptimized
-                            className="object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
-                        ) : null}
-                      </div>
-                      <div className="flex flex-col p-5">
-                        <div className="mb-3 flex flex-wrap items-center gap-2">
-                          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
-                            Real Work
-                          </span>
-                          {work.location ? (
-                            <span className="text-xs font-medium text-slate-500">
-                              {work.location}
-                            </span>
-                          ) : null}
-                        </div>
-                        <h3 className="mb-2 text-lg font-bold text-slate-900">
-                          {work.title}
-                        </h3>
-                        <p className="line-clamp-3 text-sm leading-6 text-slate-600">
-                          {work.description}
+                    {getFirstImageUrl(work.images) && (
+                      <Image
+                        src={getOptimizedCloudinaryUrl(getFirstImageUrl(work.images))}
+                        alt={work.title}
+                        fill
+                        unoptimized
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/10 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-5">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/90 px-2.5 py-0.5 text-[11px] font-bold text-white mb-2">
+                        Real Work
+                      </span>
+                      <h3 className="text-base font-bold text-white leading-snug">
+                        {work.title}
+                      </h3>
+                      {work.location && (
+                        <p className="mt-1 text-xs text-white/60 flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {work.location}
                         </p>
-
-                        <div className="mt-auto flex items-center justify-between pt-5">
-                          <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                              Approx. Value
-                            </p>
-                            <p className="mt-1 text-sm font-bold text-slate-900">
-                              {work.priceRange || "Custom Quote"}
-                            </p>
-                          </div>
-                          <span className="inline-flex items-center gap-1 text-sm font-semibold text-slate-700">
-                            View Details <ChevronRight className="h-4 w-4" />
-                          </span>
-                        </div>
-                      </div>
+                      )}
+                      <p className="mt-1 text-xs font-semibold text-white/80">
+                        {work.priceRange || "Custom Quote"}
+                      </p>
                     </div>
                   </Link>
                 ))}
               </div>
-            </div>
-          ) : (
-            <div className="py-10 text-center text-slate-400">
-              No portfolio projects uploaded yet.
-            </div>
+
+              {/* Bottom CTA */}
+              <div className="mt-10 text-center">
+                <a
+                  href={waUrl("Hi! I saw your real work projects and want to discuss a similar project.")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-[#25D366] px-8 py-4 text-sm font-bold text-white hover:bg-[#20bd5a] transition-all"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Ask About Similar Work
+                </a>
+              </div>
+            </>
           )}
         </div>
-      </section>
+      </section >
 
       {/* ════════════════════════════════════════
           3. PREMIUM TRUST / TESTIMONIALS
           ════════════════════════════════════════ */}
-      <section className="py-24 bg-white border-y border-slate-100 overflow-hidden">
+      < section className="py-24 bg-white border-y border-slate-100 overflow-hidden" >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-4">
@@ -455,17 +353,17 @@ export default async function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ════════════════════════════════════════
           4. SHOWROOM LOCATION
           ════════════════════════════════════════ */}
-      <LocationSection />
+      < LocationSection />
 
       {/* ════════════════════════════════════════
           5. MINIMAL POWERFUL CTA (Light Premium Theme)
           ════════════════════════════════════════ */}
-      <section className="py-24 lg:py-32 bg-slate-50">
+      < section className="py-24 lg:py-32 bg-slate-50" >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
           <div className="relative rounded-[3rem] overflow-hidden bg-white border border-slate-100 p-10 md:p-20 text-center">
 
@@ -496,7 +394,7 @@ export default async function Home() {
             </div>
           </div>
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   );
 }
