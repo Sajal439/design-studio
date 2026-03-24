@@ -15,6 +15,10 @@ export type PriceBook = {
     contractor: number;
     customer: number;
   };
+  kitchen: {
+    chimney: Record<"BUDGET" | "STANDARD" | "PREMIUM", number>;
+    hob: Record<"BUDGET" | "STANDARD" | "PREMIUM", number>;
+  };
 };
 
 // Fallback used only if DB is unreachable — never in production flow
@@ -61,5 +65,9 @@ export const FALLBACK_PRICE_BOOK: PriceBook = {
     dealer: 0.06,
     contractor: 0.1,
     customer: 0.18,
+  },
+  kitchen: {
+    chimney: { BUDGET: 10000, STANDARD: 18000, PREMIUM: 30000 },
+    hob: { BUDGET: 5000, STANDARD: 9000, PREMIUM: 16000 },
   },
 };

@@ -12,6 +12,7 @@ import { getFirstImageUrl } from "@/lib/utils";
 
 // ── Supported city slugs ─────────────────────────────────────────────────────
 const CITY_DATA: Record<string, { label: string; state: string }> = {
+  gharaunda: { label: "Gharaunda", state: "Haryana" },
   karnal: { label: "Karnal", state: "Haryana" },
   panipat: { label: "Panipat", state: "Haryana" },
   kurukshetra: { label: "Kurukshetra", state: "Haryana" },
@@ -19,6 +20,9 @@ const CITY_DATA: Record<string, { label: string; state: string }> = {
   kaithal: { label: "Kaithal", state: "Haryana" },
   rohtak: { label: "Rohtak", state: "Haryana" },
   sonipat: { label: "Sonipat", state: "Haryana" },
+  yamunanagar: { label: "Yamunanagar", state: "Haryana" },
+  jind: { label: "Jind", state: "Haryana" },
+  hisar: { label: "Hisar", state: "Haryana" },
 };
 
 // ── Supported category slugs ─────────────────────────────────────────────────
