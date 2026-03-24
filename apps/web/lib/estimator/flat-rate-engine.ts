@@ -75,6 +75,8 @@ export interface KitchenTierSpec {
   label: string;
   badge?: string;
   ratePerSqft: number;
+  chimneyPrice: number; // ← ADD
+  hobPrice: number;
   /** Bullets describing materials — shared across upper + lower */
   materials: string[];
 }
@@ -135,6 +137,9 @@ export interface KitchenEstimateResult {
   lowerRft: number;
   upperRft: number;
   totalArea: number;
+  cabinetTotal: number; // ← ADD (cabinet cost only)
+  chimneyPrice: number; // ← ADD
+  hobPrice: number; // ← ADD
   total: number;
 }
 
@@ -176,26 +181,39 @@ export const CATEGORIES: CategorySpec[] = [
         key: "BUDGET",
         label: "Budget",
         ratePerSqft: 2200,
+        chimneyPrice: 10000,
+        hobPrice: 5000,
         materials: [
           "BWR plywood basic",
           "Laminate finish",
           "Standard hardware",
+          "Basic Chimney + 2 burner hob",
         ],
       },
       {
         key: "STANDARD",
         label: "Standard",
         ratePerSqft: 2800,
-        materials: ["BWR plywood", "Designer laminate", "Soft-close hardware"],
+        chimneyPrice: 15000,
+        hobPrice: 10000,
+        materials: [
+          "BWR plywood",
+          "Designer laminate",
+          "Soft-close hardware",
+          "Glass Chimney + 3 burner hob",
+        ],
       },
       {
         key: "PREMIUM",
         label: "Premium",
         ratePerSqft: 3500,
+        chimneyPrice: 25000,
+        hobPrice: 15000,
         materials: [
-          "BWP plywood / HDHMR",
+          "calibrated plywood / HDHMR",
           "Acrylic / veneer",
           "Hettich / Hafele hardware",
+          "Premium Chimney + Glass hob",
         ],
       },
     ] as [KitchenTierSpec, KitchenTierSpec, KitchenTierSpec],
@@ -247,6 +265,7 @@ export const CATEGORIES: CategorySpec[] = [
           "BWP / HDHMR 18mm carcass",
           "Acrylic or veneer shutters",
           "Hettich / Hafele soft-close",
+          "Profile handles",
           "Tandem boxes + LED interior light",
         ],
       },
@@ -477,6 +496,8 @@ export function getEstimatorCategories(priceBook?: PriceBook): CategorySpec[] {
         return {
           ...tier,
           ratePerSqft: priceBook.estimator[category.slug][tier.key],
+          chimneyPrice: priceBook.kitchen.chimney[tier.key],
+          hobPrice: priceBook.kitchen.hob[tier.key],
         };
       }) as [KitchenTierSpec, KitchenTierSpec, KitchenTierSpec];
 
@@ -550,7 +571,8 @@ export function calculateKitchen(
   const UPPER_HEIGHT = 2.0;
 
   const totalArea = lowerRft * LOWER_HEIGHT + upperRft * UPPER_HEIGHT;
-  const total = Math.round(totalArea * tier.ratePerSqft);
+  const cabinetTotal = Math.round(totalArea * tier.ratePerSqft);
+  const total = cabinetTotal + tier.chimneyPrice + tier.hobPrice;
 
   return {
     kind: "kitchen",
@@ -559,6 +581,9 @@ export function calculateKitchen(
     lowerRft,
     upperRft,
     totalArea,
+    cabinetTotal, // ← ADD
+    chimneyPrice: tier.chimneyPrice, // ← ADD
+    hobPrice: tier.hobPrice,
     total,
   };
 }
@@ -625,25 +650,25 @@ export function buildWaMessage(
   lines.push(
     designTitle
       ? `Hi, I'm interested in the "${designTitle}" setup.`
-      : `Hi, I just calculated my material cost on your website.`,
+      : `Hi! I used the estimator on Goel Traders website and need a quote.`,
   );
   lines.push("");
 
   // Details
   if (result.kind === "kitchen") {
-    lines.push(`📐 *Furniture:* Modular Kitchen`);
+    lines.push(`\u{1F4D0} *Furniture:* Modular Kitchen`);
     lines.push(
-      `📏 *Size:* ${result.lowerRft}ft lower + ${result.upperRft}ft upper`,
+      `\u{1F4CF} *Size:* ${result.lowerRft}ft lower + ${result.upperRft}ft upper`,
     );
   } else {
-    lines.push(`📐 *Furniture:* ${result.category.label}`);
+    lines.push(`\u{1F4D0} *Furniture:* ${result.category.label}`);
     lines.push(
-      `📏 *Size:* ${result.width} ft × ${result.height} ft (${result.sqft} sqft)`,
+      `\u{1F4CF} *Size:* ${result.width} ft × ${result.height} ft (${result.sqft} sqft)`,
     );
   }
 
-  lines.push(`🏷 *Quality:* ${result.tier.label}`);
-  lines.push(`💰 *Estimated Cost:* ${formatCompact(result.total)}`);
+  lines.push(`\u{1F3F7} *Quality:* ${result.tier.label}`);
+  lines.push(`\u{1F4B0} *Estimated Cost:* ${formatCompact(result.total)}`);
 
   lines.push("");
 
@@ -652,7 +677,9 @@ export function buildWaMessage(
     `I want the exact material list with current prices and brand options.`,
   );
 
-  lines.push(`Can you share final costing and availability on WhatsApp?`);
+  lines.push(
+    `Please share the material list with brand options and current prices.`,
+  );
 
   lines.push("");
   lines.push(`(Sent via Goel Traders estimator)`);

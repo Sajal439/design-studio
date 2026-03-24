@@ -32,6 +32,18 @@ export const loadPriceBook = cache(async (): Promise<PriceBook> => {
 
     const pb: PriceBook = {
       estimator: {} as PriceBook["estimator"],
+      kitchen: {
+        chimney: {
+          BUDGET: get("kitchen.chimney.BUDGET", 10000),
+          STANDARD: get("kitchen.chimney.STANDARD", 18000),
+          PREMIUM: get("kitchen.chimney.PREMIUM", 30000),
+        },
+        hob: {
+          BUDGET: get("kitchen.hob.BUDGET", 5000),
+          STANDARD: get("kitchen.hob.STANDARD", 9000),
+          PREMIUM: get("kitchen.hob.PREMIUM", 16000),
+        },
+      },
       sheets: {} as PriceBook["sheets"],
       hardware: {},
       rates: {
