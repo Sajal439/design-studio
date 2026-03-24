@@ -66,15 +66,13 @@ const DESIGN_CATEGORIES = [
 const TESTIMONIALS = [
   {
     name: "Rahul Sharma",
-    avatar: "https://i.pravatar.cc/150?u=rahul",
     location: "Sector 6, Karnal",
     project: "Modular Kitchen",
-    text: "Got material list + price in 20 minutes on WhatsApp. Century Ply + Merino laminate delivered same week.",
+    text: "Got material list + price in 20 minutes on WhatsApp. All materials were in stock.",
     rating: 5,
   },
   {
     name: "Priya Gupta",
-    avatar: "https://i.pravatar.cc/150?u=priya",
     location: "Panipat",
     project: "Home Wardrobes",
     text: "Visited the showroom — huge stock, no middleman. Hettich soft-close hinges at better price than online.",
@@ -82,10 +80,9 @@ const TESTIMONIALS = [
   },
   {
     name: "Sandeep Verma",
-    avatar: "https://i.pravatar.cc/150?u=sandeep",
-    location: "Kurukshetra",
+    location: "Karnal",
     project: "Complete 3BHK",
-    text: "They matched the carpenter's list item by item. Greenply BWR, all in stock. Smooth communication.",
+    text: "They matched the carpenter's list item by item. All materials were in stock. Smooth communication.",
     rating: 5,
   },
 ];
@@ -407,7 +404,7 @@ export default async function Home() {
             </div>
           ) : (
             <div className="py-10 text-center text-slate-400">
-              No portfolio projects uploaded yet. Visit /admin/marketing.
+              No portfolio projects uploaded yet.
             </div>
           )}
         </div>
@@ -423,7 +420,7 @@ export default async function Home() {
               Trusted by Haryana's homeowners
             </h2>
             <p className="text-lg text-slate-600">
-              Don't just take our word for it. Hundreds of families have built their dream homes using our direct-supply model.
+              Don't just take our word for it. Hundreds of families have built their dream homes using our premium range of materials.
             </p>
           </div>
 
@@ -447,9 +444,6 @@ export default async function Home() {
                 </p>
 
                 <div className="flex items-center gap-4 mt-auto">
-                  <div className="relative h-12 w-12 rounded-full overflow-hidden border-2 border-white shadow-md">
-                    <Image src={t.avatar} alt={t.name} fill className="object-cover" />
-                  </div>
                   <div>
                     <h4 className="font-bold text-slate-900 text-sm">{t.name}</h4>
                     <p className="text-xs font-medium text-slate-500">
