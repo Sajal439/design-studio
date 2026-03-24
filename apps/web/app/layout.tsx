@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   title: "Goel Traders Design Studio",
   description: "Interior design inspiration & material sourcing platform",
   icons: {
-    icon: "/favicon.ico"
+    icon: "/icon.svg"
   }
 };
 
