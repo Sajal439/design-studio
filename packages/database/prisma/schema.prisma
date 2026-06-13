@@ -43,6 +43,7 @@ model Design {
   priceRange    String?
   badge         String?
   waText        String?
+  isPublished   Boolean  @default(true)
   categoryId    String
 
   createdAt     DateTime @default(now())
@@ -77,4 +78,32 @@ model PriceBookEntry {
   createdAt DateTime @default(now())
 
   @@index([category])
+}
+
+// ─ Consultations ─────────────────────────────────────────────────────────────
+
+model Consultation {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String
+  type      String   // e.g. "showroom", "video", "site-visit"
+  message   String?
+  status    String   @default("PENDING") // PENDING, CONTACTED, COMPLETED, CANCELLED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─ Admin Authentication ───────────────────────────────────────────────────────
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("admin") // "admin", "staff", etc.
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

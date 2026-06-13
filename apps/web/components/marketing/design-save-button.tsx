@@ -2,7 +2,7 @@
 
 import { Heart } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/button";
 import {
   SAVED_DESIGNS_EVENT,
   isDesignSaved,

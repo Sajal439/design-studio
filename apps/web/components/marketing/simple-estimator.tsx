@@ -12,7 +12,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { MessageCircle, Phone, Check, ChevronRight } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@repo/ui/input";
 import { siteConfig } from "@/lib/site-config";
 import type { PriceBook } from "@/lib/estimator/priceBook";
 import {

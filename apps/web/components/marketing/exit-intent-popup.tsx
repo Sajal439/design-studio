@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/button";
 import { X, Calculator, MessageCircle } from "lucide-react";
 import { siteConfig } from "@/lib/site-config";
 
