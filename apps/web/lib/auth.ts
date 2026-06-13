@@ -2,16 +2,18 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
 // ── Secret ─────────────────────────────────────────────────────────────────────
-// Throws at startup if the environment variable is not set.
+// Throws when trying to use the secret if the environment variable is not set.
 // Never falls back to a hardcoded string.
-const secretKey = process.env.JWT_SECRET_KEY;
-if (!secretKey) {
-  throw new Error(
-    "JWT_SECRET_KEY environment variable is not set. " +
-      "Set it in .env.local for development and in Vercel environment variables for production.",
-  );
+function getSecretKey() {
+  const secretKey = process.env.JWT_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error(
+      "JWT_SECRET_KEY environment variable is not set. " +
+        "Set it in .env.local for development and in Vercel environment variables for production.",
+    );
+  }
+  return new TextEncoder().encode(secretKey);
 }
-const encodedKey = new TextEncoder().encode(secretKey);
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 export type SessionPayload = {
@@ -28,7 +30,7 @@ export async function signToken(payload: SessionPayload): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(encodedKey);
+    .sign(getSecretKey());
 }
 
 export async function verifyToken(
@@ -37,7 +39,7 @@ export async function verifyToken(
   if (!session) return null;
 
   try {
-    const { payload } = await jwtVerify(session, encodedKey, {
+    const { payload } = await jwtVerify(session, getSecretKey(), {
       algorithms: ["HS256"],
     });
 
