@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@repo/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@repo/ui/sheet";
-import { Calculator, ChevronRight, Menu, MessageCircle, Phone, SwatchBook } from "lucide-react";
+import { Calculator, ChevronRight, Menu, MessageCircle, Phone, SwatchBook, Store } from "lucide-react";
 import { siteConfig } from "@/lib/site-config";
 import { buildWhatsAppUrl } from "@/lib/utils";
 
@@ -10,6 +10,7 @@ const navLinks = [
     { href: "/", label: "Home", description: "See our latest material-first homepage.", icon: SwatchBook },
     { href: "/designs", label: "Designs" },
     { href: "/estimator", label: "Estimator" },
+    { href: "/about", label: "About Us", description: "Learn about our materials and showroom.", icon: Store },
     { href: "/consultation", label: "Consultation", description: "Book a free call or showroom discussion.", icon: MessageCircle },
 ];
 

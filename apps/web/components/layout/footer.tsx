@@ -8,13 +8,23 @@ export function Footer() {
     return (
         <footer className="border-t bg-muted/30">
             <div className="container mx-auto px-4 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
                     {/* Brand */}
                     <div className="md:col-span-1">
                         <h3 className="text-lg font-bold">Goel Traders</h3>
                         <p className="mt-2 text-sm text-muted-foreground">
                             Your trusted partner for interior design materials. Quality plywood, laminates, and hardware.
                         </p>
+                    </div>
+
+                    {/* Company */}
+                    <div>
+                        <h4 className="text-sm font-semibold mb-3">Company</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li><Link href="/about" className="hover:text-foreground">About Us</Link></li>
+                            <li><Link href="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
+                            <li><Link href="/terms" className="hover:text-foreground">Terms of Service</Link></li>
+                        </ul>
                     </div>
 
                     {/* Quick Links */}
