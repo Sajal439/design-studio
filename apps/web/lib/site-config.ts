@@ -3,7 +3,7 @@ export const siteConfig = {
   tagline:
     process.env.NEXT_PUBLIC_SITE_TAGLINE ??
     "Interior material sourcing platform",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://goeltraders.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.goeltraders.in",
   phone: process.env.NEXT_PUBLIC_CONTACT_PHONE ?? "+91 9215801362",
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "goeltraders78@gmail.com",
   address:
@@ -12,5 +12,5 @@ export const siteConfig = {
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "9215801362",
   // SEO defaults
   description:
-    "Browse 200+ interior design inspirations for kitchens, wardrobes, bedrooms, and more. Get instant material estimates and quotes from Goel Traders — Karnal's trusted interior materials supplier.",
+    "Explore premium modular kitchens, wardrobes, and bedroom designs. Get instant material estimates and direct pricing from Goel Traders — Karnal's leading interior materials supplier.",
 };

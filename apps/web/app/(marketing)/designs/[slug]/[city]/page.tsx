@@ -64,6 +64,9 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
   return {
     title,
     description,
+    alternates: {
+      canonical: `/designs/${slug}/${city}`,
+    },
     openGraph: { title, description },
     keywords: [
       `${cat.label.toLowerCase()} interior ${loc.label}`,
@@ -89,8 +92,40 @@ export default async function CategoryCityLandingPage({ params }: PageParams) {
     take: 6,
   });
 
+  const faqs = [
+    { q: `What is the cost of a ${cat.label.toLowerCase()} in ${loc.label}?`, a: `The cost of a ${cat.label.toLowerCase()} in ${loc.label} depends on size, material choices (plywood grade, laminate), and hardware brands. Use our free estimator tool to get an instant cost breakdown for your specific requirements.` },
+    { q: `Do you provide ${cat.label.toLowerCase()} materials in ${loc.label}?`, a: `Yes! Goel Traders is a leading supplier of premium interior materials across ${loc.state}. We supply everything you need for your ${cat.label.toLowerCase()} project directly to ${loc.label}.` },
+    { q: `Can I get a custom quote for my ${cat.label.toLowerCase()}?`, a: `Absolutely. You can share your design or carpenter's material list with us on WhatsApp, and our team will provide a transparent, factory-direct quote.` }
+  ];
+
+  const jsonLdBreadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.goeltraders.in/" },
+      { "@type": "ListItem", "position": 2, "name": "Designs", "item": "https://www.goeltraders.in/designs" },
+      { "@type": "ListItem", "position": 3, "name": cat.plural, "item": `https://www.goeltraders.in/designs?category=${slug}` },
+      { "@type": "ListItem", "position": 4, "name": loc.label }
+    ]
+  };
+
+  const jsonLdFaq = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.a
+      }
+    }))
+  };
+
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }} />
       {/* ── Hero ── */}
       <section className="border-b bg-gradient-to-b from-muted/50 to-background py-12 md:py-20">
         <div className="container mx-auto px-4">
@@ -181,6 +216,29 @@ export default async function CategoryCityLandingPage({ params }: PageParams) {
               </Button>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ── FAQs ── */}
+      <section className="py-12 border-t">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="mb-8 text-2xl font-bold text-center">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-4 text-left">
+              {[
+                { q: `What is the cost of a ${cat.label.toLowerCase()} in ${loc.label}?`, a: `The cost of a ${cat.label.toLowerCase()} in ${loc.label} depends on size, material choices (plywood grade, laminate), and hardware brands. Use our free estimator tool to get an instant cost breakdown for your specific requirements.` },
+                { q: `Do you provide ${cat.label.toLowerCase()} materials in ${loc.label}?`, a: `Yes! Goel Traders is a leading supplier of premium interior materials across ${loc.state}. We supply everything you need for your ${cat.label.toLowerCase()} project directly to ${loc.label}.` },
+                { q: `Can I get a custom quote for my ${cat.label.toLowerCase()}?`, a: `Absolutely. You can share your design or carpenter's material list with us on WhatsApp, and our team will provide a transparent, factory-direct quote.` }
+              ].map((faq, idx) => (
+                <div key={idx} className="rounded-lg border bg-card p-5">
+                  <h3 className="mb-2 font-semibold text-lg">{faq.q}</h3>
+                  <p className="text-muted-foreground">{faq.a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

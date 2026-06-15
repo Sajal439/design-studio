@@ -130,7 +130,7 @@ export default async function Home() {
                 Your Trusted Interior Materials Partner
               </p>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.05] mb-5">
-                Design Your Dream Interior Powered by Premium Materials from Goel Traders
+                Modular Kitchen & Premium Interior Materials in Karnal
               </h1>
               <p className="text-base sm:text-lg text-slate-500 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
                 Browse interior design inspirations, estimate materials, and get quotes — all from Goel Traders, your reliable local supplier.
@@ -174,7 +174,7 @@ export default async function Home() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
             <div className="max-w-2xl">
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-4">
-                Explore by Category
+                Explore Interior Designs by Category
               </h2>
               <p className="text-lg text-slate-600 leading-relaxed">
                 Start with the space you want to design, then browse matching ideas on the full designs page.
@@ -223,37 +223,32 @@ export default async function Home() {
       {/* ════════════════════════════════════════
           3. OUR REAL WORK
           ════════════════════════════════════════ */}
-      <section className="py-24 lg:py-32 bg-slate-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      {realWork.length > 0 && (
+        <section className="py-24 lg:py-32 bg-slate-50">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
 
-          <div className="mb-16 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
-                Proof of Delivery
-              </p>
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-4">
-                Our Real Work
-              </h2>
-              <p className="text-lg text-slate-600 leading-relaxed">
-                Actual projects delivered for homes and spaces across Haryana. Each one shows the kind of materials,
-                finish quality, and execution support customers can expect from our showroom.
-              </p>
+            <div className="mb-16 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+                  Proof of Delivery
+                </p>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-4">
+                  Our Real Work
+                </h2>
+                <p className="text-lg text-slate-600 leading-relaxed">
+                  Actual projects delivered for homes and spaces across Haryana. Each one shows the kind of materials,
+                  finish quality, and execution support customers can expect from our showroom.
+                </p>
+              </div>
+              <Link
+                href="/designs"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 transition-colors hover:text-slate-900"
+              >
+                Browse all designs <ChevronRight className="h-4 w-4" />
+              </Link>
             </div>
-            <Link
-              href="/designs"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 transition-colors hover:text-slate-900"
-            >
-              Browse all designs <ChevronRight className="h-4 w-4" />
-            </Link>
-          </div>
 
-          {realWork.length === 0 ? (
-            <div className="py-10 text-center text-slate-400">
-              No portfolio projects uploaded yet.
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {realWork.slice(0, 6).map((work) => (
                   <Link
                     key={work.id}
@@ -303,10 +298,9 @@ export default async function Home() {
                   Ask About Similar Work
                 </a>
               </div>
-            </>
-          )}
-        </div>
-      </section >
+          </div>
+        </section>
+      )}
 
       {/* ════════════════════════════════════════
           3. PREMIUM TRUST / TESTIMONIALS

@@ -4,6 +4,7 @@ import "./globals.css";
 import { SessionProvider } from "@/lib/session-context";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { siteConfig } from "@/lib/site-config";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,11 +12,23 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Goel Traders Design Studio",
-  description: "Interior design inspiration & material sourcing platform",
+  metadataBase: new URL(siteConfig.url),
+  title: "Modular Kitchen & Interior Materials in Karnal, Haryana | Goel Traders",
+  description: siteConfig.description,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Modular Kitchen & Interior Materials in Karnal, Haryana | Goel Traders",
+    description: siteConfig.description,
+    url: "/",
+    siteName: siteConfig.name,
+    locale: "en_IN",
+    type: "website",
+  },
   icons: {
-    icon: "/icon.svg"
-  }
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

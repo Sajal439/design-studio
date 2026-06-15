@@ -5,8 +5,11 @@ import { DesignGalleryClient } from "@/components/marketing/design-gallery-clien
 import { getFirstImageUrl } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Design Gallery | Goel Traders Design Studio",
-  description: "Browse curated interior design inspirations for kitchens, wardrobes, bedrooms, TV units, and more.",
+  title: "Interior Design Gallery — Kitchen, Bedroom & Wardrobe Ideas | Goel Traders",
+  description: "Explore 25+ curated kitchen, bedroom, wardrobe & TV unit designs with material details. Free cost estimates from Goel Traders, Haryana.",
+  alternates: {
+    canonical: "/designs",
+  },
 };
 
 // ── Cached fetchers ────────────────────────────────────────────────────────────

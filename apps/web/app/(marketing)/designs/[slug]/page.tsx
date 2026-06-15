@@ -35,6 +35,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: `${design.title} | ${siteConfig.name}`,
     description: design.description || "",
+    alternates: {
+      canonical: `/designs/${slug}`,
+    },
     openGraph: {
       title: design.title,
       description: design.description || "",
@@ -57,8 +60,35 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
   const galleryImages = normalizeDesignImages(design.images);
   const isRealProject = design.isRealWork;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: design.title,
+    image: getFirstImageUrl(design.images) ? [getFirstImageUrl(design.images)] : [],
+    description: design.description,
+    brand: {
+      "@type": "Brand",
+      name: siteConfig.name,
+    },
+    offers: {
+      "@type": "Offer",
+      url: `${siteConfig.url}/designs/${slug}`,
+      priceCurrency: "INR",
+      price: design.priceRange ? design.priceRange.replace(/[^0-9]/g, '') || "150000" : "150000",
+      availability: "https://schema.org/InStock",
+      seller: {
+        "@type": "Organization",
+        name: siteConfig.name,
+      },
+    },
+  };
+
   return (
     <div className="py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="container mx-auto px-4">
         <Link
           href="/designs"

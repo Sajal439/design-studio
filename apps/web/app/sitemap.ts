@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 import { prisma } from "@repo/database";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://goeltraders.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.goeltraders.in";
 
 const CATEGORY_SLUGS = [
   "kitchen",
