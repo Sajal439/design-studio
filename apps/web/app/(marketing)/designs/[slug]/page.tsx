@@ -155,8 +155,62 @@ export default async function DesignDetailPage({ params }: { params: Promise<{ s
               />
             </div>
             <h1 className="mb-2 text-3xl font-bold">{design.title}</h1>
-            <p className="mb-6 leading-relaxed text-muted-foreground">{design.description}</p>
+            <div className="prose prose-slate max-w-none mb-10">
+              <p className="lead text-lg text-muted-foreground leading-relaxed mb-6">{design.description}</p>
+              
+              <h2 className="text-xl font-bold mt-8 mb-4">Design Overview</h2>
+              <p className="text-muted-foreground leading-relaxed mb-6">
+                This {design.title.toLowerCase()} is designed for modern homes in Haryana, focusing on {design.style ? design.style.toLowerCase() : "contemporary"} aesthetics and optimal space utilization. 
+                Our {design.category?.label?.toLowerCase() || "interior"} designs use premium materials from trusted brands like Century Ply, Greenply, and Hettich to ensure longevity and a pristine finish.
+                {design.roomSize ? ` This layout is particularly well-suited for rooms around ${design.roomSize}.` : ""}
+              </p>
 
+              <h2 className="text-xl font-bold mt-8 mb-4">Material Specifications</h2>
+              <div className="overflow-x-auto mb-6">
+                <table className="min-w-full border text-sm text-left">
+                  <thead className="bg-muted text-muted-foreground">
+                    <tr>
+                      <th className="px-4 py-3 font-semibold border-b">Component</th>
+                      <th className="px-4 py-3 font-semibold border-b">Specification / Brand</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    <tr className="bg-background">
+                      <td className="px-4 py-3 font-medium border-r">Core Material</td>
+                      <td className="px-4 py-3">BWR/BWP Plywood (Century Ply / Greenply) or HDHMR (Action TESA)</td>
+                    </tr>
+                    <tr className="bg-muted/30">
+                      <td className="px-4 py-3 font-medium border-r">Exterior Finish</td>
+                      <td className="px-4 py-3">1mm Premium Laminate (Merino) or High-Gloss Acrylic</td>
+                    </tr>
+                    <tr className="bg-background">
+                      <td className="px-4 py-3 font-medium border-r">Hardware & Hinges</td>
+                      <td className="px-4 py-3">Soft-close hinges and channels (Hettich / Hafele / Godrej)</td>
+                    </tr>
+                    <tr className="bg-muted/30">
+                      <td className="px-4 py-3 font-medium border-r">Edge Banding</td>
+                      <td className="px-4 py-3">Machine-pressed Rehau PVC edge banding</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h2 className="text-xl font-bold mt-8 mb-4">Frequently Asked Questions</h2>
+              <div className="space-y-4">
+                <div className="border rounded-lg p-5 bg-background">
+                  <h3 className="font-semibold text-base mb-2">What is the estimated cost for this {design.category?.label?.toLowerCase() || "design"}?</h3>
+                  <p className="text-sm text-muted-foreground">The cost for this design typically falls around {design.estimatedCost || design.priceRange || "₹1,50,000"}. The exact price will depend on your specific room dimensions and the exact finishes you select. You can use our estimator tool to get a more accurate quote.</p>
+                </div>
+                <div className="border rounded-lg p-5 bg-background">
+                  <h3 className="font-semibold text-base mb-2">Can this design be customized for my space?</h3>
+                  <p className="text-sm text-muted-foreground">Absolutely. Every design we showcase is 100% customizable. Our experts can adjust the layout, color palette, and storage configuration to perfectly match your room size and personal requirements.</p>
+                </div>
+                <div className="border rounded-lg p-5 bg-background">
+                  <h3 className="font-semibold text-base mb-2">Are the materials guaranteed?</h3>
+                  <p className="text-sm text-muted-foreground">Yes, as authorized dealers, we provide 100% genuine materials with manufacturer warranties. Plywoods come with borer and termite warranties, and hardware components like Hettich hinges come with lifetime functional warranties.</p>
+                </div>
+              </div>
+            </div>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

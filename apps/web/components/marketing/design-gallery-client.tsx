@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight, BriefcaseBusiness, Heart } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, Heart, Search, X } from "lucide-react";
 import { Badge } from "@repo/ui/badge";
 import { Card, CardContent } from "@repo/ui/card";
 import { DesignSaveButton } from "@/components/marketing/design-save-button";
@@ -44,6 +44,7 @@ export function DesignGalleryClient({
   const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [showOurWorkOnly, setShowOurWorkOnly] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const syncSavedDesigns = () => {
@@ -69,6 +70,14 @@ export function DesignGalleryClient({
       return false;
     }
 
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase();
+      const matchesTitle = design.title.toLowerCase().includes(q);
+      const matchesDesc = design.description?.toLowerCase().includes(q) ?? false;
+      const matchesCategory = design.category.label.toLowerCase().includes(q);
+      if (!matchesTitle && !matchesDesc && !matchesCategory) return false;
+    }
+
     return true;
   });
 
@@ -82,7 +91,28 @@ export function DesignGalleryClient({
 
   return (
     <>
-      <div className="mb-10">
+      <div className="mb-10 space-y-6">
+        <div className="relative mx-auto max-w-md">
+          <div className="relative flex items-center">
+            <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search designs, categories, or keywords..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-11 w-full rounded-full border border-border bg-background pl-10 pr-10 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 rounded-full p-1 text-muted-foreground hover:bg-muted"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </div>
+        
         <div className="flex flex-wrap justify-center gap-2">
           <Link href="/designs" className={filterButtonClass(activeCategory === "all")}>
             <span>

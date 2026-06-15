@@ -26,22 +26,28 @@ export function ExitIntentPopup() {
   }
 
   useEffect(() => {
+    let timeThresholdReached = false;
+    const timer = setTimeout(() => {
+      timeThresholdReached = true;
+    }, 30000); // 30 seconds
+
     // Desktop: mouse leaving toward top of viewport
     function onMouseLeave(e: MouseEvent) {
-      if (e.clientY < 5) maybeShow();
+      if (e.clientY < 5 && timeThresholdReached) maybeShow();
     }
 
-    // Mobile/scroll: 70 % scroll depth
+    // Mobile/scroll: 50 % scroll depth
     function onScroll() {
       const scrolled = window.scrollY + window.innerHeight;
       const total = document.documentElement.scrollHeight;
-      if (scrolled / total >= 0.7) maybeShow();
+      if (scrolled / total >= 0.5) maybeShow();
     }
 
     document.addEventListener("mouseleave", onMouseLeave);
     window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
+      clearTimeout(timer);
       document.removeEventListener("mouseleave", onMouseLeave);
       window.removeEventListener("scroll", onScroll);
     };
