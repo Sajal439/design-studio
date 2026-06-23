@@ -83,16 +83,19 @@ model PriceBookEntry {
 // ─ Consultations ─────────────────────────────────────────────────────────────
 
 model Consultation {
-  id        String   @id @default(cuid())
-  name      String
-  email     String?
-  phone     String
-  type      String   // e.g. "showroom", "video", "site-visit"
-  message   String?
-  status    String   @default("PENDING") // PENDING, CONTACTED, COMPLETED, CANCELLED
+  id          String   @id @default(cuid())
+  name        String
+  email       String?
+  phone       String
+  type        String   // e.g. "showroom", "video", "site-visit"
+  message     String?
+  projectType String?  // e.g. "Modular Kitchen", "Wardrobe", etc.
+  location    String?  // customer's city/area
+  source      String?  // tracking: "consultation_page", "landing_page", etc.
+  status      String   @default("PENDING") // PENDING, CONTACTED, COMPLETED, CANCELLED
   
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // ─ Admin Authentication ───────────────────────────────────────────────────────

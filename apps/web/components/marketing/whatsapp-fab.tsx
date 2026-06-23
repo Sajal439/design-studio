@@ -6,6 +6,8 @@ import { siteConfig } from "@/lib/site-config";
 /**
  * Floating WhatsApp CTA button — appears on all marketing pages.
  * Opens WhatsApp with a context‐aware pre‐filled message.
+ * On mobile: positioned above the contact bar.
+ * On desktop: positioned in the bottom-right corner.
  */
 export function WhatsAppFab({ context }: { context?: string }) {
   const message = context
@@ -20,9 +22,10 @@ export function WhatsAppFab({ context }: { context?: string }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      className="fixed bottom-6 right-6 z-50 hidden h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl active:scale-95 md:flex print:hidden"
+      className="fixed z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl active:scale-95 print:hidden bottom-24 right-4 md:bottom-6 md:right-6"
     >
       <MessageCircle className="h-6 w-6" />
     </a>
   );
 }
+

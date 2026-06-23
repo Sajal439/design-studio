@@ -9,6 +9,8 @@ import {
   Calculator,
   CheckCircle2,
   ArrowRight,
+  Phone,
+  Sparkles,
 } from "lucide-react";
 import { BrandLogosBar } from "@/components/marketing/brand-logos-bar";
 import { LocationSection } from "@/components/marketing/location-section";
@@ -221,6 +223,61 @@ export default async function Home() {
       </section>
 
       {/* ════════════════════════════════════════
+          ESTIMATOR PROMO SECTION
+          ════════════════════════════════════════ */}
+      <section className="py-20 lg:py-28 bg-slate-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-10 md:p-16 text-center shadow-2xl">
+            {/* Decorative blurred shapes */}
+            <div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-amber-500/20 blur-[80px] pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-sky-500/20 blur-[80px] pointer-events-none" />
+
+            <div className="relative z-10">
+              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
+                <Calculator className="h-8 w-8 text-amber-400" />
+              </div>
+
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-5">
+                Know your interior cost{" "}
+                <br className="hidden md:block" />
+                <span className="text-amber-400">in 2 minutes</span>
+              </h2>
+              <p className="text-base md:text-lg text-slate-300 leading-relaxed mb-10 max-w-2xl mx-auto">
+                Enter your furniture dimensions and get an instant cost breakdown.
+                Compare Budget, Medium, and Premium material options — same calculation method contractors use.
+              </p>
+
+              <div className="flex flex-wrap justify-center gap-4 mb-10">
+                {[
+                  "Instant estimate",
+                  "No sign-up needed",
+                  "3 price tiers",
+                  "Real market prices",
+                ].map((item) => (
+                  <span
+                    key={item}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 px-4 py-2 text-sm font-medium text-slate-200"
+                  >
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    {item}
+                  </span>
+                ))}
+              </div>
+
+              <Link
+                href="/estimator"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-10 py-4 text-lg font-bold text-slate-900 hover:bg-slate-100 hover:-translate-y-1 transition-all duration-300 shadow-lg"
+              >
+                <Calculator className="h-5 w-5" />
+                Get Free Estimate
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
           3. OUR REAL WORK
           ════════════════════════════════════════ */}
       {realWork.length > 0 && (
@@ -350,6 +407,71 @@ export default async function Home() {
       </section >
 
       {/* ════════════════════════════════════════
+          CONTACT STRIP — All 3 Lead Channels
+          ════════════════════════════════════════ */}
+      <section className="py-16 bg-slate-50 border-y border-slate-100">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500 mb-3">
+              Get in Touch
+            </p>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+              Ready to start your project?
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+            {/* Phone */}
+            <a
+              href={`tel:${siteConfig.phone}`}
+              className="group flex flex-col items-center gap-4 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/60"
+            >
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                <Phone className="h-6 w-6" />
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-bold text-slate-900">Call Us</p>
+                <p className="text-sm text-slate-500 mt-1">{siteConfig.phone}</p>
+                <p className="text-xs text-slate-400 mt-2">Talk to our expert now</p>
+              </div>
+            </a>
+
+            {/* WhatsApp */}
+            <a
+              href={waUrl("Hi! I'm interested in interior materials for my project. Can you help?")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col items-center gap-4 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#25D366]/40 hover:shadow-xl hover:shadow-green-200/40"
+            >
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-50 text-[#25D366] transition-colors group-hover:bg-[#25D366] group-hover:text-white">
+                <MessageCircle className="h-6 w-6" />
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-bold text-slate-900">WhatsApp</p>
+                <p className="text-sm text-slate-500 mt-1">Quick reply guaranteed</p>
+                <p className="text-xs text-slate-400 mt-2">Send photos & material lists</p>
+              </div>
+            </a>
+
+            {/* Consultation */}
+            <Link
+              href="/consultation"
+              className="group flex flex-col items-center gap-4 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10"
+            >
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-bold text-slate-900">Book Consultation</p>
+                <p className="text-sm text-slate-500 mt-1">Free expert guidance</p>
+                <p className="text-xs text-slate-400 mt-2">Showroom, video, or site visit</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
           4. SHOWROOM LOCATION
           ════════════════════════════════════════ */}
       < LocationSection />
@@ -361,8 +483,8 @@ export default async function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
           <div className="relative rounded-[3rem] overflow-hidden bg-white border border-slate-100 p-10 md:p-20 text-center">
 
-            <div className="absolute top-0 right-0 w-96 h-96 rounded-full blur-[128px] pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full blur-[128px] pointer-events-none" />
+            <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-emerald-100 blur-[128px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-sky-100 blur-[128px] pointer-events-none" />
 
             <div className="relative z-10">
               <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">
@@ -384,6 +506,21 @@ export default async function Home() {
                   <MessageCircle className="h-6 w-6" />
                   Message on WhatsApp
                 </a>
+                <a
+                  href={`tel:${siteConfig.phone}`}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 bg-white px-10 py-4 text-lg font-bold text-slate-700 hover:border-slate-900 hover:bg-slate-900 hover:text-white hover:-translate-y-1 transition-all duration-300"
+                >
+                  <Phone className="h-6 w-6" />
+                  Call Now
+                </a>
+              </div>
+              <div className="mt-5">
+                <Link
+                  href="/consultation"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                >
+                  Or book a free consultation <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
             </div>
           </div>

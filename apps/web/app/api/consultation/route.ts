@@ -1,14 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@repo/database";
-import { z } from "zod";
-
-const consultationSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email().or(z.literal("")),
-  phone: z.string().min(10),
-  consultationType: z.string(),
-  message: z.string().optional(),
-});
+import { consultationSchema } from "@/lib/validations";
 
 export async function POST(request: Request) {
   try {
@@ -18,10 +10,11 @@ export async function POST(request: Request) {
     await prisma.consultation.create({
       data: {
         name: data.name,
-        email: data.email || null,
         phone: data.phone,
         type: data.consultationType,
-        message: data.message || null,
+        projectType: data.projectType || null,
+        location: data.location || null,
+        source: data.source || null,
         status: "PENDING",
       },
     });
