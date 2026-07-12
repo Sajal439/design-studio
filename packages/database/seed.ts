@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { seedPriceBook } from "./prisma/seeds/priceBook";
+import { seedProducts } from "./prisma/seeds/productSeed";
+
 
 const prisma = new PrismaClient();
 
@@ -22,6 +24,7 @@ async function main() {
   console.log("Seeding database...");
 
   await seedPriceBook(prisma);
+  await seedProducts(prisma);
 
   const categories = [
     { slug: "kitchen", label: "Modular Kitchens", name: "kitchen", type: "design" },

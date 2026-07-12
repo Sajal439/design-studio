@@ -110,3 +110,25 @@ model AdminUser {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+// ─ Product Catalog ────────────────────────────────────────────────────────────
+//
+// Stores kitchen appliances (chimney, hob) with per-tier pricing.
+// The estimator picks the isDefault=true product per (category, tier) pair.
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String                       // "Glen 60cm Auto-Clean Chimney"
+  brand       String?                      // "Glen"
+  description String?
+  category    String   // "chimney" | "hob"
+  tier        String   // "BUDGET" | "STANDARD" | "PREMIUM"
+  price       Float
+  isDefault   Boolean  @default(false)    // which product the estimator uses
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category, tier])
+  @@index([isDefault])
+}

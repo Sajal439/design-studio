@@ -1,5 +1,15 @@
 import type { MaterialGrade } from "./types";
 
+/** A kitchen appliance product from the Product catalog. */
+export type KitchenProduct = {
+  id: string;
+  name: string;
+  brand: string | null;
+  price: number;
+  tier: string;
+  category: string;
+};
+
 export type PriceBook = {
   estimator: Record<
     "kitchen" | "wardrobe" | "tv-unit" | "bedroom" | "study" | "office",
@@ -18,8 +28,12 @@ export type PriceBook = {
   kitchen: {
     chimney: Record<"BUDGET" | "STANDARD" | "PREMIUM", number>;
     hob: Record<"BUDGET" | "STANDARD" | "PREMIUM", number>;
+    /** Resolved Product objects per tier — undefined if none seeded yet. */
+    chimneyProducts: Partial<Record<"BUDGET" | "STANDARD" | "PREMIUM", KitchenProduct>>;
+    hobProducts: Partial<Record<"BUDGET" | "STANDARD" | "PREMIUM", KitchenProduct>>;
   };
 };
+
 
 // Fallback used only if DB is unreachable — never in production flow
 export const FALLBACK_PRICE_BOOK: PriceBook = {
@@ -69,5 +83,7 @@ export const FALLBACK_PRICE_BOOK: PriceBook = {
   kitchen: {
     chimney: { BUDGET: 10000, STANDARD: 18000, PREMIUM: 30000 },
     hob: { BUDGET: 5000, STANDARD: 9000, PREMIUM: 16000 },
+    chimneyProducts: {},
+    hobProducts: {},
   },
 };

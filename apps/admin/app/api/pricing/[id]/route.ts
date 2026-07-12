@@ -27,8 +27,9 @@ export async function PATCH(
     data: { value: result.data.value },
   });
 
-  // Bust the estimator page cache — next visitor gets fresh prices
-  revalidatePath("/estimator");
+  // Refresh the admin pricing page so the editor sees the new value.
+  // Note: the public estimator page (apps/web) uses force-dynamic and
+  // always reads fresh from the DB — no cross-app revalidation needed.
   revalidatePath("/pricing");
 
   return NextResponse.json(updated);

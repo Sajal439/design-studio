@@ -5,8 +5,12 @@
  * serializes it, and passes it to the client estimator.
  *
  * The client never calls the DB — it receives prices as props.
- * Admin updates to the price book revalidate via /api/admin/pricing/[id].
+ * Admin updates to the price book are reflected on the next page load.
  */
+
+// Always render fresh from the DB so admin price-book changes are
+// immediately visible — no stale static cache.
+export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import { loadPriceBook } from "@/lib/estimator/priceBookLoader";

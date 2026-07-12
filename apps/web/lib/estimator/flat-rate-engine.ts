@@ -75,7 +75,7 @@ export interface KitchenTierSpec {
   label: string;
   badge?: string;
   ratePerSqft: number;
-  chimneyPrice: number; // ← ADD
+  chimneyPrice: number;
   hobPrice: number;
   /** Bullets describing materials — shared across upper + lower */
   materials: string[];

@@ -19,6 +19,7 @@ const items = [
   { href: "/designs", label: "Designs", icon: Images },
   { href: "/consultations", label: "Consultations", icon: CalendarDays },
   { href: "/pricing", label: "Price book", icon: IndianRupee },
+  { href: "/products", label: "Products", icon: Package },
 ];
 
 export function AdminNav() {
