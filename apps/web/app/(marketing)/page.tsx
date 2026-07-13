@@ -153,12 +153,13 @@ function getOptimizedCloudinaryUrl(url: string | null | undefined): string {
 export default async function Home() {
   const [heroDesigns, realWork] = await Promise.all([
     prisma.design.findMany({
+      where: { isPublished: true },
       select: { images: true },
       orderBy: { createdAt: "desc" },
       take: 12,
     }),
     prisma.design.findMany({
-      where: { isRealWork: true },
+      where: { isRealWork: true, isPublished: true },
       orderBy: { createdAt: "desc" },
     }),
   ]);

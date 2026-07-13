@@ -14,12 +14,12 @@ import { siteConfig } from "@/lib/site-config";
 import { buildWhatsAppUrl, getFirstImageUrl, normalizeDesignImages } from "@/lib/utils";
 
 async function getDesign(slug: string) {
-  return prisma.design.findUnique({ where: { slug }, include: { category: true } });
+  return prisma.design.findFirst({ where: { slug, isPublished: true }, include: { category: true } });
 }
 
 async function getSimilarDesigns(categoryId: string, excludeSlug: string) {
   return prisma.design.findMany({
-    where: { categoryId, slug: { not: excludeSlug } },
+    where: { categoryId, slug: { not: excludeSlug }, isPublished: true },
     select: { slug: true, title: true, style: true, images: true, estimatedCost: true, category: true },
     take: 3,
   });

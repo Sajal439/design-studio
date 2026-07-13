@@ -24,8 +24,8 @@ const getCategories = unstable_cache(
 const getDesigns = unstable_cache(
   async (category?: string) => {
     const where = category && category !== "all"
-      ? { category: { slug: category } }
-      : {};
+      ? { isPublished: true, category: { slug: category } }
+      : { isPublished: true };
     return prisma.design.findMany({
       where,
       include: { category: true },

@@ -74,6 +74,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic design pages
   const designs = await prisma.design.findMany({
+    where: { isPublished: true },
     select: { slug: true, updatedAt: true },
   });
   const designRoutes: MetadataRoute.Sitemap = designs.map((d) => ({
