@@ -6,8 +6,8 @@ import { designSchema } from "@/lib/admin-validations";
 function revalidateDesignPaths() {
   revalidatePath("/designs");
   revalidatePath("/");
-  revalidateTag("designs");
-  revalidateTag("categories");
+  revalidateTag("designs", { expire: 0 });
+  revalidateTag("categories", { expire: 0 });
 }
 
 export async function PATCH(
