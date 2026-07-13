@@ -5,10 +5,9 @@ import { designSchema } from "@/lib/admin-validations";
 
 function revalidateDesignPaths() {
   revalidatePath("/designs");
-  revalidatePath("/designs");
   revalidatePath("/");
-  revalidateTag("designs", "max");
-  revalidateTag("categories", "max");
+  revalidateTag("designs");
+  revalidateTag("categories");
 }
 
 export async function POST(request: Request) {
